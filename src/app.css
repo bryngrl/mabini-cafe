@@ -21,31 +21,42 @@
 	--color-mabini-cream: #ffe0b1;
 	--color-mabini-dirty-white: #fff2e1;
 }
+/* Headings */
+.h1-headings {
+	@apply text-6xl font-creato font-bold mb-6 text-mabini-black uppercase;
+}
+.h2-headings {
+	@apply text-6xl font-creato font-bold mb-6 text-mabini-black uppercase;
+}
+.subheadings {
+	@apply text-3xl font-creato font-semibold mb-6 text-mabini-black uppercase;
+}
+/* Buttons */
 .btn-primary {
 	@apply bg-mabini-black text-mabini-dirty-white px-4 py-2 rounded-lg hover:bg-mabini-beige transition;
 }
 .btn-secondary {
 	@apply border-2 border-mabini-black text-mabini-black px-4 py-2 rounded-full hover:bg-mabini-black hover:text-mabini-dirty-white transition;
 }
-.section-title {
-	@apply text-6xl font-creato font-extrabold mb-6 text-mabini-black uppercase;
-}
-.subheading {
-	@apply text-3xl font-creato font-semibold mb-6 text-mabini-black uppercase;
+.ok-btn {
+	@apply bg-mabini-brown text-mabini-dirty-white text-center py-4 mt-10 font-creato font-bold uppercase hover:bg-none	hover:border-2 hover:border-mabini-dirty-white;
 }
 
+
+/* Logo */
+.logo-4 {
+	@apply h-15 object-center hover:underline hover:decoration-mabini-beige;
+}
+/* Icons */
+.icon-hover {
+	@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-beige transition-all duration-300 group-hover:w-full;
+}
+
+
 .footer-text {
-	@apply text-mabini-dirty-white text-center py-4 mt-10 font-creato font-bold uppercase;
+	@apply text-mabini-dirty-white text-center py-4 mt-10 font-creato font-normal uppercase;
 }
-.ok-btn {
-	@apply bg-mabini-brown text-mabini-dirty-white text-center py-4 mt-10 font-creato font-bold uppercase hover:bg-none	hover:border-2 hover:border-mabini-dirty-white ;
-}
-.logo-4{
-	@apply h-10 object-center hover:underline hover:decoration-mabini-beige
-}
-.icon-hover{
-	@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-beige transition-all duration-300 group-hover:w-full
-}
-.social-hover{
-	
-}
+
+
+
+/* Misc */
