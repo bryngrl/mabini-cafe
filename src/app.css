@@ -1,0 +1,42 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+/* Fonts Imports*/
+@font-face {
+	font-family: 'Creato-Display ';
+	src: url('/fonts/CreatoDisplay-Bold.woff2') format('woff2');
+	font-weight: bold;
+	font-style: normal;
+}
+
+@theme {
+	/* Fonts */
+	--font-creato: 'Creato-Display', sans-serif;
+
+	/* Colors */
+	--color-mabini-black: #000000;
+	--color-mabini-brown: #2a1c0f;
+	--color-mabini-beige: #d4a476;
+	--color-mabini-cream: #ffe0b1;
+	--color-mabini-dirty-white: #fff2e1;
+}
+.btn-primary {
+	@apply bg-mabini-black text-mabini-dirty-white px-4 py-2 rounded-lg hover:bg-mabini-beige transition;
+}
+.btn-secondary {
+	@apply border-2 border-mabini-black text-mabini-black px-4 py-2 rounded-full hover:bg-mabini-black hover:text-mabini-dirty-white transition;
+}
+.section-title {
+	@apply text-6xl font-creato font-extrabold mb-6 text-mabini-black uppercase;
+}
+.subheading {
+	@apply text-3xl font-creato font-semibold mb-6 text-mabini-black uppercase;
+}
+
+.footer-text {
+	@apply text-mabini-dirty-white text-center py-4 mt-10 font-creato font-bold uppercase;
+}
+.ok-btn {
+	@apply bg-mabini-brown text-mabini-dirty-white text-center py-4 mt-10 font-creato font-bold uppercase hover:bg-none	hover:border-2 hover:border-mabini-dirty-white ;
+}
