@@ -1,0 +1,137 @@
+<?php
+require_once(__DIR__ . '/../models/Admin.php');
+require_once(__DIR__ . '/../Auth/Auth.php');
+class AdminController{
+
+private $model;
+private $auth;
+
+ public function __construct($db) {
+      $this->model = new Admin($db);
+        $this->auth = new Auth();
+}
+
+
+
+ // GET all Admins
+    public function index() {
+        echo json_encode($this->model->getAll());
+    }
+
+
+
+    //get single admin
+    public function show($id)
+    {
+    $admin = $this->model->getById($id);
+
+    if($admin){
+     echo json_encode($admin);
+    }else{
+       http_response_code(404);
+        echo json_encode(["error"=>"Admin not found"]);
+    }
+   } 
+
+   //post create Admin
+   public function store(){
+       $data = json_decode(file_get_contents("php://input"), true);
+       if(!empty($data['username']) && !empty($data['email']) && !empty($data['password'])){
+            $this->model->username = $data['username'];
+            $this->model->email = $data['email'];
+            $this->model->password = password_hash($data['password'],PASSWORD_DEFAULT);
+            $this->model->role ='admin';
+            if($this->model->create()){
+                http_response_code(201);
+                echo json_encode(["message"=>"User created successfully"]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["error"=>"Failed to create user"]);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid input"]);
+        }
+   }
+
+
+    //delete
+       public function delete($id)
+    {
+          if(!$id){
+        http_response_code(400);
+        echo json_encode(["error" => "ID is required for deletion"]);
+        return;
+    }
+
+    // I-set ang id sa model
+    $this->model->id = $id;
+
+    // Call the delete method sa model
+    if($this->model->delete()){
+        echo json_encode(["message" => "User deleted successfully"]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to delete user"]);
+    }
+    }
+
+
+       // PUT update Admin
+    public function update($id) {
+        $data = json_decode(file_get_contents("php://input"), true);
+        if(!empty($data['username']) && !empty($data['email'])){
+            $this->model->id = $id;
+            $this->model->username = $data['username'];
+            $this->model->email = $data['email'];
+            
+            if($this->model->update()){
+                echo json_encode(["message"=>"User updated successfully"]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["error"=>"Failed to update user"]);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(["error"=>"Invalid input"]);
+        }
+    }
+
+
+       // DELETE Admin
+    public function destroy($id) {
+        $this->model->id = $id;
+        if($this->model->delete()){
+            echo json_encode(["message"=>"User deleted successfully"]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["error"=>"Failed to delete user"]);
+        }
+    }
+
+
+
+      // POST login
+    public function login() {
+        $data = json_decode(file_get_contents("php://input"), true);
+        if(!empty($data['email']) && !empty($data['password'])){
+            $user = $this->model->findByEmail($data['email']);
+            if($user && password_verify($data['password'], $user['password'])){
+                $token = $this->auth->generateToken($user);
+                echo json_encode(["token"=>$token]);
+            } else {
+                http_response_code(401);
+                echo json_encode(["error"=>"Invalid credentials"]);
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(["error"=>"Username and password required"]);
+        }
+    }
+
+
+
+
+
+
+}
