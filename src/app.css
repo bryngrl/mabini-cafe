@@ -40,3 +40,12 @@
 .ok-btn {
 	@apply bg-mabini-brown text-mabini-dirty-white text-center py-4 mt-10 font-creato font-bold uppercase hover:bg-none	hover:border-2 hover:border-mabini-dirty-white ;
 }
+.logo-4{
+	@apply h-10 object-center hover:underline hover:decoration-mabini-beige
+}
+.icon-hover{
+	@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-beige transition-all duration-300 group-hover:w-full
+}
+.social-hover{
+	
+}

@@ -3,7 +3,7 @@
 	import Footer from '$lib/components/Footer.svelte';
 </script>
 
-
+<!-- This is the homepage like the main one -->
 <Navbar />
 
 <main class="p-6">
@@ -18,10 +18,6 @@
 	</h2>
 	<h1 class="text-center section-title !text-mabini-brown !mb-1">Cucumber <br /> Lemonade</h1>
 
-
-
-
-  
 </main>
 
 <Footer />
