@@ -1,6 +1,7 @@
 <?php
 require_once(__DIR__ . '/../models/User.php');
 require_once(__DIR__ . '/../Auth/Auth.php');
+require_once __DIR__ . '/../auth/jwtMiddleware.php';
 
 class UserController {
     private $model;
@@ -13,11 +14,13 @@ class UserController {
 
     // GET all users
     public function index() {
+        $decoded = validateJWT();
         echo json_encode($this->model->getAll());
     }
 
     // GET single user
     public function show($id) {
+        $decoded = validateJWT();
         $user = $this->model->getById($id);
         if($user){
             echo json_encode($user);
@@ -54,6 +57,7 @@ class UserController {
 
     public function delete($id)
     {
+        $decoded = validateJWT();
           if(!$id){
         http_response_code(400);
         echo json_encode(["error" => "ID is required for deletion"]);
@@ -74,6 +78,7 @@ class UserController {
 
     // PUT update user
     public function update($id) {
+          $decoded = validateJWT();
         $data = json_decode(file_get_contents("php://input"), true);
         if(!empty($data['username']) && !empty($data['email'])){
             $this->model->id = $id;
@@ -98,6 +103,7 @@ class UserController {
 
     // DELETE user
     public function destroy($id) {
+          $decoded = validateJWT();
         $this->model->id = $id;
         if($this->model->delete()){
             echo json_encode(["message"=>"User deleted successfully"]);

@@ -13,18 +13,21 @@ class Auth {
         $payload = [
             'id' => $user['id'],
             'username' => $user['username'],
+             'role' => $user['role'],
             'iat' => $issuedAt,
             'exp' => $expire
         ];
         return JWT::encode($payload, $this->secret_key, 'HS256');
     }
 
-    public function verifyToken($token) {
-        try {
-            $decoded = JWT::decode($token, new Key($this->secret_key, 'HS256'));
-            return (array)$decoded;
-        } catch(Exception $e){
-            return false;
-        }
-    }
+  
+
+    // public function verifyToken($token) {
+    //     try {
+    //         $decoded = JWT::decode($token, new Key($this->secret_key, 'HS256'));
+    //         return (array)$decoded;
+    //     } catch(Exception $e){
+    //         return false;
+    //     }
+    // }
 }

@@ -10,14 +10,12 @@ $db = (new Database())->getConnection();
 
 // Kunin ang URI
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = explode("/", trim($uri, "/")); //naging array
-// Halimbawa: ["mabini-cafe","phpbackend","routes","users","1"]
-$id = is_numeric(end($uri)) ? array_pop($uri) : null; //titignan kung number yung end ng array
+$uri = explode("/", trim($uri, "/")); 
+$id = is_numeric(end($uri)) ? array_pop($uri) : null;
 $resource = $uri[3] ?? null;
 $subresource = $uri[4] ?? null;
-$controller = null;
 
-// Dispatch sa tamang controller
+
 switch($resource){
     case 'users':
         require_once "../controllers/UserController.php";
