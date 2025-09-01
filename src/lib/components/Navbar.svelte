@@ -4,8 +4,6 @@
 		{ name: 'Menu', href: '/menu' },
 		{ name: 'About', href: '/about' }
 	];
-	// Drop down wala pa
-	let showDropdown = false;
 </script>
 
 <nav
@@ -20,7 +18,7 @@
 	</ul>
 	<!-- ! Support dropdown ON HOLD -->
 
-	<img src="src\lib\assets\logo\LOGO-4.png" alt="Logo" class="logo-4"/>
+	<img src="src\lib\assets\logo\LOGO-4.png" alt="Logo" class="logo-4" />
 
 	<!-- Search and Cart -->
 	<div class="flex items-center gap-4">

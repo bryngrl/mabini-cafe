@@ -31,6 +31,7 @@
 .subheadings {
 	@apply text-3xl font-creato font-semibold mb-6 text-mabini-black uppercase;
 }
+
 /* Buttons */
 .btn-primary {
 	@apply bg-mabini-black text-mabini-dirty-white px-4 py-2 rounded-lg hover:bg-mabini-beige transition;
@@ -42,7 +43,6 @@
 	@apply bg-mabini-brown text-mabini-dirty-white text-center py-4 mt-10 font-creato font-bold uppercase hover:bg-none	hover:border-2 hover:border-mabini-dirty-white;
 }
 
-
 /* Logo */
 .logo-4 {
 	@apply h-15 object-center hover:underline hover:decoration-mabini-beige;
@@ -51,12 +51,5 @@
 .icon-hover {
 	@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-beige transition-all duration-300 group-hover:w-full;
 }
-
-
-.footer-text {
-	@apply text-mabini-dirty-white text-center py-4 mt-10 font-creato font-normal uppercase;
-}
-
-
 
 /* Misc */

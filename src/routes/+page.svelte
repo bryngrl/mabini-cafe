@@ -22,7 +22,7 @@
 			<h1 class="text-center h1-headings !text-mabini-brown !mb-1">Cucumber <br /> Lemonade</h1>
 		</div>
 		<!-- Cover 2 -->
-		<div class="h-[750px]">
+		<div class="h-[720px]">
 			<img src="src\lib\assets\images\cover-photo-2.png" alt="Cover-2" />
 		</div>
 
