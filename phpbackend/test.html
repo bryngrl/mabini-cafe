@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>REST API Demo</title>
+</head>
+<body>
+    <h1>Users</h1>
+    <button onclick="getUsers()">Load Users</button>
+    <pre id="output"></pre>
+
+    <script>
+    function getUsers() {
+        // relative path lang since magkatabi sila
+       fetch("http://localhost/Testing/route.php?path=users")
+        .then(response => response.json())
+        .then(data => {
+            document.getElemen  tById("output").innerText = JSON.stringify(data, null, 2);
+        })
+        .catch(error => console.error("Error:", error));
+    }
+    </script>
+</body>
+</html>

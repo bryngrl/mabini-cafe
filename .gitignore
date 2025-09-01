@@ -12,11 +12,8 @@ node_modules
 .DS_Store
 Thumbs.db
 
-# Env
-.env
-.env.*
-!.env.example
-!.env.test
+#database
+/phpbackend/config/
 
 # Vite
 vite.config.js.timestamp-*

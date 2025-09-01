@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /mabini-cafe/phpbackend/routes/
+
+# I-redirect lahat ng request papunta sa userRoute.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ route.php [QSA,L]
