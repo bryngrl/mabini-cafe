@@ -54,26 +54,7 @@ class UserController {
         }
     }
 
-    public function delete($id)
-    {
-        $decoded = validateJWT();
-          if(!$id){
-        http_response_code(400);
-        echo json_encode(["error" => "ID is required for deletion"]);
-        return;
-    }
 
-    // I-set ang id sa model
-    $this->model->id = $id;
-
-    // Call the delete method sa model
-    if($this->model->delete()){
-        echo json_encode(["message" => "User deleted successfully"]);
-    } else {
-        http_response_code(500);
-        echo json_encode(["error" => "Failed to delete user"]);
-    }
-    }
 
     // PUT update user
     public function update($id) {

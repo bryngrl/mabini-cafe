@@ -8,7 +8,6 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 $db = (new Database())->getConnection();
 
-// Kunin ang URI
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode("/", trim($uri, "/")); 
 $id = is_numeric(end($uri)) ? array_pop($uri) : null;
@@ -39,7 +38,7 @@ switch($resource){
         exit;
 }
 
-// Dispatch sa tamang HTTP method
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch($method){
