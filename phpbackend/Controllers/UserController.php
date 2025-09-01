@@ -30,7 +30,6 @@ class UserController {
         }
     }
 
-   // get user by name
    
 
 
