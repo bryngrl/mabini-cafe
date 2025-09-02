@@ -3,17 +3,15 @@ require_once '../vendor/autoload.php';
 use \Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
 
-function validateJWT() {
-    $headers = getallheaders();
-    $authHeader = $headers['Authorization'] ?? '';
 
-    if (!$authHeader) {
+function validateJWT() {
+    $token = $_COOKIE['token'] ?? '';
+
+    if (!$token) {
         http_response_code(401);
         echo json_encode(['error' => 'Token required']);
         exit;
     }
-
-    $token = str_replace('Bearer ', '', $authHeader);
 
     try {
         return JWT::decode($token, new Key('supersecretkey', 'HS256'));
@@ -23,7 +21,6 @@ function validateJWT() {
         exit;
     }
 }
-
 function isAdminAuthorized($decoded)
 {
     return ($decoded && isset($decoded->role) && $decoded->role === 'admin');

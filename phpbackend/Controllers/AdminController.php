@@ -127,7 +127,21 @@ private $auth;
             $user = $this->model->findByEmail($data['email']);
             if($user && password_verify($data['password'], $user['password'])){
                 $token = $this->auth->generateToken($user);
-                echo json_encode(["token"=>$token]);
+               // 🔑 Set HttpOnly cookie
+            setcookie(
+                "token",
+                $token,
+                [
+                    "expires" => time() + 3600,
+                    "path" => "/",
+                    "domain" => "localhost", // palitan kung deployed
+                    "secure" => false,       // true kung HTTPS
+                    "httponly" => true,      // 🔑 HttpOnly
+                    "samesite" => "Strict"
+                ]
+            );
+
+            echo json_encode(["message" => "Login successful"]);
             } else {
                 http_response_code(401);
                 echo json_encode(["error"=>"Invalid credentials"]);
