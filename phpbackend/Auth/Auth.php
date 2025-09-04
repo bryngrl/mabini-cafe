@@ -17,6 +17,7 @@ class Auth {
             'iat' => $issuedAt,
             'exp' => $expire
         ];
+
         return JWT::encode($payload, $this->secret_key, 'HS256');
     }
 
