@@ -91,7 +91,7 @@ class Menu{
 
   }
 
-
+ // get by description
   public function getByDescription($description){
      $stmt = $this->conn->prepare(
       "SELECT 
