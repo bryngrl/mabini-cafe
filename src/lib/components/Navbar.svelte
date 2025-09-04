@@ -6,13 +6,14 @@
 	];
 </script>
 
-<nav
-	class="bg-black text-white px-15 py-5 flex justify-between items-center font-creato font-normal uppercase"
->
+<nav class="bg-black text-white px-15 py-5 flex justify-between items-center font-normal uppercase">
 	<ul class="flex gap-6">
 		{#each links as link}
-			<li>
-				<a class="hover:text-mabini-beige" href={link.href}>{link.name}</a>
+			<li class="relative group">
+				<a class="hover:text-mabini-beige" href={link.href}>
+					{link.name}
+				</a>
+				<span class="underline-anim"></span>
 			</li>
 		{/each}
 	</ul>
@@ -22,14 +23,17 @@
 
 	<!-- Search and Cart -->
 	<div class="flex items-center gap-4">
-		<a href="/account" class="hover:text-mabini-beige">Account</a>
+		<a href="/account" class="relative group">
+			Account
+			<span class="underline-anim"></span>
+		</a>
 		<a href="/search" class="relative group">
 			<img src="src\lib\assets\icons\search.png" alt="Search" class="h-4 w-5" />
-			<span class="icon-hover"></span>
+			<span class="underline-anim"></span>
 		</a>
 		<a href="/cart" class="relative group mr">
 			<img src="src\lib\assets\icons\cart.png" alt="Cart" class="h-4 w-5" />
-			<span class="icon-hover"> </span>
+			<span class="underline-anim"> </span>
 		</a>
 	</div>
 </nav>

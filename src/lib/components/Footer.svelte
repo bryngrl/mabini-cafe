@@ -1,4 +1,4 @@
-<footer class="bg-mabini-brown footer-text flex items-center justify-center">
+<footer class="bg-mabini-dark-brown footer-text flex items-center justify-center">
 	<!--Div For Details are not yet ready -->
 
 	<div
