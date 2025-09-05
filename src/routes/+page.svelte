@@ -1,47 +1,72 @@
-<script>
-	import Navbar from '$lib/components/Navbar.svelte';
-	import Footer from '$lib/components/Footer.svelte';
-</script>
+<!-- Home -->
+<section class="hero">
+	<div class="hero-content">
+		<!-- 3 circles -->
+	</div>
+</section>
 
-<!-- This is the homepage like the main one -->
-<Navbar />
-
-<body class="flex flex-col min-h-screen">
-	<main class="flex-grow">
-		<!-- Cover -->
-		<div class="h-[700px]">
-			<img src="src\lib\assets\images\cover-photo-1.png" alt="Cover" class="" />
-		</div>
-
-		<!-- Refresher -->
-		<div class="h-[1025px]">
-			<h2 class="subheadings text-center !mb-0.5">
-				<span>Choose Your </span>
-				<span class="!text-mabini-beige">Refresher</span>
-			</h2>
-			<h1 class="text-center h1-headings !text-mabini-brown !mb-1">Cucumber <br /> Lemonade</h1>
-		</div>
-		<!-- Cover 2 -->
-		<div class="h-[750px]">
-			<img src="src\lib\assets\images\cover-photo-2.png" alt="Cover-2" />
-		</div>
-
-		<!-- Receipt of Gratitude -->
-		<div class="h-[800px] bg-mabini-black">
-			<h2 class="h1-headings !text-mabini-dirty-white text-center">Receipt of Gratitude</h2>
-			<img src="src\lib\assets\images\Paper-1.png" alt="Paper" class="mx-auto" />
-		</div>
-
-		<!-- Featured Products -->
-		<div class="h-[800px]">
-			<h2 class="h1-headings text-center p-20">
-				<span>Featured </span>
-				<span class="inline !text-mabini-beige">Products </span>
-			</h2>
-			<!-- Products -->
-			<!-- Next Button -->
-		</div>
-	</main>
-</body>
-
-<Footer />
+<section class="hero-2">
+	<div class="hero-content">
+		<h1 class="h2-heading !text-mabini-black uppercase">
+			Choose Your Refresher<br />Cucumber Lemonade
+		</h1>
+	</div>
+</section>
+<section class="hero-3"></section>
+<section class="paper">
+	<div class="content">
+		<h1 class="h2-heading !text-mabini-white pt-[50px] text-center">Receipt of Gratitude</h1>
+	</div>
+</section>
+<section class="featured-products">
+	<div class="content">
+		<h1 class="h2-heading pt-[50px] text-center">Featured Products</h1>
+	</div>
+</section>
+<style>
+	.hero {
+		height: 70vh;
+		width: 100%;
+		background: url('src/lib/assets/images/cover-photo-1.png') no-repeat center center;
+		background-size: cover;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: white;
+		text-align: center;
+	}
+	.hero-2 {
+		margin-top: 100px;
+		height: 100vh;
+		width: 100%;
+		background: url('src/lib/assets/images/sofa.png') no-repeat center center;
+		background-size: cover;
+		display: flex;
+		justify-content: center;
+		align-items: top;
+		color: white;
+		text-align: center;
+	}
+	.hero-3 {
+		margin-top: 100px;
+		height: 70vh;
+		width: 100%;
+		background: url('src/lib/assets/images/cover-photo-2.png') no-repeat center center;
+		background-size: cover;
+		display: flex;
+		justify-content: center;
+		align-items: top;
+		color: white;
+		text-align: center;
+	}
+	.paper {
+		background-color: black;
+		height: 70vh;
+		width: 100%;
+	}
+	.featured-products {
+		background-color: white;
+		height: 70vh;
+		width: 100%;
+	}
+</style>
