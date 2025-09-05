@@ -23,7 +23,6 @@
 		<h1 class="h2-heading pt-[50px] text-center">Featured Products</h1>
 	</div>
 </section>
-
 <style>
 	.hero {
 		height: 70vh;

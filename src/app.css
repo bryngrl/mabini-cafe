@@ -30,10 +30,6 @@ html,
 body {
 	height: 100%;
 }
-body {
-	@apply bg-mabini-white text-mabini-black;
-}
-
 /* Reuseable Utilities */
 .btn-primary {
 	@apply bg-mabini-black text-mabini-white rounded-[50px] px-4 py-2 font-bold uppercase;
@@ -62,3 +58,4 @@ body {
 .group:hover .underline-anim {
 	@apply w-full;
 }
+

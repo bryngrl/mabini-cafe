@@ -37,9 +37,9 @@
 			{/if}
 		</li>
 	</ul>
-
 	<!-- Logo -->
 	<img src="src/lib/assets/logo/LOGO-4.png" alt="Logo" class="logo-4" />
+
 
 	<!-- Search and Cart -->
 	<div class="flex items-center gap-4">
