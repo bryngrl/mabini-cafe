@@ -20,10 +20,12 @@
 
 		<!-- !No dropdown Icon -->
 		<li class="relative">
-			<button on:click={() => (open = !open)} class="hover:text-mabini-beige focus:outline-none">
+			<button on:click={() => (open = !open)} class="focus:outline-none relative group">
 				SUPPORT
+				<span class="underline-anim"></span>
+
 			</button>
-			<span class="underline-anim"></span>
+			<!-- <span class="underline-anim"></span> -->
 
 			{#if open}
 				<ul
