@@ -28,11 +28,11 @@
 			<span class="underline-anim"></span>
 		</a>
 		<a href="/search" class="relative group">
-			<img src="src\lib\assets\icons\search.png" alt="Search" class="h-4 w-5" />
+			<img src="src\lib\assets\icons\search.png" alt="Search" class="h-5 w-6" />
 			<span class="underline-anim"></span>
 		</a>
 		<a href="/cart" class="relative group mr">
-			<img src="src\lib\assets\icons\cart.png" alt="Cart" class="h-4 w-5" />
+			<img src="src\lib\assets\icons\cart.png" alt="Cart" class="h-5 w-6" />
 			<span class="underline-anim"> </span>
 		</a>
 	</div>
