@@ -14,57 +14,21 @@ $id = is_numeric(end($uri)) ? array_pop($uri) : null;
 $resource = $uri[3] ?? null;
 $subresource = $uri[4] ?? null;
 
+$method = $_SERVER['REQUEST_METHOD'];
 
 switch($resource){
     case 'users':
-        require_once "../controllers/UserController.php";
-        $controller = new UserController($db);
-        if($subresource === 'login') {
-            $controller->login();
-            exit;
-        }
+         include "UserRoute.php";
         break;
     case 'admins':
-        require_once "../controllers/AdminController.php";
-        $controller = new AdminController($db);
-        if($subresource === 'login') {
-            $controller->login();
-            exit;
-        }
+         require_once "AdminRoute.php";
         break;
+    case 'menu':
+         require_once "MenuRoute.php";
+         break;
     default:
         http_response_code(404);
         echo json_encode(["error"=>"Endpoint not found"]);
         exit;
 }
 
-
-$method = $_SERVER['REQUEST_METHOD'];
-
-switch($method){
-    case 'GET':
-        $id ? $controller->show($id) : $controller->index();
-        break;
-    case 'POST':
-        $controller->store();
-        break;
-    case 'PUT':
-        if($id){
-            $controller->update($id);
-        } else {
-            http_response_code(400);
-            echo json_encode(["error"=>"ID is required for update"]);
-        }
-        break;
-    case 'DELETE':
-        if($id){
-            $controller->destroy($id);
-        } else {
-            http_response_code(400);
-            echo json_encode(["error"=>"ID is required for deletion"]);
-        }
-        break;
-    default:
-        http_response_code(405);
-        echo json_encode(["error"=>"Method not allowed"]);
-}

@@ -34,7 +34,7 @@ class Menu{
       a.description,
       a.price,
       a.image_path,
-      b.name 
+      b.name AS category_name
       FROM ".$this->table." a JOIN menu_categories b ON 
       a.category_id = b.id 
       "
@@ -55,7 +55,7 @@ class Menu{
       a.description,
       a.price,
       a.image_path,
-      b.name 
+      b.name AS category_name
       FROM ".$this->table." a JOIN menu_categories b ON 
       a.category_id = b.id WHERE a.id = :id
       "
@@ -115,29 +115,29 @@ class Menu{
   //create new Menu 
   public function create(){
     $stmt = $this->conn->prepare(
-      "INSERT INTO".$this->table."(name,description,price,category_id,image_path)
-       VALUES (:name,:description,:price,:category_id,image_path)
+      "INSERT INTO ".$this->table."(name,description,price,category_id,image_path)
+       VALUES (:name,:description,:price,:category_id,:image_path)
       " 
     );
     $stmt->bindParam(':name',$this->name);
     $stmt->bindParam(':description',$this->description);
     $stmt->bindParam(':price',$this->price);
-    $stmt->bindParam(':category_id',$this_category_id);
-    $stmt->bindParam(':image_path',$image_path);
+    $stmt->bindParam(':category_id',$this->category_id);
+    $stmt->bindParam(':image_path',$this->image_path);
       return $stmt->execute();
   }
 
 //update Menu
  public function update(){
     $stmt = $this->conn->prepare(
-      "UPDATE".$this->table." SET name=:name, description=:description, price=:price, category_id=:category_id, image_path=:image_path WHERE id=:id"
+      "UPDATE ".$this->table." SET name=:name, description=:description, price=:price, category_id=:category_id, image_path=:image_path WHERE id=:id"
     );
-    $stmt->bindParam(':id');
+    $stmt->bindParam(':id',$this->id);
     $stmt->bindParam(':name',$this->name);
     $stmt->bindParam(':description',$this->description);
     $stmt->bindParam(':price',$this->price);
-    $stmt->bindParam(':category_id',$this_category_id);
-    $stmt->bindParam(':image_path',$image_path);
+    $stmt->bindParam(':category_id',$this->category_id);
+    $stmt->bindParam(':image_path',$this->image_path);
       return $stmt->execute();
  }
  
