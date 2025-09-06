@@ -1,3 +1,9 @@
+<!-- !TO: DO
+ ! [] Dropdown Icon
+ ! [] Responsive
+ ! [] Hamburge Menu
+-->
+
 <script>
 	let links = [
 		{ name: 'Home', href: '/' },
@@ -23,7 +29,6 @@
 			<button on:click={() => (open = !open)} class="focus:outline-none relative group">
 				SUPPORT
 				<span class="underline-anim"></span>
-
 			</button>
 			<!-- <span class="underline-anim"></span> -->
 
@@ -39,7 +44,6 @@
 	</ul>
 	<!-- Logo -->
 	<img src="src/lib/assets/logo/LOGO-4.png" alt="Logo" class="logo-4" />
-
 
 	<!-- Search and Cart -->
 	<div class="flex items-center gap-4">

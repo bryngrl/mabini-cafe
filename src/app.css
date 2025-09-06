@@ -25,10 +25,12 @@
 	--color-mabini-cream: #ffe0b1;
 	--color-mabini-dirty-white: #fff2e1;
 	--color-mabini-white: #ffffff;
+	--color-mabini-yellow: #ffae00;
 }
 html,
 body {
 	height: 100%;
+	@apply font-sans bg-mabini-white text-mabini-black
 }
 /* Reuseable Utilities */
 .btn-primary {

@@ -1,13 +1,36 @@
-<!-- Details -->
+<!-- !TO: DO
+ ! [] Anchor in the Supports, Branches and other links
+ ! [] Responsive
+-->
 
-<div class="footer-cover">
-	<!-- Logo on the right and Details on left -->
-	<div class="grid-container">
-		<div class="column-one">
-			<!-- right one  -->
+<div class="footer-cover text-white py-10 pt-130">
+	<div class="grid grid-cols-2 items-center">
+		<!-- Column 1: Logo -->
+		<div class="flex justify-center items-center">
+			<img src="src/lib/assets/logo/LOGO-4.png" alt="Mabini Cafe" class="w-[238px] h-[68px]" />
 		</div>
-		<div class="column-two">
-			<!-- left one -->
+		<!-- two-column text -->
+		<div class="grid grid-cols-2 gap-6">
+			<div>
+				<h3 class="font-bold mb-2">Maypajo Branch</h3>
+				<p class="text-sm font-light">191 A. Mabini St., Maypajo Brgy 30, Caloocan, Philippines</p>
+
+				<h3 class="font-bold mb-2 pt-3">10th Avenue Branch</h3>
+				<p class="text-sm font-light">
+					Anmars Bldg., 10th Avenue, Corner 3rd Street, Grace Park East, Brgy 91, Caloocan City,
+					Caloocan, Philippines
+				</p>
+				<p class="text-sm font-light pt-5">
+					Delivery service for Mabini Cafe is available in Metro Manila only.
+				</p>
+			</div>
+			<div>
+				<h3 class="font-bold mb-1">Support</h3>
+				<p class="text-sm pt-5">Search</p>
+				<p class="text-sm pt-5">Order & Payment</p>
+				<p class="text-sm pt-5">Shipping</p>
+				<p class="text-sm pt-5">Contact us</p>
+			</div>
 		</div>
 	</div>
 </div>
@@ -27,12 +50,12 @@
 
 		<p>Follow us on social media:</p>
 
-		<a href="https://facebook.com/yourusername" target="_blank" class="">
-			<img src="facebook-icon.png" alt="Facebook" />
+		<a href="https://www.facebook.com/profile.php?id=100091862720618" target="_blank" class="">
+			<img src="src/lib/assets/logo/facebook-icon.png" alt="Facebook" />
 		</a>
 
-		<a href="https://instagram.com/yourusername" target="_blank" class="">
-			<img src="instagram-icon.png" alt="Instagram" />
+		<a href="https://instagram.com/mabinicafe_ph" target="_blank" class="">
+			<img src="src/lib/assets/logo/instagram-icon.png" alt="Instagram" />
 		</a>
 	</div>
 </footer>
@@ -44,10 +67,5 @@
 		background-repeat: no-repeat;
 		background-position: center center;
 		height: 100vh;
-	}
-	.grid-container {
-		display: grid;
-		grid-template-columns: 1fr 1fr; /* Creates two equal-width columns */
-		gap: 20px; /* Adds space between columns */
 	}
 </style>
