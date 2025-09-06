@@ -1,62 +1,61 @@
 @import 'tailwindcss';
-@plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
-/* Fonts Imports*/
+/* Regular */
 @font-face {
-	font-family: 'Creato-Display ';
-	src: url('/fonts/CreatoDisplay-Bold.woff2') format('woff2');
-	font-weight: bold;
+	font-family: 'Creato';
+	src: url('/fonts/CreatoDisplay-Regular.otf') format('opentype');
+	font-weight: 400;
 	font-style: normal;
 }
 
+/* Bold */
+@font-face {
+	font-family: 'Creato';
+	src: url('/fonts/CreatoDisplay-Bold.otf') format('opentype');
+	font-weight: 700;
+	font-style: normal;
+}
 @theme {
-	/* Fonts */
-	--font-creato: 'Creato-Display', sans-serif;
-
-	/* Colors */
+	--font-sans: 'Creato', sans-serif;
+	/* Brand Colors */
 	--color-mabini-black: #000000;
-	--color-mabini-brown: #2a1c0f;
-	--color-mabini-beige: #d4a476;
+	--color-mabini-dark-brown: #2a1c0f;
+	--color-mabini-light-brown: #d4a476;
 	--color-mabini-cream: #ffe0b1;
 	--color-mabini-dirty-white: #fff2e1;
+	--color-mabini-white: #ffffff;
 }
-/* Headings */
-.h1-headings {
-	@apply text-6xl font-creato font-bold mb-6 text-mabini-black uppercase;
+html,
+body {
+	height: 100%;
 }
-.h2-headings {
-	@apply text-6xl font-creato font-bold mb-6 text-mabini-black uppercase;
-}
-.subheadings {
-	@apply text-3xl font-creato font-semibold mb-6 text-mabini-black uppercase;
-}
-/* Buttons */
+/* Reuseable Utilities */
 .btn-primary {
-	@apply bg-mabini-black text-mabini-dirty-white px-4 py-2 rounded-lg hover:bg-mabini-beige transition;
+	@apply bg-mabini-black text-mabini-white rounded-[50px] px-4 py-2 font-bold uppercase;
+}
+.btn-primary-clicked {
+	@apply bg-transparent rounded-[50px] border-1 text-mabini-black font-bold uppercase transition;
 }
 .btn-secondary {
-	@apply border-2 border-mabini-black text-mabini-black px-4 py-2 rounded-full hover:bg-mabini-black hover:text-mabini-dirty-white transition;
+	@apply bg-mabini-dark-brown	text-mabini-white font-bold rounded-[50px] px-4 py-2 uppercase;
 }
-.ok-btn {
-	@apply bg-mabini-brown text-mabini-dirty-white text-center py-4 mt-10 font-creato font-bold uppercase hover:bg-none	hover:border-2 hover:border-mabini-dirty-white;
+.btn-secondary-clicked {
+	@apply bg-transparent rounded-[50px] border-1 border-mabini-white text-mabini-white font-bold uppercase transition;
+}
+.h1-heading {
+	@apply font-bold text-[64px];
+}
+.h2-heading {
+	@apply font-bold text-[48px];
+}
+.paragraph {
+	@apply text-[20px];
+}
+.underline-anim {
+	@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-light-brown transition-all duration-300;
+}
+.group:hover .underline-anim {
+	@apply w-full;
 }
 
-
-/* Logo */
-.logo-4 {
-	@apply h-15 object-center hover:underline hover:decoration-mabini-beige;
-}
-/* Icons */
-.icon-hover {
-	@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-beige transition-all duration-300 group-hover:w-full;
-}
-
-
-.footer-text {
-	@apply text-mabini-dirty-white text-center py-4 mt-10 font-creato font-normal uppercase;
-}
-
-
-
-/* Misc */
