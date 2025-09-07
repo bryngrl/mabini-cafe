@@ -15,16 +15,6 @@ class Menu{
     $this->conn =$db;
   }
 
-// SELECT 
-//     menu_items.id,
-//     menu_items.item_name,
-//     menu_items.price,
-//     menu_category.category_name
-// FROM menu_items
-// JOIN menu_category 
-//     ON menu_items.category_id = menu_category.id;
-
-
     // GET ALL menu_items in table
     public function getAll(){
         $stmt = $this->conn->prepare(
