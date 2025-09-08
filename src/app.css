@@ -26,24 +26,25 @@
 	--color-mabini-dirty-white: #fff2e1;
 	--color-mabini-white: #ffffff;
 	--color-mabini-yellow: #ffae00;
+	--color-mabini-red: red;
 }
 html,
 body {
 	height: 100%;
-	@apply font-sans bg-mabini-white text-mabini-black
+	@apply font-sans bg-mabini-white text-mabini-black;
 }
 /* Reuseable Utilities */
 .btn-primary {
-	@apply bg-mabini-black text-mabini-white rounded-[50px] px-4 py-2 font-bold uppercase;
+	@apply bg-none text-mabini-black rounded-[50px] px-4 py-2 font-bold uppercase border cursor-pointer transition;
 }
 .btn-primary-clicked {
-	@apply bg-transparent rounded-[50px] border-1 text-mabini-black font-bold uppercase transition;
+	@apply bg-transparent rounded-[50px] border-1 px-4 py-2 text-mabini-black font-bold uppercase transition;
 }
 .btn-secondary {
 	@apply bg-mabini-dark-brown	text-mabini-white font-bold rounded-[50px] px-4 py-2 uppercase;
 }
 .btn-secondary-clicked {
-	@apply bg-transparent rounded-[50px] border-1 border-mabini-white text-mabini-white font-bold uppercase transition;
+	@apply bg-transparent rounded-[50px] border-1 px-4 py-2 border-mabini-white text-mabini-white font-bold uppercase transition;
 }
 .h1-heading {
 	@apply font-bold text-[64px];
@@ -60,4 +61,9 @@ body {
 .group:hover .underline-anim {
 	@apply w-full;
 }
-
+.contact-input {
+	@apply w-full h-[40px] border border-gray-500 px-3 rounded-[7px] text-gray-500;
+}
+.option{
+	@apply bg-mabini-black text-mabini-white hover:bg-neutral-500
+}
