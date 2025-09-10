@@ -26,6 +26,9 @@ switch($resource){
     case 'menu':
          require_once "MenuRoute.php";
          break;
+    case 'cart':
+         require_once "CartRoute.php";
+         break;
     default:
         http_response_code(404);
         echo json_encode(["error"=>"Endpoint not found"]);

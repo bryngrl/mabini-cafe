@@ -10,6 +10,7 @@ class MenuController{
 
     public function __construct($db) {
         $this->model = new Menu($db);
+          header('Content-Type: application/json');
     }
 
     // return all menu in server
@@ -81,6 +82,9 @@ class MenuController{
                 http_response_code(500);
                 echo json_encode(["error"=>"Failed to create Menu"]);
             }
+       }else{
+        http_response_code(400);
+            echo json_encode(["error" => " name and price required"]);
        }
       
    }
