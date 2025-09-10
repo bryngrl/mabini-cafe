@@ -89,11 +89,15 @@ class Cart{
        public function create(){
             $stmt = $this->conn->prepare(
             "INSERT INTO ".$this->table."(user_id,menu_item_id,quantity,subtotal)
-             VALUES(:user_id,:menu_item_id,:quantity);
+             VALUES(:user_id,:menu_item_id,:quantity,:subtotal);
             "
           );
           
-
+          $stmt->bindParam(':user_id',$this->user_id);
+          $stmt->bindParam(':menu_item_id',$this->menu_item_id);
+          $stmt->bindParam(':quantity',$this->quantity);
+          $stmt->bindParam('sudtotal',$this->subtotal);
+          $stmt->execute();
        }
 
 
