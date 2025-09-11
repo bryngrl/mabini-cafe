@@ -88,8 +88,8 @@ class Cart{
         //add to cart
        public function create(){
             $stmt = $this->conn->prepare(
-            "INSERT INTO ".$this->table."(user_id,menu_item_id,quantity,subtotal)
-             VALUES(:user_id,:menu_item_id,:quantity,:subtotal);
+            "INSERT INTO ".$this->table." (user_id,menu_item_id,quantity,subtotal)
+             VALUES(:user_id,:menu_item_id,:quantity,:subtotal)
             "
           );
           

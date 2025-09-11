@@ -8,6 +8,7 @@ private $table = "orders";
 public $id;
 public $user_id;
 public $total_amount;
+public $status;
 public $payment_status;
 
  public function __construct($db)
@@ -24,24 +25,86 @@ public $payment_status;
  }
 
 
- public function getById()
+ public function getById($id)
  {
+  $stmt = $this->conn->prepare("SELECT 
+   a.id,
+   b.username as customer_name,
+   b.address as customer_address,
+   a.total_amount,
+   a.status,
+   a.payment_status,
+   a.created_at as order_time
+   FROM ".$this->table." a JOIN users b on a.user_id = b.id WHERE a.id = :id");
+   $stmt->bindParam(":id",$id);
+
+   $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
  }
 
+ public function getByCustomerId($customerId)
+ {
+  
+    $stmt = $this->conn->prepare("SELECT 
+   a.id,
+   b.username as customer_name,
+   b.address as customer_address,
+   a.total_amount,
+   a.status,
+   a.payment_status,
+   a.created_at as order_time
+   FROM ".$this->table." a JOIN users b on a.user_id = b.id WHERE a.user_id= :customerId");
+   
+   $stmt->bindParam(":customerId",$customerId);
+   $stmt->execute();
+   return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+ }
 
  public function create()
  {
+   $stmt =$this->conn->prepare("INSERT INTO ".$this->table." (user_id,total_amount) 
+    VALUES(:user_id,:total_amount)
+   ");
 
+   $stmt->bindParam(":user_id",$this->user_id);
+   $stmt->bindParam(":total_amount",$this->total_amount);
+   $stmt->execute();
  }
 
- public function update()
+ public function setPreparingOrder($id){
+    $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Preparing' WHERE id = :id");
+    $stmt->bindParam(":id",$id);
+    $stmt->execute();
+ }
+
+ public function setCompletedOrder($id){
+   $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Completed' WHERE id = :id");
+    $stmt->bindParam(":id",$id);
+    $stmt->execute();
+ }
+ 
+  public function setDeliveringOrder($id){
+   $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Delivering' WHERE id = :id");
+    $stmt->bindParam(":id",$id);
+    $stmt->execute();
+ }
+ 
+
+  
+  public function setCancelingOrder($id){
+   $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Canceled' WHERE id = :id");
+    $stmt->bindParam(":id",$id);
+    $stmt->execute();
+ }
+
+ public function delete($id)
  {
-
+   $stmt = $this->conn->prepare("DELETE FROM ".$this->table." WHERE id = id:");
+         $stmt->bindParam(':id',$this->id);
+         return $stmt->execute();
  }
-
- public function delete()
- {}
 
 
 
