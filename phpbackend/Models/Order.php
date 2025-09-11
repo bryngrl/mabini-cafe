@@ -106,7 +106,11 @@ public $payment_status;
          return $stmt->execute();
  }
 
+public function setPaidStatus($id)
+{
+     $stmt= $this->conn->prepare("UPDATE ".$this->table." SET payment_status = 'Paid' WHERE id = :id");
 
+}
 
 
 

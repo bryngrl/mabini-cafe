@@ -10,7 +10,7 @@ class OrderController{
     private $model;
 
     public function __construct($db) {
-        $this->model = new Menu($db);
+        $this->model = new order($db);
         header('Content-Type: application/json');
     }
 
@@ -25,9 +25,9 @@ class OrderController{
    public function show($id){
     $order = $this->model->getById($id);
     
-    if($menu)
+    if($order)
     {
-        echo json_encode($menu);
+        echo json_encode($order);
     }else{
         echo json_encode(["Nothing"=>"no Order found"]);
     }
@@ -67,6 +67,91 @@ class OrderController{
      }
 
    }
+   // set to preparing
+   public function updateToPreparing($id){
+      $odrer=$this->model->setPreparingOrder($id);
 
+      if($order){
+            http_response_code(201);
+            echo json_encode(["message"=>"Order created successfully"]);
+      }else{
+          http_response_code(500);
+          echo json_encode(["error"=>"Failed to update order"]);
+      }
+
+   }
+
+   //set to completed
+  public function updateToCompleted($id)
+  {
+   $odrer=$this->model->setCompletedOrder($id);
+
+      if($order){
+            http_response_code(201);
+            echo json_encode(["message"=>"Order created successfully"]);
+      }else{
+          http_response_code(500);
+          echo json_encode(["error"=>"Failed to update order"]);
+      }
+
+  }
+//set to delivering
+ public function updateToDelivering($id){
+     $order=$this->model->setDeliveringOrder($id);
+
+      if($order){
+            http_response_code(201);
+            echo json_encode(["message"=>"Order created successfully"]);
+      }else{
+          http_response_code(500);
+          echo json_encode(["error"=>"Failed to update order"]);
+      }
+
+ }
+
+// set to canelled
+ public function updateToCancelled($id){
+     $odrer=$this->model->setCancelingOrder($id);
+
+      if($order){
+            http_response_code(201);
+            echo json_encode(["message"=>"Order created successfully"]);
+      }else{
+          http_response_code(500);
+          echo json_encode(["error"=>"Failed to update order"]);
+      }
+
+ }
+
+ //set opaid payment status
+ public function updatePaymentStatus($id)
+ {
+  $odrer=$this->model->setPaidStatus($id);
+
+      if($order){
+            http_response_code(201);
+            echo json_encode(["message"=>"Order created successfully"]);
+      }else{
+          http_response_code(500);
+          echo json_encode(["error"=>"Failed to update order"]);
+      }
+
+
+
+ }
+
+ //delete
+public function destroy($id)
+{
+  $order = $this->model->delete($id);
+  
+      if($order){
+            http_response_code(201);
+            echo json_encode(["message"=>"Order deleted successfully"]);
+      }else{
+          http_response_code(500);
+          echo json_encode(["error"=>"Failed to delete order"]);
+      }
+}
 
 }
