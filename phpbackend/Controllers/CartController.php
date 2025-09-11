@@ -16,6 +16,27 @@ class CartController {
         $carts = $this->model->getAll();
         echo json_encode($carts);
     }
+     //post create Cart
+    public function store()
+    {
+          $data = json_decode(file_get_conents("php://input"),true);
+          $this->model->user_id = $data['user_id'];
+          $this->model->menu_item_id = $data['menu_item_id'];
+          $this->model->quantity = $data['quantity'];
+          $this->model->subtotal = $data['subtotal'];
+        
+
+          if($this->model->update())
+          {
+             http_response_code(201);
+            echo json_encode(["message"=>"Cart created successfully"]);
+
+          }else
+          {
+              http_response_code(400);
+            echo json_encode(["error" => "failed to create cart"]);
+          }
+    }
 
     // Show cart by cart ID
     public function show($id) {

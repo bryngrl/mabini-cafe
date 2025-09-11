@@ -9,7 +9,7 @@ class MenuController{
     private $model;
 
     public function __construct($db) {
-        $this->model = new Menu($db);
+        $thsis->model = new Menu($db);
           header('Content-Type: application/json');
     }
 
