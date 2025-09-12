@@ -99,12 +99,9 @@ public $payment_status;
     $stmt->execute();
  }
 
- public function delete($id)
- {
-   $stmt = $this->conn->prepare("DELETE FROM ".$this->table." WHERE id = :id");
-         $stmt->bindParam(':id',$this->id);
-         return $stmt->execute();
- }
+ 
+
+ 
 
 public function setPaidStatus($id)
 {
