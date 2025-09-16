@@ -10,6 +10,7 @@ class MenuController{
 
     public function __construct($db) {
         $this->model = new Menu($db);
+        header('Content-Type: application/json');
     }
 
     // return all menu in server
@@ -81,6 +82,9 @@ class MenuController{
                 http_response_code(500);
                 echo json_encode(["error"=>"Failed to create Menu"]);
             }
+       }else{
+            http_response_code(400);
+            echo json_encode(["error" => " name and price required"]);
        }
       
    }
@@ -91,13 +95,13 @@ class MenuController{
    public function update($id){
         $data = json_decode(file_get_contents("php://input"), true);
 
-             if(!empty($data['name']) && !empty(!empty($data['price'])))
+        if(!empty($data['name']) && !empty(!empty($data['price'])))
        {
-       
+        $this->model->id= $id;
        $this->model->name = $data['name'];
        $this->model->description = $data['description'];
        $this->model->price = $data['price'];
-       $this->model->category_id = $id ;
+       $this->model->category_id = $data["category_id"];
        $this->model->image_path = $data['image_path'];
        
         if($this->model->update()){

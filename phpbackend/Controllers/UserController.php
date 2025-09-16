@@ -10,6 +10,7 @@ class UserController {
     public function __construct($db) {
         $this->model = new User($db);
         $this->auth = new Auth();
+          header('Content-Type: application/json');
     }
 
     // GET all users

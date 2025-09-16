@@ -11,10 +11,10 @@
     <script>
     function getUsers() {
         // relative path lang since magkatabi sila
-       fetch("http://localhost/Testing/route.php?path=users")
+       fetch("http://localhost/phpbackend")
         .then(response => response.json())
         .then(data => {
-            document.getElemen  tById("output").innerText = JSON.stringify(data, null, 2);
+            document.getElementById("output").innerText = JSON.stringify(data, null, 2);
         })
         .catch(error => console.error("Error:", error));
     }

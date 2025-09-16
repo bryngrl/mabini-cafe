@@ -11,6 +11,7 @@ private $auth;
  public function __construct($db) {
       $this->model = new Admin($db);
         $this->auth = new Auth();
+        header('Content-Type: application/json');
 }
 
 
