@@ -7,16 +7,14 @@
 	src: url('/fonts/CreatoDisplay-Regular.otf') format('opentype');
 	font-weight: 400;
 	font-style: normal;
-}
 
-/* Bold */
-@font-face {
-	font-family: 'Creato';
+	font-family: 'Creato Bold';
 	src: url('/fonts/CreatoDisplay-Bold.otf') format('opentype');
 	font-weight: 700;
 	font-style: normal;
 }
-@theme {
+
+@layer theme {
 	--font-sans: 'Creato', sans-serif;
 	/* Brand Colors */
 	--color-mabini-black: #000000;
@@ -28,42 +26,58 @@
 	--color-mabini-yellow: #ffae00;
 	--color-mabini-red: red;
 }
-html,
-body {
-	height: 100%;
-	@apply font-sans bg-mabini-white text-mabini-black;
+
+@layer base {
+	:root {
+		@apply text-mabini-black
+			bg-mabini-white;
+	}
+	html {
+		@apply scroll-smooth;
+	}
+	body {
+		@apply bg-mabini-white
+		font-sans;
+	}
 }
-/* Reuseable Utilities */
-.btn-primary {
-	@apply bg-none text-mabini-black rounded-[50px] px-4 py-2 font-bold uppercase border cursor-pointer transition;
+@layer components {
+	.btn-primary {
+		@apply bg-none text-mabini-black rounded-[50px] px-4 py-2 font-bold uppercase border cursor-pointer transition;
+	}
+	.btn-secondary {
+		@apply bg-mabini-dark-brown text-mabini-white font-bold rounded-[50px] px-4 py-2 uppercase;
+	}
+	.contact-input {
+		@apply w-full h-[40px] border border-gray-500 px-3 rounded-[7px] text-gray-500;
+	}
+	.option {
+		@apply bg-mabini-black text-mabini-white hover:bg-neutral-500;
+	}
 }
-.btn-primary-clicked {
-	@apply bg-transparent rounded-[50px] border-1 px-4 py-2 text-mabini-black font-bold uppercase transition;
+
+@layer text {
+	.h1-heading {
+		@apply font-bold text-[64px];
+	}
+	.h2-heading {
+		@apply font-bold text-[48px];
+	}
+	.paragraph {
+		@apply text-[20px];
+	}
 }
-.btn-secondary {
-	@apply bg-mabini-dark-brown	text-mabini-white font-bold rounded-[50px] px-4 py-2 uppercase;
+@layer animation {
+	.underline-anim {
+		@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-light-brown transition-all duration-300;
+	}
+	.group:hover .underline-anim {
+		@apply w-full;
+	}
 }
-.btn-secondary-clicked {
-	@apply bg-transparent rounded-[50px] border-1 px-4 py-2 border-mabini-white text-mabini-white font-bold uppercase transition;
-}
-.h1-heading {
-	@apply font-bold text-[64px];
-}
-.h2-heading {
-	@apply font-bold text-[48px];
-}
-.paragraph {
-	@apply text-[20px];
-}
-.underline-anim {
-	@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-light-brown transition-all duration-300;
-}
-.group:hover .underline-anim {
-	@apply w-full;
-}
-.contact-input {
-	@apply w-full h-[40px] border border-gray-500 px-3 rounded-[7px] text-gray-500;
-}
-.option{
-	@apply bg-mabini-black text-mabini-white hover:bg-neutral-500
+
+/* Inputs, Options */
+@layer utilities {
+	.text-shadow {
+		text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	}
 }
