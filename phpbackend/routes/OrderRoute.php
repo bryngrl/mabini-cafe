@@ -1,7 +1,7 @@
 <?php
 require_once "../controllers/OrderController.php";
 
-$controller = new MenuController($db);
+$controller = new OrderController($db);
 
 switch ($method) {
      case 'GET':
@@ -18,7 +18,7 @@ switch ($method) {
         }else if($totalCancelled){
              $controller->showTotalCancelled();
         }else if($totalDelivered){
-             $controller->showTotalDelivred();
+             $controller->showTotalDelivered();
         }else{
             $id ? $controller->show($id) : $controller->index();
         }
