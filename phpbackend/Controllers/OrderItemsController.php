@@ -10,7 +10,7 @@ class OrderItemsController{
   
 
     public function __construct($db) {
-        $this->model = new order($db);
+        $this->model = new orderItems($db);
         header('Content-Type: application/json');
     }
 
@@ -35,11 +35,11 @@ class OrderItemsController{
 
 
    public function showByOrderId($orderId){
-    $order = $this->model->getByOrderId($orderId);
+    $orderItem = $this->model->getByOrderId($orderId);
 
-    if($order)
+    if($orderItem)
     {
-        echo json_encode($order);
+        echo json_encode($orderItem);
     }else{
           echo json_encode(["Nothing"=>"no OrderItem found"]);
     }
@@ -55,7 +55,7 @@ class OrderItemsController{
          echo json_encode(["error" => "Incomplete data"]);
      }else{
 
-        if($this->model->create()){
+        if($this->model->create($data)){
             http_response_code(201);
             echo json_encode(["message"=>"OrderItems created successfully"]);
         }else{
