@@ -6,10 +6,19 @@ $controller = new MenuController($db);
 switch ($method) {
      case 'GET':
         $customer_id = $_GET['customerId'] ?? null;
-        
+        $totalOrders = $_GET['total_orders'] ?? null;
+        $totalCancelled = $_GET['total_cancelled'] ?? null;
+        $totalDelivered = $_GET['total_delivered'] ?? null;
+
         if($customer_id)
         {
              $controller->showByCustomerId($customer_id);
+        }else if($totalOrders){  
+             $controller->showTotalOrders();
+        }else if($totalCancelled){
+             $controller->showTotalCancelled();
+        }else if($totalDelivered){
+             $controller->showTotalDelivred();
         }else{
             $id ? $controller->show($id) : $controller->index();
         }
