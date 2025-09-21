@@ -2,9 +2,9 @@
 /**
  * @OA\OpenApi(
  *   @OA\Info(
- *     title="My First API",
+ *     title="Mabini-cafe api",
  *     version="0.1",
- *     description="Simple demo API"
+ *     description="api endpoints for this project"
  *   )
  * 
  * )

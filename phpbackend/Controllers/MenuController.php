@@ -152,7 +152,48 @@ class MenuController
         }
     }
 
-    // Create a new menu item
+ 
+    /**
+ * @OA\Post(
+ *     path="/mabini-cafe/phpbackend/routes/menu",
+ *     tags={"Menu/Products"},
+ *     summary="Create a new menu item",
+ *     description="Creates a menu item. Requires `name` and `price` in the JSON body.",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"name","price"},
+ *             @OA\Property(property="name", type="string", example="Cappuccino"),
+ *             @OA\Property(property="description", type="string", example="Rich espresso with steamed milk foam"),
+ *             @OA\Property(property="price", type="number", format="float", example=120.50),
+ *             @OA\Property(property="category_id", type="integer", example=2),
+ *             @OA\Property(property="image_path", type="string", example="/uploads/menu/cappuccino.jpg")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Menu created successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Menu created successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Validation error: Name and price are required",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Name and price are required")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Failed to create menu item",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Failed to create menu")
+ *         )
+ *     )
+ * )
+ */
+
     public function store()
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -178,6 +219,55 @@ class MenuController
     }
 
     // Update an existing menu item
+
+    /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/menu/{id}",
+ *     tags={"Menu/Products"},
+ *     summary="Update an existing menu item",
+ *     description="Updates a menu item by ID. Requires `name` and `price` in the JSON body.",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The ID of the menu item to update",
+ *         @OA\Schema(type="integer", example=5)
+ *     ),
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"name","price"},
+ *             @OA\Property(property="name", type="string", example="Iced Latte"),
+ *             @OA\Property(property="description", type="string", example="Chilled espresso with milk and ice"),
+ *             @OA\Property(property="price", type="number", format="float", example=135.00),
+ *             @OA\Property(property="category_id", type="integer", example=3),
+ *             @OA\Property(property="image_path", type="string", example="/uploads/menu/iced_latte.jpg")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Menu updated successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Menu updated successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Validation error: Name and price are required",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Name and price are required")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Failed to update menu item",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Failed to update menu")
+ *         )
+ *     )
+ * )
+ */
+
     public function update($id)
     {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -202,6 +292,45 @@ class MenuController
             echo json_encode(["error" => "Name and price are required"]);
         }
     }
+
+
+    /**
+ * @OA\Delete(
+ *     path="/mabini-cafe/phpbackend/routes/menu/{id}",
+ *     tags={"Menu/Products"},
+ *     summary="Delete a menu item by ID",
+ *     description="Deletes the menu item corresponding to the provided ID.",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The ID of the menu item to delete",
+ *         @OA\Schema(type="integer", example=7)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Menu deleted successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Menu deleted successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Menu item not found",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Menu item not found")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Failed to delete menu",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Failed to delete menu")
+ *         )
+ *     )
+ * )
+ */
+
 
     // Delete a menu item by ID
     public function destroy($id)
