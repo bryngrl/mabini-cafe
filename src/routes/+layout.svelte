@@ -1,10 +1,10 @@
 <script lang="ts">
 	import '../app.css';
-	import Navbar from '$lib/components/Navbar.svelte';
-	import Footer from '$lib/components/Footer.svelte';
+	import Header from '$lib/components/layout/Header.svelte';
+	import Footer from '$lib/components/layout/Footer.svelte';
 </script>
 
-<Navbar />
+<Header />
 <main class="">
 	<slot />
 </main>

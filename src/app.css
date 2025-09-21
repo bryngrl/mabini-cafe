@@ -33,7 +33,7 @@ body {
 	height: 100%;
 	@apply font-sans bg-mabini-white text-mabini-black;
 }
-/* Reuseable Utilities */
+
 .btn-primary {
 	@apply bg-none text-mabini-black rounded-[50px] px-4 py-2 font-bold uppercase border cursor-pointer transition;
 }
