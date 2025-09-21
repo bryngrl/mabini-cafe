@@ -10,20 +10,117 @@ class OrderController {
         $this->model = new Order($db);
         header('Content-Type: application/json');
     }
-
+  /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orders",
+ *     tags={"Orders"},
+ *     summary="Get all Orders",
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of all Orders"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
     public function index() {
         echo json_encode($this->model->getAll());
     }
+
+
+        
+ /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orders/{id}",
+ *     tags={"Orders"},
+ *     summary="Get a single order by their db id",
+ *     description="Returns the orders corresponding to the provided ID in database",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="ID of order",
+ *         @OA\Schema(type="integer", example=3)
+ *     ),
+ *     
+ *     @OA\Response(
+ *         response=404,
+ *         description="order not found"
+ *     )
+ * )
+ */
 
     public function show($id) {
         $order = $this->model->getById($id);
         echo json_encode($order ?: ["Nothing" => "no Order found"]);
     }
 
+     /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orders?customerId={customerId}",
+ *     tags={"Orders"},
+ *     summary="Get a single order by their customer_id",
+ *     description="Returns the orders corresponding to the customer id",
+ *     @OA\Parameter(
+ *         name="customerId",
+ *         in="query",
+ *         required=true,
+ *         description="ID of customer_id",
+ *         @OA\Schema(type="integer", example=3)
+ *     ),
+ *     
+ *     @OA\Response(
+ *         response=404,
+ *         description="Order not found"
+ *     )
+ * )
+ */
     public function showByCustomerId($customerId) {
         $order = $this->model->getByCustomerId($customerId);
         echo json_encode($order ?: ["Nothing" => "no Customer order found"]);
     }
+
+/**
+ * @OA\Post(
+ *     path="/mabini-cafe/phpbackend/routes/orders",
+ *     tags={"Orders"},
+ *     summary="Create a new order",
+ *     description="Creates a new order with user_id and total_amount",
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="Order data in JSON format",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"user_id","total_amount"},
+ *             @OA\Property(property="user_id", type="integer", example=1),
+ *             @OA\Property(property="total_amount", type="number", format="float", example=250.75)
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Order created successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="order created successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="user_id and total_amount required",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="user_id and total_amount required")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Failed to create order",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Failed to create order")
+ *         )
+ *     )
+ * )
+ */
 
     public function store() {
         $data = json_decode(file_get_contents("php://input"), true);

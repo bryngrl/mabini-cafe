@@ -152,22 +152,50 @@ class MenuController
         }
     }
 
- 
-    /**
+/**
  * @OA\Post(
  *     path="/mabini-cafe/phpbackend/routes/menu",
  *     tags={"Menu/Products"},
  *     summary="Create a new menu item",
- *     description="Creates a menu item. Requires `name` and `price` in the JSON body.",
+ *     description="Creates a menu item. Requires `name` and `price`. Supports image upload via multipart/form-data.",
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(
- *             required={"name","price"},
- *             @OA\Property(property="name", type="string", example="Cappuccino"),
- *             @OA\Property(property="description", type="string", example="Rich espresso with steamed milk foam"),
- *             @OA\Property(property="price", type="number", format="float", example=120.50),
- *             @OA\Property(property="category_id", type="integer", example=2),
- *             @OA\Property(property="image_path", type="string", example="/uploads/menu/cappuccino.jpg")
+ *         @OA\MediaType(
+ *             mediaType="multipart/form-data",
+ *             @OA\Schema(
+ *                 required={"name","price"},
+ *                 @OA\Property(
+ *                     property="name",
+ *                     type="string",
+ *                     example="Cappuccino",
+ *                     description="Name of the menu item"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="description",
+ *                     type="string",
+ *                     example="Rich espresso with steamed milk foam",
+ *                     description="Optional description of the menu item"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="price",
+ *                     type="number",
+ *                     format="float",
+ *                     example=120.50,
+ *                     description="Price of the menu item"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="category_id",
+ *                     type="integer",
+ *                     example=2,
+ *                     description="Category ID of the menu item"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="image",
+ *                     type="string",
+ *                     format="binary",
+ *                     description="Optional image file for the menu item"
+ *                 )
+ *             )
  *         )
  *     ),
  *     @OA\Response(
@@ -194,38 +222,56 @@ class MenuController
  * )
  */
 
+
     public function store()
     {
-        $data = json_decode(file_get_contents("php://input"), true);
+       $this->model->name=$_POST['name'] ?? null;
+       $this->model->description = $_POST['description'] ?? null;
+       $this->model->price = $_POST['price'] ?? null;
+       $this->model->category_id = $_POST['category_id'] ?? null;
 
-        if (!empty($data['name']) && !empty($data['price'])) {
-            $this->model->name = $data['name'];
-            $this->model->description = $data['description'] ?? null;
-            $this->model->price = $data['price'];
-            $this->model->category_id = $data['category_id'] ?? null;
-            $this->model->image_path = $data['image_path'] ?? null;
+       if(empty($this->model->name) || empty($this->model->price)){
+          http_response_code(400);
+          echo json_encode(["error" => "Name and price are required"]);
+         return;
+       }
+     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        $image = $_FILES['image'];
+        $imageName = time() . "_" . $image['name'];
+        $targetDir = "../uploads/menu/"; // siguraduhing may write permission
+        if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
+        $targetFile = $targetDir . $imageName;
 
-            if ($this->model->create()) {
-                http_response_code(201);
-                echo json_encode(["message" => "Menu created successfully"]);
-            } else {
-                http_response_code(500);
-                echo json_encode(["error" => "Failed to create menu"]);
-            }
+        if (move_uploaded_file($image['tmp_name'], $targetFile)) {
+            // Save relative path sa DB para magamit sa frontend
+            $this->model->image_path = "uploads/menu/" . $imageName;
         } else {
-            http_response_code(400);
-            echo json_encode(["error" => "Name and price are required"]);
+            http_response_code(500);
+            echo json_encode(["error" => "Failed to upload image"]);
+            return;
         }
+    } else {
+        $this->model->image_path = null;
+    }
+
+    if ($this->model->create()) {
+        http_response_code(201);
+        echo json_encode(["message" => "Menu created successfully"]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to create menu"]);
+    }
+
     }
 
     // Update an existing menu item
 
-    /**
+ /**
  * @OA\Put(
  *     path="/mabini-cafe/phpbackend/routes/menu/{id}",
  *     tags={"Menu/Products"},
  *     summary="Update an existing menu item",
- *     description="Updates a menu item by ID. Requires `name` and `price` in the JSON body.",
+ *     description="Updates a menu item by ID. Requires `name` and `price`. Supports image upload via multipart/form-data.",
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -235,13 +281,42 @@ class MenuController
  *     ),
  *     @OA\RequestBody(
  *         required=true,
- *         @OA\JsonContent(
- *             required={"name","price"},
- *             @OA\Property(property="name", type="string", example="Iced Latte"),
- *             @OA\Property(property="description", type="string", example="Chilled espresso with milk and ice"),
- *             @OA\Property(property="price", type="number", format="float", example=135.00),
- *             @OA\Property(property="category_id", type="integer", example=3),
- *             @OA\Property(property="image_path", type="string", example="/uploads/menu/iced_latte.jpg")
+ *         @OA\MediaType(
+ *             mediaType="multipart/form-data",
+ *             @OA\Schema(
+ *                 required={"name","price"},
+ *                 @OA\Property(
+ *                     property="name",
+ *                     type="string",
+ *                     example="Iced Latte",
+ *                     description="Name of the menu item"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="description",
+ *                     type="string",
+ *                     example="Chilled espresso with milk and ice",
+ *                     description="Optional description of the menu item"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="price",
+ *                     type="number",
+ *                     format="float",
+ *                     example=135.00,
+ *                     description="Price of the menu item"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="category_id",
+ *                     type="integer",
+ *                     example=3,
+ *                     description="Category ID of the menu item"
+ *                 ),
+ *                 @OA\Property(
+ *                     property="image",
+ *                     type="string",
+ *                     format="binary",
+ *                     description="Optional image file to replace the current menu item image"
+ *                 )
+ *             )
  *         )
  *     ),
  *     @OA\Response(
@@ -268,30 +343,43 @@ class MenuController
  * )
  */
 
-    public function update($id)
-    {
-        $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!empty($data['name']) && !empty($data['price'])) {
-            $this->model->id = $id;
-            $this->model->name = $data['name'];
-            $this->model->description = $data['description'] ?? null;
-            $this->model->price = $data['price'];
-            $this->model->category_id = $data['category_id'] ?? null;
-            $this->model->image_path = $data['image_path'] ?? null;
+public function update($id)
+{
+    $this->model->id = $id;
+    $this->model->name = $_POST['name'] ?? null;
+    $this->model->description = $_POST['description'] ?? null;
+    $this->model->price = $_POST['price'] ?? null;
+    $this->model->category_id = $_POST['category_id'] ?? null;
 
-            if ($this->model->update()) {
-                http_response_code(200);
-                echo json_encode(["message" => "Menu updated successfully"]);
-            } else {
-                http_response_code(500);
-                echo json_encode(["error" => "Failed to update menu"]);
-            }
-        } else {
-            http_response_code(400);
-            echo json_encode(["error" => "Name and price are required"]);
+    if (empty($this->model->name) || empty($this->model->price)) {
+        http_response_code(400);
+        echo json_encode(["error" => "Name and price are required"]);
+        return;
+    }
+
+    // File upload
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        $image = $_FILES['image'];
+        $imageName = time() . "_" . $image['name'];
+        $targetDir = "../uploads/menu/";
+        if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
+        $targetFile = $targetDir . $imageName;
+
+        if (move_uploaded_file($image['tmp_name'], $targetFile)) {
+            $this->model->image_path = "uploads/menu/" . $imageName;
         }
     }
+
+    if ($this->model->update()) {
+        http_response_code(200);
+        echo json_encode(["message" => "Menu updated successfully"]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to update menu"]);
+    }
+}
+
 
 
     /**
