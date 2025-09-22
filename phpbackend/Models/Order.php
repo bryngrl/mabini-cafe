@@ -26,6 +26,7 @@
       a.total_amount,
       a.status,
       a.payment_status,
+      a.payment_method,
       a.created_at as order_time
       FROM ".$this->table." a JOIN users b on a.user_id = b.id");
       $stmt->execute();
@@ -42,6 +43,7 @@
       a.total_amount,
       a.status,
       a.payment_status,
+      a.payment_method,
       a.created_at as order_time
       FROM ".$this->table." a JOIN users b on a.user_id = b.id WHERE a.id = :id");
       $stmt->bindParam(":id",$id);
@@ -61,6 +63,7 @@
       a.total_amount,
       a.status,
       a.payment_status,
+      a.payment_method,
       a.created_at as order_time
       FROM ".$this->table." a JOIN users b on a.user_id = b.id WHERE a.user_id= :customerId");
       
@@ -97,25 +100,25 @@
 
       $stmt->bindParam(":user_id",$this->user_id);
       $stmt->bindParam(":total_amount",$this->total_amount);
-      $stmt->execute();
+       return $stmt->execute();
    }
 
    public function setPreparingOrder($id){
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Preparing' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+         return $stmt->execute();
    }
 
    public function setCompletedOrder($id){
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Completed' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+         return $stmt->execute();
    }
    
    public function setDeliveringOrder($id){
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Delivering' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+     return $stmt->execute();
    }
    
 
@@ -123,7 +126,7 @@
    public function setCancelingOrder($id){
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Canceled' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+        return $stmt->execute();
    }
 
    
@@ -134,7 +137,7 @@
    {
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET payment_status = 'Paid' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+        return $stmt->execute();
    }
 
 

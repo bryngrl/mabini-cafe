@@ -41,15 +41,15 @@ switch ($method) {
          case 'cancelled':
             $controller->updateToCancelled($id);
             break;
+         case 'updatepayment':
+            $controller->updatePaymentStatus($id);
+            break;
          default:
              http_response_code(405);
              echo json_encode(["error" => "Method not allowed"]);
              break;
         }   
 
-        break;
-     case 'DELETE':
-          $controller->delete($id);
         break;
     default:
         http_response_code(405);
