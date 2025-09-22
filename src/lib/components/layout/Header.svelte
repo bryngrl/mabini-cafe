@@ -57,8 +57,8 @@
 
 	<!-- Right-aligned links -->
 	<div class="flex-1 flex justify-end gap-4 mr-[50px]">
-		<a href="/account" class="relative group text-[16px]">
-			Account
+		<a href="/login" class="relative group text-[16px]">
+			Login
 			<span class="underline-anim"></span>
 		</a>
 		<a href="/search" class="relative group">

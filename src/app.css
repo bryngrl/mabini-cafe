@@ -35,7 +35,7 @@ body {
 }
 
 .btn-primary {
-	@apply bg-none text-mabini-black rounded-[50px] px-4 py-2 font-bold uppercase border cursor-pointer transition;
+	@apply bg-none text-mabini-black rounded-[50px] w-50 px-4 py-2 font-bold uppercase border cursor-pointer transition;
 }
 .btn-primary-clicked {
 	@apply bg-transparent rounded-[50px] border-1 px-4 py-2 text-mabini-black font-bold uppercase transition;

@@ -7,7 +7,7 @@
 	<div class="bg-mabini-black grid grid-cols-2 items-center p-[50px]">
 		<!-- Column 1: Logo -->
 		<div class="flex justify-center items-center">
-			<img src="/images/LOGO-4.png" alt="Mabini Cafe" class="w-[238px] h-[68px]" />
+			<a href="/"><img src="/images/LOGO-4.png" alt="Mabini Cafe" class="w-[238px] h-[68px]"/></a>
 		</div>
 		<!-- two-column text -->
 		<div class="grid grid-cols-2 gap-6">

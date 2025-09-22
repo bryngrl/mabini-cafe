@@ -1,8 +1,8 @@
-<!-- Home -->
+<!-- Home Page -->
 <script>
-	let heroImage = 'src/lib/assets/images/cover-photo-1.png';
-	let heroImage2 = 'src/lib/assets/images/sofa.png';
-	let heroImage3 = 'src/lib/assets/images/cover-photo-2.png';
+	let heroImage = '/images/cover-photo-1.png';
+	let heroImage2 = '/images/sofa.png';
+	let heroImage3 = '/images/cover-photo-2.png';
 </script>
 
 <link rel="stylesheet" href="src/styles/home.css" />
@@ -31,7 +31,7 @@
 			Receipt of
 			<span class="!text-mabini-yellow"> Gratitude </span>
 		</h1>
-		<img src="src/lib/assets/images/Paper-1.png" alt="Paper" class="mx-auto object-center" />
+		<img src="/images/Paper-1.png" alt="Paper" class="mx-auto object-center" />
 	</div>
 </section>
 <section class="featured-products">
@@ -40,5 +40,6 @@
 			Featured
 			<span class="!text-mabini-yellow"> Products </span>
 		</h1>
+		<!-- Featured Products Here -->
 	</div>
 </section>
