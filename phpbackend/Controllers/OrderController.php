@@ -270,7 +270,7 @@ class OrderController {
 
       /**
  * @OA\Get(
- *     path="/mabini-cafe/phpbackend/routes/orders?totalorders={totalorders}",
+ *     path="/mabini-cafe/phpbackend/routes/orders/totalOrders",
  *     tags={"Orders"},
  *     summary="Get all the sum of Orders",
  *     @OA\Response(
@@ -280,14 +280,41 @@ class OrderController {
  * )
  */
     public function showTotalOrders(){
-        echo json_encode($this->model->getTotalOrders());
+        $total = $this->model->getTotalOrders();
+        echo json_encode(["total_orders"=>$total]);
     }
 
+      /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orders/totalDelivered",
+ *     tags={"Orders"},
+ *     summary="Get all the sum of Delivered",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
     public function showTotalDelivered(){
-        echo json_encode($this->model->getTotalDelivered());
+        $total = $this->model->getTotalDelivered();
+        echo json_encode(["total_delivered" => $total ]);
     }
+
+
+      /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orders/totalCancelled",
+ *     tags={"Orders"},
+ *     summary="Get all the sum of Cancelled",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
 
     public function showTotalCancelled(){
-        echo json_encode($this->model->getTotalCancelled());
+       $total = $this->model->getTotalCancelled();
+        echo json_encode(["total_cancelled" => $total ]);
     }
 }

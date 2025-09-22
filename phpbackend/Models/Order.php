@@ -77,19 +77,22 @@
       $stmt = $this->conn->prepare("SELECT COUNT(*) AS total_delivered FROM ".$this->table."WHERE status = 'Completed'");
       $stmt->execute();
 
-      return $stmt->fetch(PDO::FETCH_ASSOC);
+      $total = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $total['total_delivered'];
    }
 
    public function getTotalCancelled(){
       $stmt= $this->conn->prepare("SELECT COUNT(*) AS total_cancelled FROM ".$this->table."WHERE status = 'Cancelled'");
       $stmt->execute();
-      return $stmt->fetch(PDO::FETCH_ASSOC);
+      $total = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $total['total_cancelled'];
    }
 
    public function getTotalOrders(){
       $stmt = $this->conn->prepare("SELECT COUNT(*) AS total_orders FROM ".$this->table);
       $stmt->execute();
-         return $stmt->fetch(PDO::FETCH_ASSOC);
+      $total = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $total['total_orders'];
    }
 
    public function create()
@@ -140,7 +143,9 @@
         return $stmt->execute();
    }
 
-
+  public function setToOnline($id){
+      $stmt = $this->conn->prepare("UPDATE ".$this->table." SET payment_method = 'Online' WHERE id =");
+  }
 
 
 
