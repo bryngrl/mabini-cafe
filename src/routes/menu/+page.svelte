@@ -1,4 +1,5 @@
 <!-- Menu -->
+<!-- Product fetch for menu items -->
 <script lang="ts">
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
@@ -6,8 +7,7 @@
 	let categories = ['All', 'Pastries', 'Beverages', 'Meals'];
 	let selectedCategory = categories[0];
 
-
-    // Will be fetcch din sa api ni dom
+	// Will be fetcch din sa api ni dom
 	let subcategories: Record<string, string[]> = {
 		All: [
 			'Savory Special Waffle',
@@ -42,13 +42,12 @@
 	<title>Menu - Mabini Cafe</title>
 	<meta name="description" content="Browse our delicious menu of coffee, pastries, and more" />
 </svelte:head>
+<div class="page-header">
+    <h2 class="font-bold text-white text-align-center m-auto text-7xl">Menu</h2>
+</div>
 
 <div class="menu-page">
 	<div class="container">
-		<div class="page-header">
-			<!-- Hero Image for Menu -->
-		</div>
-
 		<div class="category">
 			{#each categories as category}
 				<button
@@ -64,14 +63,21 @@
 		<div class="main-menu">
 			<div class="menu-layout">
 				<aside class="sidebar">
-					<ul class="space-y-10">
-						{#each subcategories[selectedCategory] as subcategory}
-							<li class="cursor-pointer hover:text-mabini-yellow">{subcategory}</li>
+					<ul class="">
+						{#each subcategories[selectedCategory] as subcategory, index}
+							<li
+								class="cursor-pointer text-of-sub"
+								class:first-item={index === 0}
+								class:last-item={index === subcategories[selectedCategory].length - 1}
+							>
+								{subcategory}
+							</li>
 						{/each}
 					</ul>
 				</aside>
 
 				<div class="items-container">
+					<h1 class="menu-text">Our Menu</h1>
 					<div class="items-grid">
 						<Item />
 					</div>
@@ -82,6 +88,37 @@
 </div>
 
 <style>
+	.page-header {
+		background-image: url(/images/hero-menu.png);
+		height: 50vh;
+		width: 100%;
+		background-size: cover;
+		display: flex;
+		justify-content: center;
+	}
+
+	.text-of-sub {
+		padding: 2rem;
+		transition: all 0.3s ease;
+	}
+
+	.text-of-sub:hover {
+		color: var(--color-mabini-dark-brown);
+		background-color: #bdbdbd;
+		font-weight: bold;
+	}
+
+	.text-of-sub.first-item:hover {
+		border-radius: 1rem 0rem 0rem 0rem;
+	}
+
+	.text-of-sub.last-item:hover {
+		border-radius: 0rem 0rem 0rem 1rem;
+	}
+
+	.text-of-sub:not(.first-item):not(.last-item):hover {
+		border-radius: 0;
+	}
 	.category {
 		display: flex;
 		gap: 1rem;
@@ -92,18 +129,16 @@
 
 	.menu-layout {
 		display: flex;
-		gap: 2rem;
 		margin: 2rem 0;
 		align-items: flex-start;
 	}
 
 	.sidebar {
 		flex: 0 0 250px;
-		color: white;
-		background-color: gray;
+		color: black;
+		background-color: #f1f1f1;
 		margin-left: 25px;
-		padding: 1rem;
-		border-radius: 0.5rem;
+		border-radius: 1rem 0rem 0rem 1rem;
 	}
 
 	.items-container {
@@ -114,5 +149,18 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 		gap: 2rem;
+		border-radius: 0rem 0rem 1rem 0rem;
+		border: solid 1px gray;
+	}
+	.menu-text {
+		background-color: black;
+		color: white;
+		text-align: left;
+		padding: 12px;
+		padding-left: 1rem;
+		font-size: 24px;
+		font-weight: bold;
+		border-radius: 0rem 1rem 0rem 0rem;
+		border: solid 1px gray;
 	}
 </style>

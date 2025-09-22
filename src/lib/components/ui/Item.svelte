@@ -1,5 +1,6 @@
 <!-- Item Component -->
 <!-- This is where the items will be displayed -->
+ <!-- Fetch the items to the backend -->
 
 <script lang="ts">
 	interface Item {
@@ -28,8 +29,8 @@
 <div class="item-card">
 	<div class="item-content">
 		<img src={item.image} alt={item.name} />
-		<h2>{item.name}</h2>
-		<p>{item.price}</p>
+		<h2 class="item-name font-extrabold">{item.name.toUpperCase()}</h2>
+		<p class="item-price">{item.price}</p>
 		<button class="cursor-pointer cart" on:click={() => addToCart(item)}>Add to Cart</button>
 		<button class="cursor-pointer" on:click={() => viewDetails(item)}>View Details</button>
 	</div>
@@ -43,6 +44,8 @@
 		width: 280px;
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 		transition: transform 0.3s ease;
+		margin: 1rem;
+        
 	}
 
 	.item-card:hover {
@@ -55,7 +58,7 @@
 		text-align: center;
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem; 
+		gap: 0.25rem;
 	}
 
 	.item-content img {
@@ -70,8 +73,8 @@
 		font-size: 1.1rem;
 		text-align: left;
 		margin: 0;
-		font-weight: bold;
-		color: #2a1c0f;
+		font-weight: bolder;
+		color: black;
 	}
 
 	.item-content p {
@@ -100,7 +103,7 @@
 		cursor: pointer;
 		font-size: 0.9rem;
 		transition: background-color 0.3s ease;
-		width: 100%; 
+		width: 100%;
 	}
 
 	.item-content button:not(.cart) {
