@@ -1,0 +1,26 @@
+<?php
+require_once "../controllers/OrderItemsController.php";
+
+$controller = new OrderItemsController($db);
+
+switch($method){
+case 'GET':
+    $order_id =$_GET['orderId']??null;
+
+    if($order_id){
+        $controller->showByOrderId($order_id);
+    }else{
+          $id ? $controller->show($id) : $controller->index();
+    }
+break;
+case 'POST':
+       $controller->store();
+break;
+case 'PUT': 
+break;
+case 'DELETE':
+break;
+default:
+break;
+
+}

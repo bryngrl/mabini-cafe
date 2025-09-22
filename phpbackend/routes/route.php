@@ -31,6 +31,10 @@ switch($resource){
          break;
     case 'orders':
          require_once "OrderRoute.php";
+         break;
+    case 'orderitems':
+          require_once "OrderitemsRoute.php";
+          break;
     default:
         http_response_code(404);
         echo json_encode(["error"=>"Endpoint not found"]);

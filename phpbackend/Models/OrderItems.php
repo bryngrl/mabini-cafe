@@ -69,13 +69,24 @@ public function getByOrderId($orderId)
 }
  
 public function create(){
-  
+   
+   $stmt = $this->conn->prepare("INSERT INTO ".$this->table." (order_id,menu_item_id,quantity,price,subtotal)
+   VALUES(:order_id,:menu_item_id,:quantity,:price,:subtotal)");
+
+   $stmt->bindParam(":order_id", $this->order_id);
+   $stmt->bindParam(":menu_item_id", $this->menu_item_id);
+   $stmt->bindParam(":quantity", $this->quantity);
+   $stmt->bindParam(":price", $this->price);
+   $stmt->bindParam(":subtotal", $this->subtotal);
+
+   return $stmt->execute();
+
 }
 
  public function delete($id)
  {
    $stmt = $this->conn->prepare("DELETE FROM ".$this->table." WHERE id = :id");
-         $stmt->bindParam(':id',$id);
+         $stmt->bindParam(':id',$this-id);
          return $stmt->execute();
  }
 

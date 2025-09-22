@@ -8,7 +8,7 @@ class Menu{
   public $description;
   public $price;
   public $category_id;
-  public $image_path;
+  public $image_path ="";
   
   public function __construct($db)
   {
