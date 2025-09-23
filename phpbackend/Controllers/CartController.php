@@ -130,7 +130,7 @@ public function store()
  *     tags={"Carts"},
  *     summary="Get all carts in  by customer id",
  *    @OA\Parameter(
- *         name="id",
+ *         name="customer_id",
  *         in="query",
  *         required=true,
  *         description="customer id of cart",
@@ -157,6 +157,52 @@ public function store()
             echo json_encode(["error" => "No carts found for this customer"]);
         }
     }
+/**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/cart/{id}",
+ *     tags={"Carts"},
+ *     summary="Update an existing cart item",
+ *     description="Updates the quantity and subtotal of a specific cart item by its ID.",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The ID of the cart item to update",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"quantity","subtotal"},
+ *             @OA\Property(
+ *                 property="quantity",
+ *                 type="integer",
+ *                 example=3,
+ *                 description="New quantity for the cart item"
+ *             ),
+ *             @OA\Property(
+ *                 property="subtotal",
+ *                 type="number",
+ *                 format="float",
+ *                 example=375.25,
+ *                 description="Updated subtotal for the cart item"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Cart updated successfully"
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Quantity and subtotal required or invalid data"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Failed to update cart"
+ *     )
+ * )
+ */
 
     // Update cart
     public function update($id) {
@@ -179,6 +225,36 @@ public function store()
             echo json_encode(["error" => "Quantity and subtotal required"]);
         }
     }
+
+    /**
+ * @OA\Delete(
+ *       path="/mabini-cafe/phpbackend/routes/cart/{id}",
+ *     tags={"Carts"},
+ *     summary="Delete a cart item",
+ *     description="Tanggalin ang isang cart record batay sa kanyang ID.",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="ID ng cart na ide-delete",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Cart deleted successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Cart deleted successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Failed to delete cart",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="Failed to delete cart")
+ *         )
+ *     )
+ * )
+ */
 
     // Delete cart
     public function destroy($id) {

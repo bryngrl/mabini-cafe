@@ -78,10 +78,10 @@ class Cart{
           JOIN users b on a.user_id = b.id
           JOIN menu_items c on a.menu_item_id = c.id
           JOIN menu_categories d on c.category_id = d.id
-           WHERE a.user_id = :id;
+           WHERE a.user_id = :customerId
         ");
 
-          $stmt->bindParam(':id',$id);
+          $stmt->bindParam(':customerId',$customerId);
           $stmt->execute();
           return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -121,7 +121,7 @@ class Cart{
 
       //delete
        public function delete(){
-         $stmt = $this->conn->prepare("DELETE FROM ".$this->table." WHERE id = id:");
+         $stmt = $this->conn->prepare("DELETE FROM ".$this->table." WHERE id = :id");
          $stmt->bindParam(':id',$this->id);
          return $stmt->execute();
        }

@@ -305,7 +305,7 @@ class OrderController {
  * @OA\Get(
  *     path="/mabini-cafe/phpbackend/routes/orders/totalCancelled",
  *     tags={"Orders"},
- *     summary="Get all the sum of Delivered",
+ *     summary="Get all the sum of cancelled order",
  *     @OA\Response(
  *         response=500,
  *         description="Internal Server Error"
