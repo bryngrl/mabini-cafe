@@ -1,4 +1,18 @@
 <!-- Contact Us Page -->
+<script>
+    let title = '';
+    let name = '';
+    let email = '';
+    let contactReason = '';
+    let orderNumber = '';
+    let description = '';
+    let file = Image;
+// Function ulit for handling submission dito
+
+
+</script>
+
+
 <div class="contact-container">
 	<div class="contact-header">
 		<h1 class="contact-title">
@@ -16,18 +30,19 @@
 		<p class="text-mabini-red mt-2">* indicates a required field</p>
 	</div>
 	<form method="post" class="contact-form">
-		<input type="text" name="title" id="title" placeholder="Title *" class="contact-input" />
+		<input type="text" name="title" id="title" placeholder="Title *" class="contact-input" bind:value={title} />
 		<input
 			type="text"
 			name="name"
 			id="name"
 			placeholder="First name and Last Name *"
+			bind:value={name}
 			class="contact-input"
 		/>
 
-		<input type="email" name="email" id="email" placeholder="Email *" class="contact-input" />
+		<input type="email" name="email" id="email" placeholder="Email *" class="contact-input" bind:value={email} />
 
-		<select name="contact-reason" id="contact-reason" class="contact-input">
+		<select name="contact-reason" id="contact-reason" class="contact-input" bind:value={contactReason}>
 			<option value="" disabled selected>Contact Reason *</option>
 			<option>Issue with my product</option>
 			<option>Shipping Question</option>
@@ -42,6 +57,7 @@
 			id="order-number"
 			placeholder="Order Number *"
 			class="contact-input"
+            bind:value={orderNumber}
 		/>
 
 		<textarea
@@ -49,10 +65,11 @@
 			id="description"
 			placeholder="Tell us the details *"
 			class="contact-textarea"
+            bind:value={description}
 		></textarea>
 
 		<label for="files" class="contact-upload-label">Drag or Paste an image here</label>
-		<input id="files" type="file" class="contact-upload-input" />
+		<input id="files" type="file" class="contact-upload-input" bind:value={file} />
 
 		<button type="submit" class="contact-submit">Submit</button>
 	</form>

@@ -1,26 +1,20 @@
 <!-- Item Component -->
 <!-- This is where the items will be displayed -->
- <!-- Fetch the items to the backend -->
+<!-- Fetch the items to the backend -->
 
 <script lang="ts">
-	interface Item {
+	export let item: {
 		name: string;
-		price: string;
+		price: string | number;
 		image: string;
-	}
-
-	let item: Item = {
-		// This should be replaced with actual data fetched from  a API ni domsikie
-		name: 'Bacon & Egg',
-		price: '$5.00',
-		image: '/items/bacon-egg.png'
+		description?: string;
 	};
 
-	function addToCart(item: Item) {
+	function addToCart(item) {
 		console.log(`Added ${item.name} to cart`);
 	}
 
-	function viewDetails(item: Item) {
+	function viewDetails(item) {
 		console.log(`Viewing details for ${item.name}`);
 	}
 </script>
@@ -30,7 +24,12 @@
 	<div class="item-content">
 		<img src={item.image} alt={item.name} />
 		<h2 class="item-name font-extrabold">{item.name.toUpperCase()}</h2>
-		<p class="item-price">{item.price}</p>
+		<p class="item-price">
+			{typeof item.price === 'number' ? `$${item.price.toFixed(2)}` : item.price}
+		</p>
+		{#if item.description}
+			<p class="item-desc">{item.description}</p>
+		{/if}
 		<button class="cursor-pointer cart" on:click={() => addToCart(item)}>Add to Cart</button>
 		<button class="cursor-pointer" on:click={() => viewDetails(item)}>View Details</button>
 	</div>
@@ -41,11 +40,11 @@
 		border: 1px solid #eee;
 		border-radius: 0.5rem;
 		overflow: hidden;
-		width: 280px;
+		width: 200px;
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 		transition: transform 0.3s ease;
 		margin: 1rem;
-        
+		height: 350px;
 	}
 
 	.item-card:hover {
@@ -59,14 +58,16 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
+		height: 100%;
 	}
 
 	.item-content img {
 		width: 100%;
-		height: 100%;
+		max-height: 120px;
+		height: auto;
 		object-fit: cover;
 		border-radius: 0.25rem;
-		gap: 0.5rem;
+		margin-bottom: 0.5rem;
 	}
 
 	.item-content h2 {
@@ -89,6 +90,7 @@
 		background-color: #d9d9d9;
 		color: #666666;
 		font-weight: bold;
+		margin-top: auto;
 	}
 
 	.cart:hover {
