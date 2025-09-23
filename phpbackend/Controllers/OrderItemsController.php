@@ -14,13 +14,51 @@ class OrderItemsController{
         header('Content-Type: application/json');
     }
 
+    /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orderitems",
+ *     tags={"Order Items"},
+ *     summary="Get all Orderitems",
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of all Orderitems"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
+
    // return all Order in server
    public function index(){
      echo json_encode($this->model->getAll());
    } 
 
 
-   
+     /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orderitems/{id}",
+ *     tags={"Order Items"},
+ *     summary="Get all Orderitems by id",
+ * @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="ID ng menu Order item",
+ *         @OA\Schema(type="integer", example=3)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of all Orderitems"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
+
     // return specific order to server
    public function show($id){
     $order = $this->model->getById($id);
@@ -33,7 +71,29 @@ class OrderItemsController{
     }
    }
 
-
+     /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orderitems?orderId={orderId}",
+ *     tags={"Order Items"},
+ *     summary="Get all Orderitems by id",
+ * @OA\Parameter(
+ *         name="orderId",
+ *         in="path",
+ *         required=true,
+ *         description="ID ng menu Order item",
+ *         @OA\Schema(type="integer", example=3)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of all Orderitems"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
+  
    public function showByOrderId($orderId){
     $orderItem = $this->model->getByOrderId($orderId);
 
@@ -44,6 +104,8 @@ class OrderItemsController{
           echo json_encode(["Nothing"=>"no OrderItem found"]);
     }
    }
+
+
 
    //create orderItem
    public function store(){
