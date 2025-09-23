@@ -59,3 +59,9 @@
 		<div class="col-span-1 flex justify-center"></div>
 	</div>
 </footer>
+
+<style>
+	footer{
+		margin-top: auto;
+	}
+</style>

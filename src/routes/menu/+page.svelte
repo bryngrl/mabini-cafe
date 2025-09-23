@@ -43,7 +43,7 @@
 	<meta name="description" content="Browse our delicious menu of coffee, pastries, and more" />
 </svelte:head>
 <div class="page-header">
-    <h2 class="font-bold text-white text-align-center m-auto text-7xl">Menu</h2>
+	<h2 class="font-bold text-white text-align-center m-auto text-7xl">Menu</h2>
 </div>
 
 <div class="menu-page">
@@ -60,7 +60,7 @@
 			{/each}
 		</div>
 
-		<div class="main-menu">
+		<div class="main-menu ml-[50px] mr-[50px]">
 			<div class="menu-layout">
 				<aside class="sidebar">
 					<ul class="">
@@ -79,7 +79,9 @@
 				<div class="items-container">
 					<h1 class="menu-text">Our Menu</h1>
 					<div class="items-grid">
-						<Item />
+						<a href="/menu/[modal]">
+							<Item />
+						</a>
 					</div>
 				</div>
 			</div>
@@ -130,7 +132,7 @@
 	.menu-layout {
 		display: flex;
 		margin: 2rem 0;
-		align-items: flex-start;
+		align-items: stretch;
 	}
 
 	.sidebar {
@@ -139,10 +141,13 @@
 		background-color: #f1f1f1;
 		margin-left: 25px;
 		border-radius: 1rem 0rem 0rem 1rem;
+		height: 1440px;
+		align-self: stretch;
 	}
-
 	.items-container {
+		
 		flex: 1;
+		align-self: stretch;
 	}
 
 	.items-grid {
@@ -151,6 +156,7 @@
 		gap: 2rem;
 		border-radius: 0rem 0rem 1rem 0rem;
 		border: solid 1px gray;
+		height: 1380px;
 	}
 	.menu-text {
 		background-color: black;
