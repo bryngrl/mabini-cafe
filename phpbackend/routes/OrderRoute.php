@@ -59,8 +59,10 @@ switch ($method) {
             $controller->updatePaymentStatus($id);
             break;
           case 'setToCash':
+            $controller->updateToCashPayment($id);
            break;
-           case 'setTOOnline':
+           case 'setToOnline':
+              $controller->updateToOnlinePayment($id);
             break;
          default:
              http_response_code(405);

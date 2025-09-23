@@ -305,7 +305,7 @@ class OrderController {
  * @OA\Get(
  *     path="/mabini-cafe/phpbackend/routes/orders/totalCancelled",
  *     tags={"Orders"},
- *     summary="Get all the sum of Cancelled",
+ *     summary="Get all the sum of Delivered",
  *     @OA\Response(
  *         response=500,
  *         description="Internal Server Error"
@@ -316,5 +316,43 @@ class OrderController {
     public function showTotalCancelled(){
        $total = $this->model->getTotalCancelled();
         echo json_encode(["total_cancelled" => $total ]);
+    }
+
+
+      /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/setToOnline",
+ *     tags={"Orders"},
+ *     summary="set payment to Online",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
+    public function updateToOnlinePayment($id){
+          $order = $this->model->setToOnline($id);
+          echo json_encode($order ? ["message" => "Payment status updated to online"]
+                                : ["error" => "Failed to update order"]);
+    }
+
+
+
+
+      /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/setToCash",
+ *     tags={"Orders"},
+ *     summary="set payment to Online",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
+    public function updateToCashPayment($id){
+        $order = $this->model->setToCash($id);
+        echo json_encode($order ? ["message" => "Payment status updated to Cash"]
+             :["error" => "Failed to update order"]);
     }
 }

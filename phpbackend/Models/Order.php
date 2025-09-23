@@ -144,9 +144,16 @@
    }
 
   public function setToOnline($id){
-      $stmt = $this->conn->prepare("UPDATE ".$this->table." SET payment_method = 'Online' WHERE id =");
+      $stmt = $this->conn->prepare("UPDATE ".$this->table." SET payment_method = 'Online' WHERE id = :id");
+      $stmt->bindParam(":id",$id);
+      return $stmt->execute();
   }
-
-
+ 
+  public function setToCash($id){
+      $stmt = $this->conn->prepare("UPDATE ".$this->table." SET payment_method = 'Cash' WHERE id = :id");
+       $stmt->bindParam(":id",$id);
+      return $stmt->execute();
+  }
+ 
 
    }

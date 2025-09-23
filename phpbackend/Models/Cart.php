@@ -10,7 +10,9 @@ class Cart{
   public $quantity;
   public $subtotal;
 
-
+ public  function __construct($db) {
+  $this->conn = $db;
+ }
  
 
     // GET ALL carts in table
@@ -23,7 +25,7 @@ class Cart{
           c.description AS menu_item_description,
           c.price AS menu_item_price,
           a.quantity,
-          a.subttotal
+          a.subtotal
           FROM ".$this->table." a 
           JOIN users b on a.user_id = b.id
           JOIN menu_items c on a.menu_item_id = c.id
@@ -71,7 +73,7 @@ class Cart{
           c.description AS menu_item_description,
           c.price AS menu_item_price,
           a.quantity,
-          a.subttotal
+          a.subtotal
           FROM ".$this->table." a 
           JOIN users b on a.user_id = b.id
           JOIN menu_items c on a.menu_item_id = c.id
@@ -97,7 +99,7 @@ class Cart{
           $stmt->bindParam(':menu_item_id',$this->menu_item_id);
           $stmt->bindParam(':quantity',$this->quantity);
           $stmt->bindParam('subtotal',$this->subtotal);
-          $stmt->execute();
+          return $stmt->execute();
        }
 
    //update
