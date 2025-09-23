@@ -1,0 +1,1 @@
+<!-- modal for when the user click the view details -->

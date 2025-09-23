@@ -1,0 +1,44 @@
+.hero {
+	height: 70vh;
+	width: 100%;
+	background-size: cover;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: white;
+	text-align: center;
+}
+.hero-2 {
+	margin-top: 100px;
+	height: 100vh;
+	width: 100%;
+	background-size: cover;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	color: white;
+	text-align: center;
+	background-position: center 15%;
+}
+
+.hero-3 {
+	margin-top: 20px;
+	height: 70vh;
+	width: 100%;
+	background-size: cover;
+	display: flex;
+	justify-content: center;
+	align-items: top;
+	color: white;
+	text-align: center;
+}
+.paper {
+	background-color: black;
+	height: 100vh;
+	width: 100%;
+}
+.featured-products {
+	background-color: white;
+	height: 100vh;
+	width: 100%;
+}
