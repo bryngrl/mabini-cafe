@@ -126,6 +126,8 @@ class OrderController {
         $data = json_decode(file_get_contents("php://input"), true);
 
         if (!empty($data['user_id']) && !empty($data['total_amount'])) {
+              $this->model->user_id = $data['user_id'];
+              $this->model->total_amount = $data['total_amount'];
             if ($this->model->create($data)) {
                 http_response_code(201);
                 echo json_encode(["message" => "order created successfully"]);
@@ -139,52 +141,218 @@ class OrderController {
         }
     }
 
+  /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/preparing/{id}",
+ *     tags={"Orders"},
+ *     summary="Set Order to Preparing",
+ *        @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="unique id of order.",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
+ *   
+ *     @OA\Response(
+ *         response=200,
+ *         description="Order Being updated to preparing"
+ *     )
+ * )
+ */
     public function updateToPreparing($id) {
         $order = $this->model->setPreparingOrder($id);
         echo json_encode($order ? ["message" => "Order updated to preparing"]
                                 : ["error" => "Failed to update order"]);
     }
 
+     /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/completed/{id}",
+ *     tags={"Orders"},
+ *     summary="Set Order to Completed",
+ *        @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="unique id of order.",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
+ *   
+ *     @OA\Response(
+ *         response=200,
+ *         description="Order updated to completed"
+ *     )
+ * )
+ */
     public function updateToCompleted($id) {
         $order = $this->model->setCompletedOrder($id);
         echo json_encode($order ? ["message" => "Order updated to completed"]
                                 : ["error" => "Failed to update order"]);
     }
 
+    
+     /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/delivering/{id}",
+ *     tags={"Orders"},
+ *     summary="Set Order to delivering",
+ *        @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="unique id of order.",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
+ *   
+ *     @OA\Response(
+ *         response=200,
+ *         description="Order updated to delivering"
+ *     )
+ * )
+ */
     public function updateToDelivering($id) {
         $order = $this->model->setDeliveringOrder($id);
         echo json_encode($order ? ["message" => "Order updated to delivering"]
                                 : ["error" => "Failed to update order"]);
     }
 
+       /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/cancelled/{id}",
+ *     tags={"Orders"},
+ *     summary="Set Order to cancelled",
+ *        @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="unique id of order.",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
+ *   
+ *     @OA\Response(
+ *         response=200,
+ *         description="Order updated to cancelled successfully"
+ *     )
+ * )
+ */
     public function updateToCancelled($id) {
         $order = $this->model->setCancelingOrder($id);
         echo json_encode($order ? ["message" => "Order cancelled successfully"]
                                 : ["error" => "Failed to update order"]);
     }
 
+       /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/updatepayment/{id}",
+ *     tags={"Orders"},
+ *     summary="update payment status to paid ",
+ *        @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="unique id of order.",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
+ *   
+ *     @OA\Response(
+ *         response=200,
+ *         description="Payment status updated"
+ *     )
+ * )
+ */
     public function updatePaymentStatus($id) {
         $order = $this->model->setPaidStatus($id);
         echo json_encode($order ? ["message" => "Payment status updated"]
                                 : ["error" => "Failed to update order"]);
     }
 
-    public function destroy($id) {
-        $order = $this->model->delete($id);
-        echo json_encode($order ? ["message" => "Order deleted successfully"]
-                                : ["error" => "Failed to delete order"]);
-    }
 
-
+      /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orders/totalOrders",
+ *     tags={"Orders"},
+ *     summary="Get all the sum of Orders",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
     public function showTotalOrders(){
-        echo json_encode($this->model->getTotalOrders());
+        $total = $this->model->getTotalOrders();
+        echo json_encode(["total_orders"=>$total]);
     }
 
+      /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orders/totalDelivered",
+ *     tags={"Orders"},
+ *     summary="Get all the sum of Delivered",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
     public function showTotalDelivered(){
-        echo json_encode($this->model->getTotalDelivered());
+        $total = $this->model->getTotalDelivered();
+        echo json_encode(["total_delivered" => $total ]);
     }
+
+
+      /**
+ * @OA\Get(
+ *     path="/mabini-cafe/phpbackend/routes/orders/totalCancelled",
+ *     tags={"Orders"},
+ *     summary="Get all the sum of cancelled order",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
 
     public function showTotalCancelled(){
-        echo json_encode($this->model->getTotalCancelled());
+       $total = $this->model->getTotalCancelled();
+        echo json_encode(["total_cancelled" => $total ]);
+    }
+
+
+      /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/setToOnline",
+ *     tags={"Orders"},
+ *     summary="set payment to Online",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
+    public function updateToOnlinePayment($id){
+          $order = $this->model->setToOnline($id);
+          echo json_encode($order ? ["message" => "Payment status updated to online"]
+                                : ["error" => "Failed to update order"]);
+    }
+
+
+
+
+      /**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/orders/setToCash",
+ *     tags={"Orders"},
+ *     summary="set payment to Online",
+ *     @OA\Response(
+ *         response=500,
+ *         description="Internal Server Error"
+ *     )
+ * )
+ */
+    public function updateToCashPayment($id){
+        $order = $this->model->setToCash($id);
+        echo json_encode($order ? ["message" => "Payment status updated to Cash"]
+             :["error" => "Failed to update order"]);
     }
 }

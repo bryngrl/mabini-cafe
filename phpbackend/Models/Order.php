@@ -26,6 +26,7 @@
       a.total_amount,
       a.status,
       a.payment_status,
+      a.payment_method,
       a.created_at as order_time
       FROM ".$this->table." a JOIN users b on a.user_id = b.id");
       $stmt->execute();
@@ -42,6 +43,7 @@
       a.total_amount,
       a.status,
       a.payment_status,
+      a.payment_method,
       a.created_at as order_time
       FROM ".$this->table." a JOIN users b on a.user_id = b.id WHERE a.id = :id");
       $stmt->bindParam(":id",$id);
@@ -61,6 +63,7 @@
       a.total_amount,
       a.status,
       a.payment_status,
+      a.payment_method,
       a.created_at as order_time
       FROM ".$this->table." a JOIN users b on a.user_id = b.id WHERE a.user_id= :customerId");
       
@@ -74,19 +77,22 @@
       $stmt = $this->conn->prepare("SELECT COUNT(*) AS total_delivered FROM ".$this->table."WHERE status = 'Completed'");
       $stmt->execute();
 
-      return $stmt->fetch(PDO::FETCH_ASSOC);
+      $total = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $total['total_delivered'];
    }
 
    public function getTotalCancelled(){
       $stmt= $this->conn->prepare("SELECT COUNT(*) AS total_cancelled FROM ".$this->table."WHERE status = 'Cancelled'");
       $stmt->execute();
-      return $stmt->fetch(PDO::FETCH_ASSOC);
+      $total = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $total['total_cancelled'];
    }
 
    public function getTotalOrders(){
       $stmt = $this->conn->prepare("SELECT COUNT(*) AS total_orders FROM ".$this->table);
       $stmt->execute();
-         return $stmt->fetch(PDO::FETCH_ASSOC);
+      $total = $stmt->fetch(PDO::FETCH_ASSOC);
+      return $total['total_orders'];
    }
 
    public function create()
@@ -97,25 +103,25 @@
 
       $stmt->bindParam(":user_id",$this->user_id);
       $stmt->bindParam(":total_amount",$this->total_amount);
-      $stmt->execute();
+       return $stmt->execute();
    }
 
    public function setPreparingOrder($id){
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Preparing' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+         return $stmt->execute();
    }
 
    public function setCompletedOrder($id){
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Completed' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+         return $stmt->execute();
    }
    
    public function setDeliveringOrder($id){
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Delivering' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+     return $stmt->execute();
    }
    
 
@@ -123,7 +129,7 @@
    public function setCancelingOrder($id){
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET status = 'Canceled' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+        return $stmt->execute();
    }
 
    
@@ -134,11 +140,20 @@
    {
       $stmt= $this->conn->prepare("UPDATE ".$this->table." SET payment_status = 'Paid' WHERE id = :id");
       $stmt->bindParam(":id",$id);
-      $stmt->execute();
+        return $stmt->execute();
    }
 
-
-
-
+  public function setToOnline($id){
+      $stmt = $this->conn->prepare("UPDATE ".$this->table." SET payment_method = 'Online' WHERE id = :id");
+      $stmt->bindParam(":id",$id);
+      return $stmt->execute();
+  }
+ 
+  public function setToCash($id){
+      $stmt = $this->conn->prepare("UPDATE ".$this->table." SET payment_method = 'Cash' WHERE id = :id");
+       $stmt->bindParam(":id",$id);
+      return $stmt->execute();
+  }
+ 
 
    }
