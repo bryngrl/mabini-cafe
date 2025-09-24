@@ -24,6 +24,32 @@ class ContactsController{
         $this->model->order_id = $_POST['order_id'];
         $this->model->topic = $_POST['topic'];
         $this->model->message = $_POST['message'];
-        
+
+        if(empty($this->model->email) || empty($this->model->name)||empty($this->model->contact_reason)||empty($this->model->topic)){
+             http_response_code(400);
+        echo json_encode(["error" => "Name and price are required"]);
+        return;
+
+        }
+    // File upload
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+        $image = $_FILES['image'];
+        $imageName = time() . "_" . $image['name'];
+        $targetDir = "../uploads/menu/";
+        if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
+        $targetFile = $targetDir . $imageName;
+
+        if (move_uploaded_file($image['tmp_name'], $targetFile)) {
+            $this->model->image_path = "uploads/contacts/" . $imageName;
+        }
+    }
+    
+    if ($this->model->update()) {
+        http_response_code(200);
+        echo json_encode(["message" => "message sent successfully"]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to sent message"]);
+    }
     }
 }
