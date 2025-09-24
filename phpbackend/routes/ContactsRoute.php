@@ -1,5 +1,5 @@
 <?php
-require_once "../controllers/ContactsController.php";
+require_once "../Controllers/ContactsController.php";
 
 $controller = new ContactsController($db);
 
