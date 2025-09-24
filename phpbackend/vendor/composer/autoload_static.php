@@ -22,6 +22,7 @@ class ComposerStaticInit20fad51902f91e7fd3039e016a6556b5
         'P' => 
         array (
             'Psr\\Cache\\' => 10,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'O' => 
         array (
@@ -55,6 +56,10 @@ class ComposerStaticInit20fad51902f91e7fd3039e016a6556b5
         'Psr\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/cache/src',
+        ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
         'OpenApi\\' => 
         array (
