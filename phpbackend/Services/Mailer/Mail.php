@@ -7,7 +7,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 class Mail{
 
-function sendAutomate($email,$name){
+ public function sendAutomate($email,$name){
     $mail = new PHPMailer(true);
 
 
@@ -20,17 +20,26 @@ function sendAutomate($email,$name){
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // TLS encryption
     $mail->Port       = 587;                  // Port para sa TLS
 
-    // === SENDER & RECIPIENT ===
+
     $mail->setFrom('domdomkenneth23@gmail.com', 'Mabini Cafe');
     $mail->addAddress($email,$name);
 
-    $mail->isHTML(false);
-    $mail->Subject = 'PHPMailer SMTP test';
-    $mail->Body    = "PHPMailer is working with SMTP on localhost!";
+    $mail->isHTML(true);
+  
+     $mail->Subject = 'Thank you for contacting us!';
+    $body = "
+        <p>Hi {$name},</p>
+        <p>Thank you for reaching out to us! Someone from our team will respond to your inquiry within 24 hours. 
+        Please refrain from sending additional emails on your current thread, as this may push your message back in the queue. 
+        We apologize for any inconvenience and appreciate your patience!</p>
+        <p>Thank you,<br>
+        Team Mabini Cafe</p>
+    ";
 
+    $mail->Body = $body;
     // === SEND EMAIL ===
-       $mail->send();
-      $mail->smtpClose();
+      return $mail->send();
+   
 
 }
 

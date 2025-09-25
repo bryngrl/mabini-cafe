@@ -7,6 +7,7 @@ require_once 'Controller.php';
 class ContactsController extends Controller{
    private $model;
    private $mail;
+   
     public function __construct($db) {
         $this->model = new Contacts($db);
         $this->mail = new Mail();
@@ -47,18 +48,21 @@ class ContactsController extends Controller{
  *                 @OA\Property(
  *                     property="user_id",
  *                     type="integer",
- *                     description="ID of the user sending the message"
+ *                     description="ID of the user sending the message",
+ *                      example=1
  *                 ),
  *                 @OA\Property(
  *                     property="name",
  *                     type="string",
- *                     description="Name of the sender"
+ *                     description="Name of the sender",
+ *                     example="Kenneth Domdom"
  *                 ),
  *                 @OA\Property(
  *                     property="email",
  *                     type="string",
  *                     format="email",
- *                     description="Email of the sender"
+ *                     description="Email of the sender",
+ *                     example="domdomkenneth23@gmail.com"
  *                 ),
  *                 @OA\Property(
  *                     property="contact_reason",
@@ -74,12 +78,14 @@ class ContactsController extends Controller{
  *                 @OA\Property(
  *                     property="topic",
  *                     type="string",
- *                     description="Topic of the message"
+ *                     description="Topic of the message",
+ *                     example="event invitation"
  *                 ),
  *                 @OA\Property(
  *                     property="message",
  *                     type="string",
- *                     description="The actual message content"
+ *                     description="The actual message content",
+ *                     example="i want you to invite lerum ipsum etc etc"
  *                 ),
  *                 @OA\Property(
  *                     property="image",
@@ -140,9 +146,10 @@ public function store(){
             $this->model->image_path = "uploads/contacts/" . $imageName;
         }
     }
-
-    if ($this->model->create()) {
-         $mail->sendAutomate($this->model->email,$this->model->name);
+     
+      $isSendNotif=$this->mail->sendAutomate($_POST['email'],$_POST['name']);
+    if ($this->model->create() && $isSendNotif ) {
+       
         http_response_code(200);
         echo json_encode(["message" => "message sent successfully"]);
     } else {
