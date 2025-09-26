@@ -26,7 +26,7 @@
             //GET Admins BY ID
         public function getById($id)
         {
-            $stmt = $this->conn->prepare("SELECT * FROM ".$this->table." WHERE id =:id");
+            $stmt = $this->conn->prepare("SELECT id,email,username FROM ".$this->table." WHERE id =:id");
             $stmt->bindParam(":id",$id);
             $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC); // fetch single row
