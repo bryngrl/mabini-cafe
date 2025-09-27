@@ -6,6 +6,9 @@ $controller = new AdminController($db);
 if ($subresource === 'login') {
     $controller->login();
     exit;
+}else if($subresource ==='logout'){
+    $controller->logout();
+    exit;
 }   
 
 switch ($method) {

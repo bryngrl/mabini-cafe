@@ -27,7 +27,7 @@ class User{
     //GET USERS BY ID
     public function getById($id)
     {
-        $stmt = $this->conn->prepare("SELECT * FROM ".$this->table." WHERE id =:id");
+        $stmt = $this->conn->prepare("SELECT id,email,username,address,contact_number FROM ".$this->table." WHERE id =:id");
         $stmt->bindParam(":id",$id);
           $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC); // fetch single row
@@ -37,11 +37,13 @@ class User{
         // CREATE user
     public function create() {
         $stmt = $this->conn->prepare(
-            "INSERT INTO " . $this->table . " (username, email, password) VALUES (:username, :email, :password)"
+            "INSERT INTO " . $this->table . "(username, email, password,address,contact_number) VALUES (:username, :email, :password,:address,:contact_number)"
         );
         $stmt->bindParam(":username", $this->username);
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":password", $this->password); // hashed password
+        $stmt->bindParam(":address",$this->address);
+        $stmt->bindParam(":contact_number",$this->contact_number);
         return $stmt->execute();
     }
 
