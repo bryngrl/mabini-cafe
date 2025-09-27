@@ -17,12 +17,12 @@
 <nav
 	class="flex items-center justify-between p-4 bg-black text-white px-15 py-5 font-medium uppercase drop-shadow-2xl"
 >
-	<!-- Left-aligned links -->
+	<!-- Left links -->
 	<div class="flex-1 flex justify-start ml-[50px]">
 		<ul class="flex gap-6 items-center">
 			{#each links as link}
 				<li class="relative group">
-					<a class="hover:text-mabini-beige text-[16px]" href={link.href}>
+					<a class=" text-[16px]" href={link.href}>
 						{link.name}
 					</a>
 					<span class="underline-anim"></span>

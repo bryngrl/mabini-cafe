@@ -1,54 +1,66 @@
 <!-- Contact Us Page -->
 <!-- TODO: Implement form submission logic -->
 <!-- TODO: Add validation for required fields -->
- <!-- TODO: Handle file uploads -->
-
-
+<!-- TODO: Handle file uploads -->
 
 <script>
-    let title = '';
-    let name = '';
-    let email = '';
-    let contactReason = '';
-    let orderNumber = '';
-    let description = '';
-    let file = Image;
-// Function ulit for handling submission dito
-
-
+	let title = '';
+	let name = '';
+	let email = '';
+	let contactReason = '';
+	let orderNumber = '';
+	let description = '';
+	let file = null;
+	// Function ulit for handling submission dito
 </script>
 
-
-<div class="contact-container">
-	<div class="contact-header">
-		<h1 class="contact-title">
-			Contact <span class="text-mabini-yellow">Us</span>
+<div class="max-w-xl mx-auto p-8 bg-white rounded-xl">
+	<div class="text-left mb-8 font-light">
+		<h1 class="h1-heading font-extrabold uppercase mb-2">
+			Contact <span class="text-[#ffd700]">Us</span>
 		</h1>
 		<p>
 			Feel free to reach out to us at any time. We're here to help with orders, product questions,
 			and any feedback you may have.
 		</p>
-        <br />
+		<br />
 		<p class="mt-4">
 			Our customer service team can assist by email Monday to Friday, from 9am to 5pm (excluding
 			holidays). We'll aim to get back to you within 2 business days.
 		</p>
-		<p class="text-mabini-red mt-2">* indicates a required field</p>
+		<p class="text-[#e53935] mt-2">* indicates a required field</p>
 	</div>
-	<form method="post" class="contact-form">
-		<input type="text" name="title" id="title" placeholder="Title *" class="contact-input" bind:value={title} />
+	<form method="post" enctype="multipart/form-data" class="flex flex-col gap-5">
+		<input
+			type="text"
+			name="title"
+			id="title"
+			placeholder="Title *"
+			class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base"
+			bind:value={title}
+		/>
 		<input
 			type="text"
 			name="name"
 			id="name"
 			placeholder="First name and Last Name *"
 			bind:value={name}
-			class="contact-input"
+			class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base"
 		/>
-
-		<input type="email" name="email" id="email" placeholder="Email *" class="contact-input" bind:value={email} />
-
-		<select name="contact-reason" id="contact-reason" class="contact-input" bind:value={contactReason}>
+		<input
+			type="email"
+			name="email"
+			id="email"
+			placeholder="Email *"
+			class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base"
+			bind:value={email}
+		/>
+		<select
+			name="contact-reason"
+			id="contact-reason"
+			class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base"
+			bind:value={contactReason}
+		>
 			<option value="" disabled selected>Contact Reason *</option>
 			<option>Issue with my product</option>
 			<option>Shipping Question</option>
@@ -56,116 +68,37 @@
 			<option>Collaboration</option>
 			<option>Other / General Inquiry</option>
 		</select>
-
 		<input
 			type="number"
 			name="order-number"
 			id="order-number"
 			placeholder="Order Number *"
-			class="contact-input"
-            bind:value={orderNumber}
+			class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base"
+			bind:value={orderNumber}
 		/>
-
 		<textarea
 			name="description"
 			id="description"
 			placeholder="Tell us the details *"
-			class="contact-textarea"
-            bind:value={description}
+			class="w-full h-28 px-4 py-3 border border-gray-300 rounded-lg resize-none text-base"
+			bind:value={description}
 		></textarea>
-
-		<label for="files" class="contact-upload-label">Drag or Paste an image here</label>
-		<input id="files" type="file" class="contact-upload-input" bind:value={file} />
-
-		<button type="submit" class="contact-submit">Submit</button>
+		<label
+			for="files"
+			class="flex items-center justify-center border border-dashed border-gray-300 rounded-lg px-4 py-3 text-gray-500 cursor-pointer"
+			>Drag or Paste an image here</label
+		>
+		<input
+			id="files"
+			name="files"
+			type="file"
+			class="hidden"
+			on:change={(e) => (file = e.target.files[0])}
+		/>
+		<button
+			type="submit"
+			class="w-full px-4 py-3 text-black border border-solid border-black rounded-full font-bold text-base cursor-pointer transition duration-200 hover:bg-mabini-black hover:text-white hover-border-0 mb-12"
+			>Submit</button
+		>
 	</form>
 </div>
-
-<style>
-	.contact-container {
-		max-width: 600px;
-		margin: 0 auto;
-		padding: 2rem 1rem;
-		background: white;
-		border-radius: 1rem;
-		/* box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08); */
-	}
-
-	.contact-header {
-		text-align: left;
-		margin-bottom: 2rem;
-        font-weight: 300;
-	}
-
-	.contact-title {
-		font-size: 4rem;
-		font-weight: 900;
-		text-transform: uppercase;
-	}
-
-	.contact-form {
-		display: flex;
-		flex-direction: column;
-		gap: 1.25rem;
-	}
-
-	.contact-input {
-		width: 100%;
-		padding: 0.75rem;
-		border: 1px solid #ccc;
-		border-radius: 0.5rem;
-		font-size: 1rem;
-		height: 50px;
-	}
-
-	.contact-textarea {
-		width: 100%;
-		height: 120px;
-		padding: 0.75rem;
-		border: 1px solid #ccc;
-		border-radius: 0.5rem;
-		resize: none;
-		font-size: 1rem;
-	}
-
-	.contact-upload-label {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border: 1px dashed #ccc;
-		border-radius: 0.5rem;
-		padding: 0.75rem;
-		color: #888;
-		cursor: pointer;
-	}
-
-	.contact-upload-input {
-		display: none;
-	}
-
-	.contact-submit {
-		width: 100%;
-		padding: 0.75rem;
-		background: var(--color-mabini-white, #ffd700);
-		color: #222;
-		border: solid 1px;
-		border-radius: 3rem;
-		font-size: 1rem;
-		font-weight: bold;
-		cursor: pointer;
-		transition: background 0.2s;
-		margin-bottom: 5rem;
-	}
-
-	.contact-submit:hover {
-		background: #e6c200;
-	}
-
-	.text-mabini-yellow {
-		color: #ffd700;
-	}
-
-	.text-mabini-red {
-		color: #e53935;
-	}
-</style>
