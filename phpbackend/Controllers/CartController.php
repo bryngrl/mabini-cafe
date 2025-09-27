@@ -29,6 +29,7 @@ class CartController {
 
     // Return all carts
     public function index() {
+        
         $carts = $this->model->getAll();
         echo json_encode($carts);
     }

@@ -9,7 +9,7 @@ function validateJWT() {
 
     if (!$token) {
         http_response_code(401);
-        echo json_encode(['error' => 'Token required']);
+        echo json_encode(['error' => 'Login required']);
         exit;
     }
 

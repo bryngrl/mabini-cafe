@@ -7,10 +7,9 @@ require_once 'Controller.php';
 class MenuController
 {
     private $model;
-
     public function __construct($db)
     {
-        $this->model = new Menu($db);
+        $this->model = new Menu($db); 
         header('Content-Type: application/json');
     }
 
