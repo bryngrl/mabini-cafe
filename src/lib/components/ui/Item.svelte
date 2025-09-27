@@ -3,29 +3,37 @@
 <!-- Fetch the items to the backend -->
 
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
 	export let item: {
 		name: string;
 		price: string | number;
 		image: string;
 		description?: string;
 	};
+	interface Item {
+		name: string;
+		price: string | number;
+		image: string;
+		description?: string;
+	}
+	const dispatch = createEventDispatcher();
 
-	function addToCart(item) {
+	function addToCart(item: Item) {
 		console.log(`Added ${item.name} to cart`);
 	}
 
-	function viewDetails(item) {
-		console.log(`Viewing details for ${item.name}`);
+	function viewDetails(item: Item) {
+		dispatch('viewDetails', item);
 	}
 </script>
 
 <link rel="stylesheet" href="/styles/item.css" />
 <div class="item-card">
-	<div class="item-content">
-		<img src={item.image} alt={item.name} />
+	<div class="item-content ">
+		<img src={item.image} alt={item.name} class="w-20 h-20 object-contain"/>
 		<h2 class="item-name font-extrabold">{item.name.toUpperCase()}</h2>
 		<p class="item-price">
-			{typeof item.price === 'number' ? `$${item.price.toFixed(2)}` : item.price}
+			{typeof item.price === 'number' ? `₱ ${item.price.toFixed(2)}` : item.price}
 		</p>
 		{#if item.description}
 			<p class="item-desc">{item.description}</p>
@@ -44,7 +52,7 @@
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 		transition: transform 0.3s ease;
 		margin: 1rem;
-		height: 350px;
+		height: 400px;
 	}
 
 	.item-card:hover {
@@ -65,7 +73,7 @@
 		width: 100%;
 		max-height: 120px;
 		height: auto;
-		object-fit: cover;
+		object-fit: contain;
 		border-radius: 0.25rem;
 		margin-bottom: 0.5rem;
 	}

@@ -40,8 +40,12 @@
 					<ul
 						class="absolute left-0 mt-10 w-50 bg-mabini-black text-mabini-white rounded shadow text-[16px]"
 					>
-						<li class="px-4 py-2 pb-5 cursor-pointer text-[16px]"><a href="/payment">ORDERS & PAYMENT</a></li>
-						<li class="px-4 py-2 pb-5 cursor-pointer text-[16px]"><a href="/shipping">SHIPPING</a></li>
+						<li class="px-4 py-2 pb-5 cursor-pointer text-[16px]">
+							<a href="/payment">ORDERS & PAYMENT</a>
+						</li>
+						<li class="px-4 py-2 pb-5 cursor-pointer text-[16px]">
+							<a href="/shipping">SHIPPING</a>
+						</li>
 					</ul>
 				{/if}
 			</li>

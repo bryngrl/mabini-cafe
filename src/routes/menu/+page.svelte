@@ -40,19 +40,31 @@
 
 	// Example items data
 	let items = [
-		{ id: 1, name: 'Savory Special Waffle', price: 120, description: 'Delicious savory waffle.' },
-		{ id: 2, name: 'Sweet Special Waffle', price: 110, description: 'Sweet and tasty waffle.' },
-		{ id: 3, name: 'Pizza', price: 200, description: 'Classic pizza with fresh ingredients.' },
-		{ id: 4, name: 'Pasta', price: 180, description: 'Italian pasta with sauce.' },
-		{ id: 5, name: 'All Day Breakfast', price: 150, description: 'Breakfast served all day.' },
-		{ id: 6, name: 'Ube Series', price: 130, description: 'Ube flavored drinks.' },
-		{ id: 7, name: 'Refreshers', price: 100, description: 'Refreshing beverages.' },
-		{ id: 8, name: 'Non-Caffeine Frappe', price: 120, description: 'Frappe without caffeine.' },
-		{ id: 9, name: 'Matcha Series', price: 140, description: 'Matcha flavored drinks.' },
-		{ id: 10, name: 'Hot Coffee', price: 90, description: 'Hot brewed coffee.' },
-		{ id: 11, name: 'Iced Coffee', price: 95, description: 'Iced coffee drinks.' },
-		{ id: 12, name: 'Caffeine Frappe', price: 125, description: 'Frappe with caffeine.' }
+		{ id: 1, name: 'Savory Special Waffle', price: 120, description: 'Delicious savory waffle.', image: '/' },
+		{ id: 2, name: 'Sweet Special Waffle', price: 110, description: 'Sweet and tasty waffle.', image: '/' },
+		{ id: 3, name: 'Pizza', price: 200, description: 'Classic pizza with fresh ingredients.', image: '/' },
+		{ id: 4, name: 'Pasta', price: 180, description: 'Italian pasta with sauce.', image: '/' },
+		{ id: 5, name: 'All Day Breakfast', price: 150, description: 'Breakfast served all day.', image: '/items/bacon-egg.png' },
+		{ id: 6, name: 'Ube Series', price: 130, description: 'Ube flavored drinks.', image: '/' },
+		{ id: 7, name: 'Refreshers', price: 100, description: 'Refreshing beverages.', image: '/' },
+		{ id: 8, name: 'Non-Caffeine Frappe', price: 120, description: 'Frappe without caffeine.', image: '/' },
+		{ id: 9, name: 'Matcha Series', price: 140, description: 'Matcha flavored drinks.', image: '/' },
+		{ id: 10, name: 'Hot Coffee', price: 90, description: 'Hot brewed coffee.', image: '/items/hot-coffee.png' },
+		{ id: 11, name: 'Iced Coffee', price: 95, description: 'Iced coffee drinks.', image: '/' },
+		{ id: 12, name: 'Caffeine Frappe', price: 125, description: 'Frappe with caffeine.', image: '/' }
 	];
+
+	let selectedItem = null;
+	let modalOpen = false;
+
+	function handleViewDetails(item) {
+		selectedItem = item;
+		modalOpen = true;
+	}
+	function closeModal() {
+		modalOpen = false;
+		selectedItem = null;
+	}
 
 	function selectSubcategory(subcategory: string) {
 		selectedSubcategory = subcategory;
@@ -105,11 +117,11 @@
 					<div class="items-grid">
 						{#each items.filter( (item) => (selectedCategory === 'All' ? !selectedSubcategory || item.name === selectedSubcategory : !selectedSubcategory || item.name === selectedSubcategory) ) as item}
 							<div>
-								<Item {item} />
-								<!-- Add view details/modal logic if needed -->
+								<Item {item} on:viewDetails={() => handleViewDetails(item)} />
 							</div>
 						{/each}
 					</div>
+					<ItemModal {selectedItem} {modalOpen} on:close={closeModal} />
 				</div>
 			</div>
 		</div>

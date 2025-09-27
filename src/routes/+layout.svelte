@@ -5,13 +5,13 @@
 	import { page } from '$app/stores';
 </script>
 
-{#if $page.url.pathname !== '/login'}
+{#if $page.url.pathname !== '/login' && $page.url.pathname !== '/signup'}
 	<Header />
 {/if}
 <main class="">
 	<slot />
 </main>
-{#if $page.url.pathname !== '/login'}
+{#if $page.url.pathname !== '/login' && $page.url.pathname !== '/signup'}
 	<Footer />
 {/if}
 

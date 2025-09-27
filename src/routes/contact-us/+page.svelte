@@ -1,4 +1,10 @@
 <!-- Contact Us Page -->
+<!-- TODO: Implement form submission logic -->
+<!-- TODO: Add validation for required fields -->
+ <!-- TODO: Handle file uploads -->
+
+
+
 <script>
     let title = '';
     let name = '';
