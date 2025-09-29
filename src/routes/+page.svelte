@@ -86,11 +86,13 @@
 			</button>
 			<div bind:this={scrollRef} class="flex overflow-x-auto gap-4 py-4 px-2 scrollbar-hide">
 				{#each products as product}
-					<div class="min-w-[180px] bg-white rounded-xl shadow-md p-4 flex flex-col items-center">
-						<img src={product.img} alt={product.name} class="w-24 h-24 object-contain mb-2" />
+					<div class="min-w-[180px] min-h-[250px] bg-white rounded-xl shadow-md p-4 flex flex-col items-center">
+						<img src={product.img} alt={product.name} class="w-24 h-24 object-contain mb-2 mt-9" />
 						<div class="font-bold text-sm mb-1">{product.name}</div>
-						<div class="text-xs mb-1">{product.price}</div>
-						<div class="text-xs text-gray-500">{product.temp}</div>
+						<div class="flex items-center text-xs mb-1">
+							<span>{product.price}</span>
+							<span class="ml-7 text-gray-500">{product.temp}</span>
+						</div>
 					</div>
 				{/each}
 			</div>
