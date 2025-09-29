@@ -7,13 +7,13 @@
 	export let item: {
 		name: string;
 		price: string | number;
-		image: string;
+		image_path: string;
 		description?: string;
 	};
 	interface Item {
 		name: string;
 		price: string | number;
-		image: string;
+		image_path: string;
 		description?: string;
 	}
 	const dispatch = createEventDispatcher();
