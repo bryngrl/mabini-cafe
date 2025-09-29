@@ -11,7 +11,7 @@
     <script>
     function getUsers() {
         // relative path lang since magkatabi sila
-       fetch("http://localhost/phpbackend")
+       fetch("http://localhost/mabini-cafe/phpbackend/routes/menu")
         .then(response => response.json())
         .then(data => {
             document.getElementById("output").innerText = JSON.stringify(data, null, 2);

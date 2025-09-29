@@ -70,16 +70,16 @@ class UserController {
     
     // GET single user
     public function show($id) {
-        $decoded = validateJWT();
+    //     $decoded = validateJWT();
 
 
         
-       if(!isAdminAuthorized($decoded))
-          {
-            http_response_code(403);
-            echo json_encode(["error" => "Forbidden access"]);
-           return;
-          }
+    //    if(!isAdminAuthorized($decoded))
+    //       {
+    //         http_response_code(403);
+    //         echo json_encode(["error" => "Forbidden access"]);
+    //        return;
+    //       }
         $user = $this->model->getById($id);
         if($user){
             echo json_encode($user);
@@ -205,7 +205,7 @@ class UserController {
 
     // PUT update user
     public function update($id) {
-          $decoded = validateJWT();
+        //   $decoded = validateJWT();
         $data = json_decode(file_get_contents("php://input"), true);
         if(!empty($data['username']) && !empty($data['email'])){
             $this->model->id = $id;
@@ -230,7 +230,7 @@ class UserController {
 
     // DELETE user
     public function destroy($id) {
-          $decoded = validateJWT();
+        //   $decoded = validateJWT();
         $this->model->id = $id;
         if($this->model->delete()){
             echo json_encode(["message"=>"User deleted successfully"]);
