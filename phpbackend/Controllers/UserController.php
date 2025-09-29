@@ -32,15 +32,15 @@ class UserController {
 
     // GET all users
     public function index() {
-        $decoded = validateJWT();
+        // $decoded = validateJWT();
 
-         if(!isAdminAuthorized($decoded))
-          {
-            http_response_code(403);
-            echo json_encode(["error" => "Forbidden access"]);
-           return;
-          }
+        //  if(!isAdminAuthorized($decoded))
+        //   {http_response_code(403);
+        //     echo json_encode(["error" => "Forbidden access"]);
+        //    return;
+        //   }
 
+            
         echo json_encode($this->model->getAll());
     }
 
