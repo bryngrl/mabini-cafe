@@ -13,7 +13,7 @@
 		message = '';
 		loading = true;
 		try {
-			const response = await fetch('/phpbackend/routes/UserRoute.php', {
+			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/users/login', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

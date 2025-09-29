@@ -19,7 +19,7 @@
 		}
 		loading = true;
 		try {
-			const response = await fetch('http://localhost/phpbackend/routes/UserRoute.php', {
+			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/users', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
