@@ -5,6 +5,12 @@
 	let heroImage3 = '/images/cover-photo-2.png';
 </script>
 
+<svelte:head>
+	<title>Mabini Cafe</title>
+	<meta name="description" content="Welcome to Mabini Cafe" />
+</svelte:head>
+
+
 <link rel="stylesheet" href="src/styles/home.css" />
 <section class="hero" style="background-image: url('{heroImage}')">
 	<!-- The three circles here -->

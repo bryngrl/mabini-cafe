@@ -13,6 +13,10 @@
 	let file = null;
 	// Function ulit for handling submission dito
 </script>
+<svelte:head>
+	<title>Contact Us - Mabini Cafe</title>
+	<meta name="description" content="Get in touch with Mabini Cafe" />
+</svelte:head>
 
 <div class="max-w-xl mx-auto p-8 bg-white rounded-xl">
 	<div class="text-left mb-8 font-light">

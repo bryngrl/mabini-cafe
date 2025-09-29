@@ -15,8 +15,8 @@
 </script>
 
 <svelte:head>
-	<title>Order - Mabini Cafe</title>
-	<meta name="description" content="Place your order at Mabini Cafe" />
+	<title>Cart - Mabini Cafe</title>
+	<meta name="description" content="Manage your cart at Mabini Cafe" />
 </svelte:head>
 
 <div class="flex min-h-[100vh]">
@@ -137,10 +137,12 @@
 				<p class="text-lg font-[900] pl-20">₱30.00</p>
 			</div>
 			<p class="text-normal pt-5 pb-5">* shipping calculated at checkout.</p>
-			<button
+			<button 
 				class="w-full bg-mabini-dark-brown font-bold rounded-full py-2 px-10 text-base tracking-wide text-center"
 			>
-				CHECKOUT - ₱000.00
+				<a href="/place-order" class="w-full">
+					Checkout - ₱30.00
+				</a>
 			</button>
 		</div>
 	</div>

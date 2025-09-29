@@ -19,7 +19,7 @@
 	<meta name="description" content="Place your order at Mabini Cafe" />
 </svelte:head>
 
-<div class="flex min-h-[200vh]">
+<div class="flex min-h-screen	">
 	<div class="flex-1 bg-black text-white flex justify-center p-8">
 		<div>
 			<!-- Logo -->

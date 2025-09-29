@@ -1,3 +1,8 @@
+<svelte:head>
+	<title>Orders & Payment - Mabini Cafe</title>
+	<meta name="description" content="Manage your orders and payments at Mabini Cafe" />
+</svelte:head>
+
 <div class="max-w-3xl mx-auto p-8 mt-30 bg-white rounded-xl h-[200vh]">
 	<div class="mb-8 text-left">
 		<h1 class="h1-heading font-black mb-4 text-6xl lg:text-7xl xl:text-8xl">
