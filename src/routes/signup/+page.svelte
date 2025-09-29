@@ -1,14 +1,48 @@
-<!-- TODO: Implement signup form submission -->
-<!-- TODO: Add validation -->
-<!-- TODO: Show success/error messages -->
-<!-- TODO: Handle form submission -->
-
+<!-- TODO: FETCH API ENDPOINT -->
 <script lang="ts">
 	let name = '';
 	let email = '';
 	let password = '';
 	let confirmPassword = '';
 	let loading = false;
+	let message = '';
+	let error = '';
+
+	async function handleSignup(event: Event) {
+		event.preventDefault();
+		error = '';
+		message = '';
+		
+		if (password !== confirmPassword) {
+			error = 'Passwords do not match.';
+			return;
+		}
+		loading = true;
+		try {
+			const response = await fetch('http://localhost/phpbackend/routes/UserRoute.php', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					name,
+					email,
+					password
+				})
+			});
+			const data = await response.json();
+			if (response.ok && data.success) {
+				message = 'Account created successfully!';
+				name = email = password = confirmPassword = '';
+			} else {
+				error = data.message || 'Signup failed.';
+			}
+		} catch (err) {
+			error = 'Network error. Please try again.';
+		} finally {
+			loading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -24,7 +58,7 @@
 				Enter your email and we'll send you a sign-in code.
 			</p>
 		</div>
-		<form action="#">
+		<form on:submit|preventDefault={handleSignup}>
 			<div class="inputBox">
 				<input
 					type="text"
@@ -69,6 +103,12 @@
 					disabled={loading}
 				/>
 			</div>
+			{#if error}
+				<p style="color: red; padding-top: 0.5rem;">{error}</p>
+			{/if}
+			{#if message}
+				<p style="color: green; padding-top: 0.5rem;">{message}</p>
+			{/if}	
 			<button type="submit" class="login-btn" disabled={loading}>
 				{loading ? 'Signing up...' : 'Sign Up'}
 			</button>

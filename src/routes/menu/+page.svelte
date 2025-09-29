@@ -1,14 +1,13 @@
-<!-- Menu -->
-<!-- Product fetch for menu items -->
+<!-- TODO: FETCH URL DIN SA API NI DOM -->
 <script lang="ts">
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
+	import { onMount } from 'svelte';
 
 	let categories = ['All', 'Pastries', 'Beverages', 'Meals'];
 	let selectedCategory = categories[0];
 	let selectedSubcategory: string | null = null;
 
-	// Will be fetcch din sa api ni dom
 	let subcategories: Record<string, string[]> = {
 		All: [
 			'Savory Special Waffle',
@@ -39,20 +38,34 @@
 	};
 
 	// Example items data
-	let items = [
-		{ id: 1, name: 'Savory Special Waffle', price: 120, description: 'Delicious savory waffle.', image: '/' },
-		{ id: 2, name: 'Sweet Special Waffle', price: 110, description: 'Sweet and tasty waffle.', image: '/' },
-		{ id: 3, name: 'Pizza', price: 200, description: 'Classic pizza with fresh ingredients.', image: '/' },
-		{ id: 4, name: 'Pasta', price: 180, description: 'Italian pasta with sauce.', image: '/' },
-		{ id: 5, name: 'All Day Breakfast', price: 150, description: 'Breakfast served all day.', image: '/items/bacon-egg.png' },
-		{ id: 6, name: 'Ube Series', price: 130, description: 'Ube flavored drinks.', image: '/' },
-		{ id: 7, name: 'Refreshers', price: 100, description: 'Refreshing beverages.', image: '/' },
-		{ id: 8, name: 'Non-Caffeine Frappe', price: 120, description: 'Frappe without caffeine.', image: '/' },
-		{ id: 9, name: 'Matcha Series', price: 140, description: 'Matcha flavored drinks.', image: '/' },
-		{ id: 10, name: 'Hot Coffee', price: 90, description: 'Hot brewed coffee.', image: '/items/hot-coffee.png' },
-		{ id: 11, name: 'Iced Coffee', price: 95, description: 'Iced coffee drinks.', image: '/' },
-		{ id: 12, name: 'Caffeine Frappe', price: 125, description: 'Frappe with caffeine.', image: '/' }
-	];
+	let items = [];
+	let loading = false;
+	let error = '';
+
+	onMount(async () => {
+		loading = true;
+		error = '';
+		try {
+			const response = await fetch('/phpbackend/routes/MenuRoute.php');
+			const data = await response.json();
+			if (response.ok && Array.isArray(data)) {
+				// Ensure backend keys match: id, name, price, description, image
+				items = data.map(item => ({
+					id: item.id,
+					name: item.name,
+					price: item.price,
+					description: item.description,
+					image: item.image
+				}));
+			} else {
+				error = 'Failed to load menu items.';
+			}
+		} catch (err) {
+			error = 'Network error. Please try again.';
+		} finally {
+			loading = false;
+		}
+	});
 
 	let selectedItem = null;
 	let modalOpen = false;
@@ -114,6 +127,12 @@
 
 				<div class="items-container">
 					<h1 class="menu-text">Our Menu</h1>
+					{#if loading}
+						<p>Loading menu items...</p>
+					{/if}
+					{#if error}
+						<p style="color: red;">{error}</p>
+					{/if}
 					<div class="items-grid">
 						{#each items.filter( (item) => (selectedCategory === 'All' ? !selectedSubcategory || item.name === selectedSubcategory : !selectedSubcategory || item.name === selectedSubcategory) ) as item}
 							<div>

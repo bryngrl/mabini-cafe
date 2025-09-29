@@ -1,8 +1,41 @@
+<!-- TODO: FETCH URL AND REDIRECT TSAKA STORE NG TOKEN -->
+
 <script lang="ts">
-	// Need pa ng function for handling login called from backend
 	let email = '';
 	let loading = false;
 	let password = '';
+	let error = '';
+	let message = '';
+
+	async function handleLogin(event: Event) {
+		event.preventDefault();
+		error = '';
+		message = '';
+		loading = true;
+		try {
+			const response = await fetch('/phpbackend/routes/UserRoute.php', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					email,
+					password
+				})
+			});
+			const data = await response.json();
+			if (response.ok && data.success) {
+				message = 'Login successful!';
+				// redirect and store token otid
+			} else {
+				error = data.message || 'Login failed.';
+			}
+		} catch (err) {
+			error = 'Network error. Please try again.';
+		} finally {
+			loading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -15,7 +48,7 @@
 			<a href="/"><img src="/images/LOGO-4.png" alt="LOGO" style="filter: invert(1);" /></a>
 			<h2 class="uppercase text-left">Login</h2>
 		</div>
-		<form action="#">
+		<form on:submit|preventDefault={handleLogin}>
 			<div class="inputBox">
 				<input
 					type="email"
@@ -38,6 +71,12 @@
 					disabled={loading}
 				/>
 			</div>
+			{#if error}
+				<p style="color: red;">{error}</p>
+			{/if}
+			{#if message}
+				<p style="color: green;">{message}</p>
+			{/if}
 			<button type="submit" class="login-btn" disabled={loading}>
 				{loading ? 'Signing in...' : 'Sign In'}
 			</button>
