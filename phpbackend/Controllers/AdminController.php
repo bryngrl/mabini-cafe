@@ -34,13 +34,13 @@ private $auth;
 
  // GET all Admins
     public function index() {
-        $decoded = validateJWT();
-         if(!isAdminAuthorized($decoded))
-          {
-            http_response_code(403);
-            echo json_encode(["error" => "Forbidden access"]);
-           return;
-          }
+        // $decoded = validateJWT();
+        //  if(!isAdminAuthorized($decoded))
+        //   {
+        //     http_response_code(403);
+        //     echo json_encode(["error" => "Forbidden access"]);
+        //    return;
+        //   }
 
 
           echo json_encode($this->model->getAll());
@@ -75,14 +75,14 @@ private $auth;
     //get single admin
     public function show($id)
     {
-        $decoded = validateJWT();
+    //     $decoded = validateJWT();
 
-       if(!isAdminAuthorized($decoded))
-          {
-            http_response_code(403);
-            echo json_encode(["error" => "Forbidden access"]);
-           return;
-          }
+    //    if(!isAdminAuthorized($decoded))
+    //       {
+    //         http_response_code(403);
+    //         echo json_encode(["error" => "Forbidden access"]);
+    //        return;
+    //       }
     $admin = $this->model->getById($id);
 
     if($admin){
@@ -216,7 +216,7 @@ private $auth;
 
        // PUT update Admin
     public function update($id) {
-        $decoded = validateJWT();
+        // $decoded = validateJWT();
         $data = json_decode(file_get_contents("php://input"), true);
         if(!empty($data['username']) && !empty($data['email'])){
             $this->model->id = $id;
@@ -239,13 +239,13 @@ private $auth;
        // DELETE Admin
     public function destroy($id) {
         
-        $decoded = validateJWT();
-         if(!isAdminAuthorized($decoded))
-          {
-            http_response_code(403);
-            echo json_encode(["error" => "Forbidden access"]);
-           return;
-          }
+        // $decoded = validateJWT();
+        //  if(!isAdminAuthorized($decoded))
+        //   {
+        //     http_response_code(403);
+        //     echo json_encode(["error" => "Forbidden access"]);
+        //    return;
+        //   }
         $this->model->id = $id;
         if($this->model->delete()){
             echo json_encode(["message"=>"User deleted successfully"]);
