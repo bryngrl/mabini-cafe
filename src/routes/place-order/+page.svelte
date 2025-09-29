@@ -1,3 +1,7 @@
+<!-- ABOUT THIS -->
+
+<!-- Static only and not dynamic or interactive -->
+
 <script lang="ts">
 	let email = '';
 	let fname = '';
@@ -146,10 +150,73 @@
 		</div>
 	</div>
 
-	<div class="flex-1 bg-white text-black flex justify-center p-8">
+	<div class="flex-1 bg-white text-black flex p-20">
 		<div>
-			<h2 class="text-2xl font-bold mb-4">Items</h2>
-			<p>Cart Items</p>
+			<!-- Items to checkout -->
+			<h2 class="text-2xl font-bold mb-4 text-left">Items</h2>
+
+			<div class="flex items-center gap-10 mb-4">
+				<img
+					src="/images/food-1.png"
+					alt="Food Item"
+					class="w-24 h-24 object-cover rounded-lg border border-gray-300"
+				/>
+				<div class="flex-1 flex justify-between items-center">
+					<div>
+						<h3 class="text-lg font-semibold">Name</h3>
+						<p class="text-gray-600">Quantity: 1</p>
+					</div>
+					<p class="text-lg text-gray-500 font-semibold pl-[300px]">₱10.00</p>
+					<!-- <button class="text-red-600 hover:text-red-800 transition ml-4">Remove</button> -->
+				</div>
+			</div>
+			<!-- ITEMS -->
+			<div class="flex items-center gap-10 mb-4">
+				<img
+					src="/images/food-1.png"
+					alt="Food Item"
+					class="w-24 h-24 object-cover rounded-lg border border-gray-300"
+				/>
+				<div class="flex-1 flex justify-between items-center">
+					<div>
+						<h3 class="text-lg font-semibold">Name</h3>
+						<p class="text-gray-600">Quantity: 1</p>
+					</div>
+					<p class="text-lg text-gray-500 font-semibold pl-[300px]">₱10.00</p>
+				</div>
+			</div>
+			<div class="flex items-center gap-10 mb-4">
+				<img
+					src="/images/food-1.png"
+					alt="Food Item"
+					class="w-24 h-24 object-cover rounded-lg border border-gray-300"
+				/>
+				<div class="flex-1 flex justify-between items-center">
+					<div>
+						<h3 class="text-lg font-semibold">Name</h3>
+						<p class="text-gray-600">Quantity: 1</p>
+					</div>
+					<p class="text-lg text-gray-500 font-semibold pl-[300px]">₱10.00</p>
+				</div>
+			</div>
+			<hr class="my-4 border-gray-300" />
+			<div class="flex justify-between items-center mb-2">
+				<div class="flex flex-1 justify-between items-center">
+					<span class="text-gray-600">Subtotal • 3 Items</span>
+					<span class="font-semibold">₱30.00</span>
+				</div>
+			</div>
+			<div class="flex flex-1 justify-between items-center">
+				<span class="text-gray-600">Shipping</span>
+				<span class="text-gray-600">Calculate at next step</span>
+			</div>
+			<hr class="my-4 border-gray-300" />
+			<div class="flex justify-between items-center mb-2">
+				<div class="flex flex-1 justify-between items-center">
+					<span class="text-[25px] font-semibold">Total</span>
+					<span class="text-lg font-bold">₱30.00</span>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
