@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	export let selectedItem = null;
+	export let selectedItem;
 	export let modalOpen = false;
+	export let addToCart;
+
 	const dispatch = createEventDispatcher();
 	const close = () => {
 		dispatch('close');
@@ -65,8 +67,10 @@
 					<div class="flex gap-2 mt-4">
 						<button
 							class="uppercase bg-black text-mabini-beige px-6 py-2 rounded-full font-bold hover:bg-mabini-dark-brown transition cursor-pointer"
-							>Add to Cart</button
+							on:click={() => addToCart(selectedItem)}
 						>
+							Add to Cart
+						</button>
 						<button
 							class="uppercase bg-mabini-beige text-mabini-dark-brown px-6 py-2 rounded-full font-extrabold hover:bg-mabini-black transition cursor-pointer"
 							>Buy Now</button

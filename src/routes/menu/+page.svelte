@@ -1,4 +1,27 @@
-<!-- TODO: FETCH URL DIN SA API NI DOM -->
+<!-- 
+So far: 
+- Fetch menu items from backend
+- Has add to cart that is connected to backend
+but not yet connected to user session
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-->
+
 <script lang="ts">
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
@@ -37,19 +60,18 @@
 		Meals: ['Pizza', 'Pasta', 'All Day Breakfast']
 	};
 
-	// Example items data
 	let items = [];
 	let loading = false;
 	let error = '';
 
+	// Itemss
 	onMount(async () => {
 		loading = true;
 		error = '';
 		try {
-			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/MenuRoute.php');
+			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/menu');
 			const data = await response.json();
 			if (response.ok && Array.isArray(data)) {
-				// Ensure backend keys match: id, name, price, description, image path
 				items = data.map((item) => ({
 					id: item.id,
 					name: item.name,
@@ -68,6 +90,31 @@
 			loading = false;
 		}
 	});
+
+	async function addToCart(item) {
+		try {
+			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/cart', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					user_id: 1, // plaitan ng id
+					menu_item_id: item.id,
+					quantity: 1, // or whatever quantity you want
+					subtotal: item.price // or item.price * quantity
+				})
+			});
+			const data = await response.json();
+			if (response.ok) {
+				alert('Added to cart!');
+			} else {
+				alert(data.error || 'Failed to add to cart');
+			}
+		} catch (err) {
+			alert('Network error');
+		}
+	}
 
 	let selectedItem = null;
 	let modalOpen = false;
@@ -144,11 +191,15 @@
 												.toLowerCase()
 												.trim() === selectedSubcategory.toLowerCase().trim())) ) as item}
 							<div>
-								<Item {item} on:viewDetails={() => handleViewDetails(item)} />
+								<Item
+									{item}
+									on:viewDetails={() => handleViewDetails(item)}
+									on:addToCart={() => addToCart(item)}
+								/>
 							</div>
 						{/each}
 					</div>
-					<ItemModal {selectedItem} {modalOpen} on:close={closeModal} />
+					<ItemModal {selectedItem} {modalOpen} on:close={closeModal} {addToCart} />
 				</div>
 			</div>
 		</div>

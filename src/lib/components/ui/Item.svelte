@@ -4,6 +4,7 @@
 
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+
 	export let item: {
 		name: string;
 		price: string | number;
@@ -18,10 +19,6 @@
 	}
 	const dispatch = createEventDispatcher();
 
-	function addToCart(item: Item) {
-		console.log(`Added ${item.name} to cart`);
-	}
-
 	function viewDetails(item: Item) {
 		dispatch('viewDetails', item);
 	}
@@ -29,8 +26,8 @@
 
 <link rel="stylesheet" href="/styles/item.css" />
 <div class="item-card">
-	<div class="item-content ">
-		<img src={item.image} alt={item.name} class="w-20 h-20 object-contain"/>
+	<div class="item-content">
+		<img src={item.image} alt={item.name} class="w-20 h-20 object-contain" />
 		<h2 class="item-name font-extrabold">{item.name.toUpperCase()}</h2>
 		<p class="item-price">
 			{typeof item.price === 'number' ? `₱ ${item.price.toFixed(2)}` : item.price}
@@ -38,7 +35,7 @@
 		{#if item.description}
 			<p class="item-desc">{item.description}</p>
 		{/if}
-		<button class="cursor-pointer cart" on:click={() => addToCart(item)}>Add to Cart</button>
+		<button class="cursor-pointer cart" on:click={() => dispatch('addToCart', item)}>Add to Cart</button>
 		<button class="cursor-pointer" on:click={() => viewDetails(item)}>View Details</button>
 	</div>
 </div>
