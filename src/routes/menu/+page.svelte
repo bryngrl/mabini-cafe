@@ -90,7 +90,7 @@ but not yet connected to user session
 			loading = false;
 		}
 	});
-
+	//add to cart
 	async function addToCart(item) {
 		try {
 			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/cart', {
@@ -101,8 +101,8 @@ but not yet connected to user session
 				body: JSON.stringify({
 					user_id: 1, // plaitan ng id
 					menu_item_id: item.id,
-					quantity: 1, // or whatever quantity you want
-					subtotal: item.price // or item.price * quantity
+					quantity: 1, 
+					subtotal: item.price
 				})
 			});
 			const data = await response.json();
@@ -194,7 +194,7 @@ but not yet connected to user session
 								<Item
 									{item}
 									on:viewDetails={() => handleViewDetails(item)}
-									on:addToCart={() => addToCart(item)}
+									on:addToCart={() => addToCart(item)}	
 								/>
 							</div>
 						{/each}
