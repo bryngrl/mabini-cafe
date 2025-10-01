@@ -134,8 +134,10 @@ class UserController {
     // POST create user
     public function store() {
         $data = json_decode(file_get_contents("php://input"), true);
-        if(!empty($data['username']) && !empty($data['email']) && !empty($data['password'])){
-            $this->model->username = $data['username'];
+
+        $username = $data['username'] ?? $data['name'] ?? null;
+        if(!empty($username) && !empty($data['email']) && !empty($data['password'])){
+            $this->model->username = $username;
             $this->model->email = $data['email'];
             $this->model->password = password_hash($data['password'], PASSWORD_DEFAULT);
             $this->model->address = $data['address'];

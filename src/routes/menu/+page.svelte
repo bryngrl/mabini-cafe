@@ -46,7 +46,7 @@
 		loading = true;
 		error = '';
 		try {
-			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/MenuRoute.php');
+			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/menu');
 			const data = await response.json();
 			if (response.ok && Array.isArray(data)) {
 				// Ensure backend keys match: id, name, price, description, image path
