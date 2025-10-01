@@ -1,5 +1,7 @@
 <!-- TODO: FETCH API ENDPOINT -->
 <script lang="ts">
+	import { redirect } from "@sveltejs/kit";
+
 	let name = '';
 	let email = '';
 	let password = '';
@@ -31,11 +33,15 @@
 				})
 			});
 			const data = await response.json();
-			if (response.ok && data.success) {
+			if (response.ok && data.message) {
 				message = 'Account created successfully!';
 				name = email = password = confirmPassword = '';
+				setTimeout(() => {
+					window.location.href = '/login';
+				}, 1000);	
+				
 			} else {
-				error = data.message || 'Signup failed.';
+				error = data.error || data.message || 'Signup failed.';
 			}
 		} catch (err) {
 			error = 'Network error. Please try again.';

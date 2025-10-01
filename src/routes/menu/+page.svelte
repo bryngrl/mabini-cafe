@@ -46,16 +46,18 @@
 		loading = true;
 		error = '';
 		try {
-			const response = await fetch('/phpbackend/routes/MenuRoute.php');
+			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/MenuRoute.php');
 			const data = await response.json();
 			if (response.ok && Array.isArray(data)) {
-				// Ensure backend keys match: id, name, price, description, image
-				items = data.map(item => ({
+				// Ensure backend keys match: id, name, price, description, image path
+				items = data.map((item) => ({
 					id: item.id,
 					name: item.name,
 					price: item.price,
-					description: item.description,
-					image: item.image
+					image: item.image_path
+						? 'http://localhost/mabini-cafe/' + item.image_path.replace(/^\/?/, '')
+						: '',
+					description: item.description
 				}));
 			} else {
 				error = 'Failed to load menu items.';
@@ -134,7 +136,13 @@
 						<p style="color: red;">{error}</p>
 					{/if}
 					<div class="items-grid">
-						{#each items.filter( (item) => (selectedCategory === 'All' ? !selectedSubcategory || item.name === selectedSubcategory : !selectedSubcategory || item.name === selectedSubcategory) ) as item}
+						{#each items.filter( (item) => (selectedCategory === 'All' ? !selectedSubcategory || (item.description && item.description
+												.toLowerCase()
+												.trim() === selectedSubcategory
+													.toLowerCase()
+													.trim()) : !selectedSubcategory || (item.description && item.description
+												.toLowerCase()
+												.trim() === selectedSubcategory.toLowerCase().trim())) ) as item}
 							<div>
 								<Item {item} on:viewDetails={() => handleViewDetails(item)} />
 							</div>
@@ -216,7 +224,6 @@
 		gap: 1rem;
 		border-radius: 0rem 0rem 1rem 0rem;
 		border: solid 1px gray;
-		
 	}
 	.menu-text {
 		background-color: black;

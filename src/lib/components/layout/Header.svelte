@@ -29,7 +29,6 @@
 				</li>
 			{/each}
 
-			<!-- !No dropdown Icon -->
 			<li class="relative">
 				<button on:click={() => (open = !open)} class="flex items-center gap-2">
 					SUPPORT
@@ -61,8 +60,11 @@
 
 	<!-- Right-aligned links -->
 	<div class="flex-1 flex justify-end gap-4 mr-[50px]">
-		<a href="/login" class="relative group text-[16px]">
-			Login
+		<!-- If the user is sign in
+ 	show Account link -->
+		<!-- If the user is not signed in -->
+		<a href="/signup" class="relative group text-[16px]">
+			Signup
 			<span class="underline-anim"></span>
 		</a>
 		<a href="/search" class="relative group">

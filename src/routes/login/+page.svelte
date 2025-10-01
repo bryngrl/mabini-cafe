@@ -24,9 +24,9 @@
 				})
 			});
 			const data = await response.json();
-			if (response.ok && data.success) {
+			if (response.ok && data.message) {
 				message = 'Login successful!';
-				// redirect and store token otid
+				window.location.href = '/';
 			} else {
 				error = data.message || 'Login failed.';
 			}
