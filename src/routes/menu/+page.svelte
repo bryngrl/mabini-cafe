@@ -1,31 +1,11 @@
-<!-- 
-So far: 
-- Fetch menu items from backend
-- Has add to cart that is connected to backend
-but not yet connected to user session
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--->
 
 <script lang="ts">
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
+	import { auth } from '$lib/stores/auth';
+	import { get } from 'svelte/store';
 
 	let categories = ['All', 'Pastries', 'Beverages', 'Meals'];
 	let selectedCategory = categories[0];
@@ -92,6 +72,11 @@ but not yet connected to user session
 	});
 	//add to cart
 	async function addToCart(item) {
+		const { isLoggedIn, user } = get(auth);
+		if (!isLoggedIn) {
+			alert('You must be logged in to add items to your cart.');
+			return;
+		}
 		try {
 			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/cart', {
 				method: 'POST',
@@ -99,9 +84,9 @@ but not yet connected to user session
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					user_id: 1, // plaitan ng id
+					user_id: user.id,
 					menu_item_id: item.id,
-					quantity: 1, 
+					quantity: 1,
 					subtotal: item.price
 				})
 			});
@@ -194,7 +179,7 @@ but not yet connected to user session
 								<Item
 									{item}
 									on:viewDetails={() => handleViewDetails(item)}
-									on:addToCart={() => addToCart(item)}	
+									on:addToCart={() => addToCart(item)}
 								/>
 							</div>
 						{/each}

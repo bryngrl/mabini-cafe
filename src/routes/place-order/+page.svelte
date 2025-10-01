@@ -1,8 +1,8 @@
-<!-- ABOUT THIS -->
-
-<!-- Static only and not dynamic or interactive -->
+<!-- Form and Checkout -->
 
 <script lang="ts">
+	import { cart, fetchCart } from '$lib/stores/cart';
+	import { onMount } from 'svelte';
 	let email = '';
 	let fname = '';
 	let lname = '';
@@ -12,6 +12,21 @@
 	let city = '';
 	let country = '';
 	let phone = '';
+
+	onMount(() => {
+		fetchCart();
+	});
+
+	$: cartItems = $cart.items;
+	$: subtotal = cartItems.reduce(
+		(sum, item) =>
+			sum +
+			(typeof item.subtotal === 'number' && !isNaN(item.subtotal)
+				? item.subtotal
+				: item.price * (item.quantity || 1) || 0),
+		0
+	);
+	$: totalItems = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 </script>
 
 <svelte:head>
@@ -19,10 +34,10 @@
 	<meta name="description" content="Place your order at Mabini Cafe" />
 </svelte:head>
 
-<div class="flex min-h-screen	">
+<div class="flex min-h-screen">
+	<!-- left side -->
 	<div class="flex-1 bg-black text-white flex justify-center p-8">
 		<div>
-			<!-- Logo -->
 			<img src="/images/LOGO-4.png" alt="Logo" class="mb-2 w-[238px] h-[68px] m-auto" />
 			<nav class="flex mb-10 text-sm m-auto font-semibold gap-4 items-center justify-center">
 				<a href="/cart" class="text-gray-400 hover:text-white transition px-2"> Cart</a>
@@ -30,8 +45,6 @@
 				<a href="/shipping" class="text-gray-400 hover:text-white transition px-2">Shipping</a>
 				<a href="/payment" class="text-gray-400 hover:text-white transition px-2">Payment</a>
 			</nav>
-
-			<!-- formssssszzz -->
 
 			<div class="flex-1 text-white flex justify-center items-left">
 				<form class="w-full max-w-md rounded-xl shadow-md space-y-4">
@@ -149,61 +162,39 @@
 			</div>
 		</div>
 	</div>
-
+	<!-- right side -->
 	<div class="flex-1 bg-white text-black flex p-20">
 		<div>
-			<!-- Items to checkout -->
 			<h2 class="text-2xl font-bold mb-4 text-left">Items</h2>
 
-			<div class="flex items-center gap-10 mb-4">
-				<img
-					src="/images/food-1.png"
-					alt="Food Item"
-					class="w-24 h-24 object-cover rounded-lg border border-gray-300"
-				/>
-				<div class="flex-1 flex justify-between items-center">
-					<div>
-						<h3 class="text-lg font-semibold">Name</h3>
-						<p class="text-gray-600">Quantity: 1</p>
+			{#each cartItems as item}
+				<div class="flex items-center gap-10 mb-4">
+					<img
+						src={item.image}
+						alt={item.name}
+						class="w-24 h-24 object-cover rounded-lg border border-gray-300"
+					/>
+					<div class="flex-1 flex justify-between items-center">
+						<div>
+							<h3 class="text-lg font-semibold">{item.name}</h3>
+							<p class="text-gray-600">Quantity: {item.quantity}</p>
+						</div>
+						<p class="text-lg text-gray-500 font-semibold pl-[250px]">
+							₱{(typeof item.subtotal === 'number' && !isNaN(item.subtotal)
+								? item.subtotal
+								: item.price * (item.quantity || 1) || 0
+							).toFixed(2)}
+						</p>
 					</div>
-					<p class="text-lg text-gray-500 font-semibold pl-[300px]">₱10.00</p>
-					<!-- <button class="text-red-600 hover:text-red-800 transition ml-4">Remove</button> -->
 				</div>
-			</div>
-			<!-- ITEMS -->
-			<div class="flex items-center gap-10 mb-4">
-				<img
-					src="/images/food-1.png"
-					alt="Food Item"
-					class="w-24 h-24 object-cover rounded-lg border border-gray-300"
-				/>
-				<div class="flex-1 flex justify-between items-center">
-					<div>
-						<h3 class="text-lg font-semibold">Name</h3>
-						<p class="text-gray-600">Quantity: 1</p>
-					</div>
-					<p class="text-lg text-gray-500 font-semibold pl-[300px]">₱10.00</p>
-				</div>
-			</div>
-			<div class="flex items-center gap-10 mb-4">
-				<img
-					src="/images/food-1.png"
-					alt="Food Item"
-					class="w-24 h-24 object-cover rounded-lg border border-gray-300"
-				/>
-				<div class="flex-1 flex justify-between items-center">
-					<div>
-						<h3 class="text-lg font-semibold">Name</h3>
-						<p class="text-gray-600">Quantity: 1</p>
-					</div>
-					<p class="text-lg text-gray-500 font-semibold pl-[300px]">₱10.00</p>
-				</div>
-			</div>
+			{/each}
 			<hr class="my-4 border-gray-300" />
 			<div class="flex justify-between items-center mb-2">
 				<div class="flex flex-1 justify-between items-center">
-					<span class="text-gray-600">Subtotal • 3 Items</span>
-					<span class="font-semibold">₱30.00</span>
+					<span class="text-gray-600"
+						>Subtotal • {totalItems} {totalItems === 1 ? 'Item' : 'Items'}</span
+					>
+					<span class="font-semibold">₱{subtotal.toFixed(2)}</span>
 				</div>
 			</div>
 			<div class="flex flex-1 justify-between items-center">
@@ -214,7 +205,7 @@
 			<div class="flex justify-between items-center mb-2">
 				<div class="flex flex-1 justify-between items-center">
 					<span class="text-[25px] font-semibold">Total</span>
-					<span class="text-lg font-bold">₱30.00</span>
+					<span class="text-lg font-bold">₱{subtotal.toFixed(2)}</span>
 				</div>
 			</div>
 		</div>

@@ -1,10 +1,10 @@
 <!-- !TO: DO
- ! [] Dropdown Icon
  ! [] Responsive
- ! [] Hamburge Menu
--->
-
+ ! [] Hamburger Menu
+--->
 <script>
+	import { auth } from '$lib/stores/auth';
+
 	let links = [
 		{ name: 'Home', href: '/' },
 		{ name: 'Menu', href: '/menu' },
@@ -12,6 +12,13 @@
 	];
 
 	let open = false;
+	let accountOpen = false;
+
+	function logout() {
+		auth.set({ isLoggedIn: false, token: null, user: null });
+		localStorage.removeItem('token');
+		window.location.href = '/login';
+	}
 </script>
 
 <nav
@@ -60,13 +67,29 @@
 
 	<!-- Right-aligned links -->
 	<div class="flex-1 flex justify-end gap-4 mr-[50px]">
-		<!-- If the user is sign in
- 	show Account link -->
-		<!-- If the user is not signed in -->
-		<a href="/signup" class="relative group text-[16px]">
-			Signup
-			<span class="underline-anim"></span>
-		</a>
+		{#if $auth.isLoggedIn}
+			<div class="relative">
+				<button on:click={() => (accountOpen = !accountOpen)} class="relative group text-[16px] flex items-center gap-2">
+					ACCOUNT
+					<span class="transition-transform duration-300 {accountOpen ? 'rotate-180' : ''}"> ˅ </span>
+				</button>
+				{#if accountOpen}
+					<ul class="absolute right-0 mt-2 w-40 bg-mabini-black text-mabini-white rounded shadow text-[16px] z-50">
+						<li class="px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown" on:click={() => { accountOpen = false; window.location.href = '/settings'; }}>
+							Settings
+						</li>
+						<li class="px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown" on:click={logout}>
+							Logout
+						</li>
+					</ul>
+				{/if}
+			</div>
+		{:else}
+			<a href="/login" class="relative group text-[16px]">
+				Login
+				<span class="underline-anim"></span>
+			</a>
+		{/if}
 		<a href="/search" class="relative group">
 			<img src="/icons/search.png" alt="Search" class="h-5 w-6" />
 			<span class="underline-anim"></span>

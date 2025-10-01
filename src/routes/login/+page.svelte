@@ -1,6 +1,9 @@
 <!-- TODO: FETCH URL AND REDIRECT TSAKA STORE NG TOKEN -->
 
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { login as setAuthLogin } from '$lib/stores/auth';
+
 	let email = '';
 	let loading = false;
 	let password = '';
@@ -24,9 +27,10 @@
 				})
 			});
 			const data = await response.json();
-			if (response.ok && data.message) {
+			if (response.ok && data.token && data.message) {
+				setAuthLogin(data.token);
 				message = 'Login successful!';
-				window.location.href = '/';
+				await goto('/');
 			} else {
 				error = data.message || 'Login failed.';
 			}

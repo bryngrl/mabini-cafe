@@ -24,6 +24,7 @@ class Cart{
           d.name AS category_name,
           c.description AS menu_item_description,
           c.price AS menu_item_price,
+          c.image_path AS menu_item_image,
           a.quantity,
           a.subtotal
           FROM ".$this->table." a 
@@ -72,6 +73,7 @@ class Cart{
           d.name AS category_name,
           c.description AS menu_item_description,
           c.price AS menu_item_price,
+          c.image_path AS menu_item_image,
           a.quantity,
           a.subtotal
           FROM ".$this->table." a 

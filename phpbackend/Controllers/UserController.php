@@ -304,8 +304,10 @@ class UserController {
                 ]
             );
 
-            echo json_encode(["message" => "Login successful",
-                               "info" =>$this->model->getById($user['id'])                
+            echo json_encode([
+                "message" => "Login successful",
+                "token" => $token,
+                "info" =>$this->model->getById($user['id'])                
           ]);
             } else {
                 http_response_code(401);
