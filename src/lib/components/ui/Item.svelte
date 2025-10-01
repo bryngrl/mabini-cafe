@@ -1,6 +1,4 @@
 <!-- Item Component -->
-<!-- This is where the items will be displayed -->
-<!-- Fetch the items to the backend -->
 
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
@@ -48,7 +46,7 @@
 		width: 200px;
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 		transition: transform 0.3s ease;
-		margin: 1rem;
+		margin: 0.5rem;
 		height: 400px;
 	}
 

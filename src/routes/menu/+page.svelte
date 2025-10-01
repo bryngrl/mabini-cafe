@@ -1,4 +1,3 @@
-
 <script lang="ts">
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
@@ -256,10 +255,20 @@
 
 	.items-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-		gap: 1rem;
+		grid-template-columns: repeat(4, 1fr); /* Always 4 columns on desktop */
+		gap: 1px; /* Reduced gap for closer spacing */
 		border-radius: 0rem 0rem 1rem 0rem;
 		border: solid 1px gray;
+	}
+	@media (max-width: 1024px) {
+		.items-grid {
+			grid-template-columns: repeat(2, 1fr); /* 2 columns on tablet */
+		}
+	}
+	@media (max-width: 600px) {
+		.items-grid {
+			grid-template-columns: 1fr; /* 1 column on mobile */
+		}
 	}
 	.menu-text {
 		background-color: black;
