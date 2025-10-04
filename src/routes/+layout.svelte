@@ -13,7 +13,7 @@
 {#if $page.url.pathname !== '/login' && $page.url.pathname !== '/signup'}
 	<Header />
 {/if}
-<main class="">
+<main>
 	<slot />
 </main>
 {#if $page.url.pathname !== '/login' && $page.url.pathname !== '/signup'}

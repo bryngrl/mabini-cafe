@@ -56,7 +56,7 @@
 					name: item.name,
 					price: item.price,
 					image: item.image_path
-						? 'http://localhost/mabini-cafe/' + item.image_path.replace(/^\/?/, '')
+						? 'http://localhost/mabini-cafe/phpbackend/' + item.image_path.replace(/^\/?/, '')
 						: '',
 					description: item.description
 				}));

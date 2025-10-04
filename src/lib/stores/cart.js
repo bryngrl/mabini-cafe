@@ -25,7 +25,7 @@ export async function fetchCart() {
 				let image = item.menu_item_image || '';
 				if (image) {
 					image = image.replace(/^\/?/, '');
-					image = `http://localhost/mabini-cafe/${image}`;
+					image = `http://localhost/mabini-cafe/phpbackend/${image}`;
 				}
 				return {
 					id: item.id,
