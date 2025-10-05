@@ -6,7 +6,7 @@
 	let heroImage2 = '/images/sofa.png';
 	let heroImage3 = '/images/cover-photo-2.png';
 
-	let products = [];
+	let products: { name: string; price: string; temp: string; img: string }[] = [];
 	let scrollRef: HTMLDivElement;
 
 	const unsubscribe = menu.subscribe((m) => {
@@ -15,7 +15,7 @@
 			price: `₱${item.price}`,
 			temp: item.temp || '',
 			img: item.image_path
-				? 'http://localhost/mabini-cafe/' + item.image_path.replace(/^\/?/, '')
+				? 'http://localhost/mabini-cafe/phpbackend/' + item.image_path.replace(/^\/?/, '')
 				: ''
 		}));
 	});
