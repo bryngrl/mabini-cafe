@@ -131,29 +131,35 @@ class UserController {
  */
 
 
-    // POST create user
-    public function store() {
-        $data = json_decode(file_get_contents("php://input"), true);
+public function store() {
+    $data = json_decode(file_get_contents("php://input"), true);
 
-        $username = $data['username'] ?? $data['name'] ?? null;
-        if(!empty($username) && !empty($data['email']) && !empty($data['password'])){
-            $this->model->username = $username;
-            $this->model->email = $data['email'];
-            $this->model->password = password_hash($data['password'], PASSWORD_DEFAULT);
-            $this->model->address = $data['address'];
-            $this->model->contact_number = $data['contact_number'];
-            if($this->model->create()){
-                http_response_code(201);
-                echo json_encode(["message"=>"User created successfully"]);
-            } else {
-                http_response_code(500);
-                echo json_encode(["error"=>"Failed to create user"]);
-            }
+    $username = $data['username'] ?? $data['name'] ?? null;
+    $email = $data['email'] ?? null;
+    $password = $data['password'] ?? null;
+    $address = $data['address'] ?? 'n/a';
+    $contact = $data['contact_number'] ?? 'n/a';
+
+    if(!empty($username) && !empty($email) && !empty($password)){
+        $this->model->username = $username;
+        $this->model->email = $email;
+        $this->model->password = password_hash($password, PASSWORD_DEFAULT);
+        $this->model->address = $address;
+        $this->model->contact_number = $contact;
+
+        if($this->model->create()){
+            http_response_code(201);
+            echo json_encode(["message" => "User created successfully"]);
         } else {
-            http_response_code(400);
-            echo json_encode(["error"=>"Invalid input"]);
+            http_response_code(500);
+            echo json_encode(["error" => "Failed to create user"]);
         }
+    } else {
+        http_response_code(400);
+        echo json_encode(["error" => "Invalid input"]);
     }
+}
+
 
 
    /**
