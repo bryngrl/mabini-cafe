@@ -47,8 +47,8 @@ switch($resource){
     case 'contacts':
           require_once "contactsRoute.php";
          break;
-     case 'shippinginfo':
-          require_once "ShippingInfoRoute.php";
+     case 'shipinfo':
+          require_once "ShipInfoRoute.php";
           break;
     default:
         http_response_code(404);

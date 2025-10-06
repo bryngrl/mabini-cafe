@@ -7,8 +7,7 @@ class User{
     public $username;
     public $email;
     public $password;
-    public $address;
-    public $contact_number;
+
 
 
     public function __construct($db)
@@ -27,7 +26,7 @@ class User{
     //GET USERS BY ID
     public function getById($id)
     {
-        $stmt = $this->conn->prepare("SELECT id,email,username,address,contact_number FROM ".$this->table." WHERE id =:id");
+        $stmt = $this->conn->prepare("SELECT id,email,username FROM ".$this->table." WHERE id =:id");
         $stmt->bindParam(":id",$id);
           $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC); // fetch single row
@@ -37,13 +36,13 @@ class User{
         // CREATE user
     public function create() {
         $stmt = $this->conn->prepare(
-            "INSERT INTO " . $this->table . "(username, email, password,address,contact_number) VALUES (:username, :email, :password,:address,:contact_number)"
+            "INSERT INTO " . $this->table . "(username, email, password) VALUES (:username, :email, :password)"
         );
         $stmt->bindParam(":username", $this->username);
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":password", $this->password); // hashed password
-        $stmt->bindParam(":address",$this->address);
-        $stmt->bindParam(":contact_number",$this->contact_number);
+        // $stmt->bindParam(":address",$this->address);
+        // $stmt->bindParam(":contact_number",$this->contact_number);
         return $stmt->execute();
     }
 
@@ -51,14 +50,14 @@ class User{
     public function update()
     {
         $stmt = $this->conn->prepare(
-            "UPDATE " . $this->table . " SET username=:username, email=:email, address=:address, contact_number=:contact_number WHERE id=:id"
+            "UPDATE " . $this->table . " SET username=:username, email=:email WHERE id=:id"
         );
 
         $stmt->bindParam(":username",$this->username);
         $stmt->bindParam(":email",$this->email);
         $stmt->bindParam(":id", $this->id);
-        $stmt->bindParam(":address",$this->address);
-        $stmt->bindParam(":contact_number", $this->contact_number);
+        // $stmt->bindParam(":address",$this->address);
+        // $stmt->bindParam(":contact_number", $this->contact_number);
         return $stmt->execute();
     }
 

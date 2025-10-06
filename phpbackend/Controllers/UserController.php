@@ -101,8 +101,6 @@ class UserController {
  *             required={"username","email","password"},
  *             @OA\Property(property="username", type="string", example="user Domdom"),
  *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
- *             @OA\Property(property="address", type="string",example="Caloocan City"),
- *             @OA\Property(property="contact_number", type="string",  example="09684811009"),
  *             @OA\Property(property="password", type="string", format="password", example="strongPassword123")
  *         )
  *     ),
@@ -137,23 +135,31 @@ public function store() {
     $username = $data['username'] ?? $data['name'] ?? null;
     $email = $data['email'] ?? null;
     $password = $data['password'] ?? null;
-    $address = $data['address'] ?? 'n/a';
-    $contact = $data['contact_number'] ?? 'n/a';
 
-    if(!empty($username) && !empty($email) && !empty($password)){
+    if (!empty($username) && !empty($email) && !empty($password)) {
         $this->model->username = $username;
         $this->model->email = $email;
         $this->model->password = password_hash($password, PASSWORD_DEFAULT);
-        $this->model->address = $address;
-        $this->model->contact_number = $contact;
 
-        if($this->model->create()){
-            http_response_code(201);
-            echo json_encode(["message" => "User created successfully"]);
-        } else {
-            http_response_code(500);
-            echo json_encode(["error" => "Failed to create user"]);
+        try {
+            if ($this->model->create()) {
+                http_response_code(201);
+                echo json_encode(["message" => "User created successfully"]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["error" => "Failed to create user"]);
+            }
+        } catch (PDOException $e) {
+            // Check if the error code corresponds to a duplicate entry (MySQL code 1062)
+            if ($e->getCode() == 23000 && str_contains($e->getMessage(), 'Duplicate')) {
+                http_response_code(409); // Conflict
+                echo json_encode(["error" => "Email already exists"]);
+            } else {
+                http_response_code(500);
+                echo json_encode(["error" => "Database error: " . $e->getMessage()]);
+            }
         }
+
     } else {
         http_response_code(400);
         echo json_encode(["error" => "Invalid input"]);
@@ -183,8 +189,6 @@ public function store() {
  *             type="object",
  *             @OA\Property(property="username", type="string", example="newusername"),
  *             @OA\Property(property="email", type="string", format="email", example="newemail@example.com"),
- *              @OA\Property(property="address", type="string",example="Caloocan City"),
- *              @OA\Property(property="contact_number", type="string",  example="09684811009")
  *         )
  *     ),
  *     @OA\Response(
@@ -219,8 +223,8 @@ public function store() {
             $this->model->id = $id;
             $this->model->username = $data['username'];
             $this->model->email = $data['email'];
-            $this->model->address = $data['address'];
-            $this->model->contact_number = $data['contact_number'];
+            // $this->model->address = $data['address'];
+            // $this->model->contact_number = $data['contact_number'];
             if($this->model->update()){
                 echo json_encode(["message"=>"User updated successfully"]);
             } else {
@@ -234,7 +238,37 @@ public function store() {
     }
 
  
-
+/**
+ * @OA\Delete(
+ *     path="/mabini-cafe/phpbackend/routes/users/{id}",
+ *     summary="Delete user by ID",
+ *     description="Deletes a specific user using its unique ID.",
+ *     tags={"Users"},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="The ID of the user to delete",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="user deleted successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="message", type="string", example="user deleted successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Failed to delete user",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="Failed to user info")
+ *         )
+ *     )
+ * )
+ */
 
     // DELETE user
     public function destroy($id) {

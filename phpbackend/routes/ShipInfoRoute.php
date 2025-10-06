@@ -1,7 +1,7 @@
 <?php
-require_once "../controllers/ShippingInfoController.php";
+require_once "../controllers/ShipInfoController.php";
 
-$controller = new ShippingInfoController($db);
+$controller = new ShipInfoController($db);
 
 
 switch ($method) {
