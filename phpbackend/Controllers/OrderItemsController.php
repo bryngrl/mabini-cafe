@@ -49,10 +49,6 @@ class OrderItemsController{
  *         @OA\Schema(type="integer", example=3)
  *     ),
  *     @OA\Response(
- *         response=200,
- *         description="List of all Orderitems"
- *     ),
- *     @OA\Response(
  *         response=500,
  *         description="Internal Server Error"
  *     )

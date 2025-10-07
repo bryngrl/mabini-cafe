@@ -9,7 +9,7 @@ class Auth {
 
     public function generateToken($user) {
         $issuedAt = time();
-        $expire = $issuedAt + 3600; // 1 hour expiration
+        $expire = $issuedAt + 172800; // 48 hour expiration
         $payload = [
             'id' => $user['id'],
             'username' => $user['username'],
