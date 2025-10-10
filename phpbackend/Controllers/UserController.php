@@ -1,15 +1,16 @@
 <?php
-require_once(__DIR__ . '/../models/User.php');
-require_once(__DIR__ . '/../Auth/Auth.php');
+require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../Auth/Auth.php';
 require_once __DIR__ . '/../auth/jwtMiddleware.php';
-
+require_once __DIR__ . '/../auth/Otp.php';
 class UserController {
     private $model;
     private $auth;
-
+    private $otp;
     public function __construct($db) {
         $this->model = new User($db);
         $this->auth = new Auth();
+        $this->otp = new Otp();
           header('Content-Type: application/json');
     }
 
@@ -358,6 +359,23 @@ public function store() {
             echo json_encode(["error"=>"Username and password required"]);
         }
     }
+
+   public function sendOTP(){
+     $data = json_decode(file_get_contents("php://input"), true);
+     $email=$data['email'];
+     $user = $this->model->findByEmail($data['email']);
+      if(!empty($email)){
+         $otp = $this->otp->generate_otp($email); 
+             echo json_encode([
+                "message" => "otp sent successfully",
+                "otp" => $otp
+             ]);
+          }else{
+             http_response_code(400);
+             echo json_encode(["error"=>"Invalid email"]);
+          }
+
+         }
 
 
 /**
