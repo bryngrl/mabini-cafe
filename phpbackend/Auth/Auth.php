@@ -23,12 +23,5 @@ class Auth {
 
   
 
-    // public function verifyToken($token) {
-    //     try {
-    //         $decoded = JWT::decode($token, new Key($this->secret_key, 'HS256'));
-    //         return (array)$decoded;
-    //     } catch(Exception $e){
-    //         return false;
-    //     }
-    // }
+
 }
