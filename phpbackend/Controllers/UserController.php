@@ -243,7 +243,7 @@ public function store() {
  *     path="/mabini-cafe/phpbackend/routes/users/{id}",
  *     summary="Delete user by ID",
  *     description="Deletes a specific user using its unique ID.",
- *     tags={"Users"},
+ *     tags={"User"},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -358,4 +358,60 @@ public function store() {
             echo json_encode(["error"=>"Username and password required"]);
         }
     }
+
+
+/**
+ * @OA\Put(
+ *     path="/mabini-cafe/phpbackend/routes/users/changepassword",
+ *     summary="change password",
+ *     description="change new password after validating OTP",
+ *     tags={"User"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"email","password"},
+ *             @OA\Property(property="email", type="string", example="domdom@ucc.com"),
+ *             @OA\Property(property="password", type="string", example="strong2")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="User change password successfully"
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="invalid password"
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Server error"
+ *     )
+ * )
+ */
+
+      public function changePasswordController()
+      {
+            $data = json_decode(file_get_contents("php://input"), true);
+            $email = $data['email'] ?? null;
+          $password = $data['password'] ?? null;
+
+            if(!empty($email)){
+                
+                $this->model->email = $email;
+                     $this->model->password = password_hash($password, PASSWORD_DEFAULT);
+              if($this->model->changePassword())
+                  echo json_encode(["message"=>"password changed successfully"]);
+               else{
+                http_response_code(500);
+                 echo json_encode(["error"=>"Failed to change password"]); 
+               }
+
+
+            }else{
+                 http_response_code(400);
+                echo json_encode(["error"=>"Invalid email"]);
+            }
+       
+
+      }
 }

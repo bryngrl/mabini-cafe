@@ -8,6 +8,7 @@ if ($subresource === 'login') {
     exit;
 }   
 
+
 switch ($method) {
     case 'GET':
         $id ? $controller->show($id) : $controller->index();
@@ -18,9 +19,11 @@ switch ($method) {
         break;
 
     case 'PUT':
+
         if ($id) {
             $controller->update($id);
-        }
+        }else if($subresource == 'changepassword')
+             $controller->changePasswordController();
         break;
 
     case 'DELETE':
