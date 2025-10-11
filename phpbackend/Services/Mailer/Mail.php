@@ -66,7 +66,7 @@ public function sendOtp($email,$otp){
          $mail->Subject = 'Your OTP Code';
         $mail->Body    = "<p>Your OTP is: <b>$otp</b></p><p>It will expire in 5 minutes.</p>";
     // === SEND EMAIL ===
-      return $mail->send();
+       return  $mail->send();
    
 
 }

@@ -3,14 +3,17 @@ require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../Auth/Auth.php';
 require_once __DIR__ . '/../auth/jwtMiddleware.php';
 require_once __DIR__ . '/../auth/Otp.php';
+require_once __DIR__ . '/../Services/Mailer/Mail.php';
 class UserController {
     private $model;
     private $auth;
     private $otp;
+    private $mail;
     public function __construct($db) {
         $this->model = new User($db);
         $this->auth = new Auth();
         $this->otp = new Otp();
+        $this->mail = new Mail();
           header('Content-Type: application/json');
     }
 
@@ -360,16 +363,56 @@ public function store() {
         }
     }
 
+/**
+ * @OA\Post(
+ *    path="/mabini-cafe/phpbackend/routes/users/sendotp",
+ *    summary="Sends OTP",
+ *    description="Sends OTP to email",
+ *    tags={"User"},
+ *    @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"email"},
+ *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
+ *         )
+ *     ),
+ *    @OA\Response(
+ *        response=200,
+ *        description="OTP sent successfully",
+ *        @OA\JsonContent(
+ *            @OA\Property(property="message", type="string", example="OTP sent successfully")
+ *        )
+ *    ),
+ *    @OA\Response(
+ *        response=400,
+ *        description="Username and password required or invalid email",
+ *        @OA\JsonContent(
+ *            @OA\Property(property="error", type="string", example="Username and password required")
+ *        )
+ *    )
+ * )
+ */
+
    public function sendOTP(){
      $data = json_decode(file_get_contents("php://input"), true);
      $email=$data['email'];
-     $user = $this->model->findByEmail($data['email']);
-      if(!empty($email)){
-         $otp = $this->otp->generate_otp($email); 
+     $user = $this->model->findByEmail($email);
+
+
+       if($user){
+         $token = $this->otp->generate_otp($email); 
+          $otp = $token["otp"];
+           
+          $sendOTP = $this->mail->sendOTP($email,$otp);
+             if($sendOTP && $otp !=null){
              echo json_encode([
                 "message" => "otp sent successfully",
-                "otp" => $otp
+                "token" =>$token["token"]
              ]);
+             }else{
+                 http_response_code(400);
+                echo json_encode(["error"=>"failed to send otp"]);
+             }
           }else{
              http_response_code(400);
              echo json_encode(["error"=>"Invalid email"]);
@@ -377,6 +420,75 @@ public function store() {
 
          }
 
+
+/**
+ * @OA\Post(
+ *      path="/mabini-cafe/phpbackend/routes/users/verifyotp",
+ *     summary="Verify OTP token",
+ *     description="Verifies the OTP sent to the user's email or phone using JWT token",
+ *     tags={"User"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."),
+ *             @OA\Property(property="otp", type="string", example="123456")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="OTP verified successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="message", type="string", example="OTP verified"),
+ *             @OA\Property(property="email", type="string", example="user@example.com")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="No token or OTP found",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="No token or OTP found!")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid or expired OTP",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="error", type="string", example="OTP expired")
+ *         )
+ *     )
+ * )
+ */
+public function verify_otp(){
+    $data = json_decode(file_get_contents("php://input"), true);
+    $token = $data['token'] ?? null;
+    $otp = $data['otp'] ?? null;
+
+    if(!empty($token) && !empty($otp)){
+        $verify_otp = $this->otp->verify_otp($token, $otp);
+
+        if($verify_otp['ok'] === true){
+            // OTP verified
+            echo json_encode([
+                "message" => $verify_otp['message'],
+                "email" => $verify_otp['email']
+            ]);
+        } else {
+            // OTP invalid or expired
+            http_response_code(401);
+            echo json_encode([
+                "error" => $verify_otp['error']
+            ]);
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(["error"=>"No token or OTP found!"]);
+    }
+}
+ 
 
 /**
  * @OA\Put(

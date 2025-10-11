@@ -5,7 +5,7 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class Auth {
-    private $secret_key = "supersecretkey";
+    protected $secret_key = "supersecretkey";
 
     public function generateToken($user) {
         $issuedAt = time();

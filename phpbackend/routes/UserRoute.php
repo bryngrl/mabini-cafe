@@ -15,6 +15,11 @@ switch ($method) {
         break;
 
     case 'POST':
+        if($subresource == 'sendotp')
+        $controller->sendOTP();
+        else if($subresource == 'verifyotp')
+        $controller->verify_otp();
+       else
         $controller->store();
         break;
 
