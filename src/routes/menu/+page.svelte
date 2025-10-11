@@ -79,21 +79,12 @@
 	}
 
 	async function handleAddToCart(item) {
-		// Check if user is logged in
-		if (!$authStore.isAuthenticated) {
-			const result = await showLoginRequired();
-			if (result.isConfirmed) {
-				goto('/login');
-			}
-			return;
-		}
-
 		try {
 			const quantity = 1;
 			const subtotal = parseFloat(item.price) * quantity;
 			
 			await cartStore.add({
-				user_id: $authStore.user.id,
+				user_id: $authStore.user?.id,
 				menu_item_id: item.id,
 				quantity: quantity,
 				subtotal: subtotal
@@ -101,6 +92,15 @@
 			
 			await showSuccess(`${item.name} has been added to your cart!`, 'Added to Cart');
 		} catch (err: any) {
+			// Handle login required error
+			if (err.type === 'LOGIN_REQUIRED') {
+				const result = await showLoginRequired();
+				if (result.isConfirmed) {
+					goto('/login');
+				}
+				return;
+			}
+			
 			await showError(err.message || 'Failed to add item to cart', 'Error');
 			console.error('Error adding to cart:', err);
 		}

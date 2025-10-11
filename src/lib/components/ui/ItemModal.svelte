@@ -1,8 +1,85 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { cartStore } from '$lib/stores/cart';
+	import { authStore } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
+	import { showError, showLoginRequired, showSuccess } from '$lib/utils/sweetalert';
 	export let selectedItem;
 	export let modalOpen = false;
-	export let addToCart;
+	export let addToCartProp;
+
+	authStore.init();
+
+	async function buyNow(item) {
+		try {
+			const quantity = 1;
+			const subtotal = parseFloat(item.price) * quantity;
+
+			await cartStore.add({
+				user_id: $authStore.user?.id,
+				menu_item_id: item.id,
+				quantity: quantity,
+				subtotal: subtotal
+			});
+
+			await showSuccess(`${item.name} will be checked out!`, 'Checkout');
+		} catch (err: any) {
+			if (err.type === 'LOGIN_REQUIRED') {
+				const result = await showLoginRequired();
+				if (result.isConfirmed) {
+					goto('/login');
+				} else {
+					goto('/');
+				}
+				return;
+			}
+
+			await showError(err.message || 'Failed to add item to cart', 'Error');
+			console.error('Error adding to cart:', err);
+		}
+	}
+
+	async function handleAddToCart(item) {
+		try {
+			const quantity = 1;
+			const subtotal = parseFloat(item.price) * quantity;
+
+			await cartStore.add({
+				user_id: $authStore.user?.id,
+				menu_item_id: item.id,
+				quantity: quantity,
+				subtotal: subtotal
+			});
+
+			await showSuccess(`${item.name} has been added to your cart!`, 'Added to Cart');
+		} catch (err: any) {
+			if (err.type === 'LOGIN_REQUIRED') {
+				const result = await showLoginRequired();
+				if (result.isConfirmed) {
+					goto('/login');
+				} else {
+					goto('/');
+				}
+				return;
+			}
+
+			await showError(err.message || 'Failed to add item to cart', 'Error');
+			console.error('Error adding to cart:', err);
+		}
+	}
+	async function handleCheckout() {
+		try {
+			if (!$authStore.isAuthenticated) {
+				goto('/login');
+				return;
+			}
+			await buyNow(selectedItem);
+			goto('/checkout');
+		} catch (err: any) {
+			await showError(err.message || 'Failed to proceed to checkout', 'Error');
+			console.error('Error during checkout:', err);
+		}
+	}
 
 	const dispatch = createEventDispatcher();
 	const close = () => {
@@ -21,7 +98,7 @@
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(255,255,255,0.2)] backdrop-blur-md"
 	>
-		<div class="bg-white rounded-xl shadow-2xl w-[600px] min-h-[400px] max-w-full p-6 relative">
+		<div class="bg-white rounded-xl shadow-2xl w-[700px] min-h-[500px] max-w-full p-6 relative">
 			<button
 				class="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-transparent text-mabini-black cursor-pointer transition"
 				on:click={close}
@@ -43,8 +120,8 @@
 				<!-- Left: Image -->
 				<div class="flex-shrink-0 flex justify-center items-center h-full ml-8 object-contain">
 					<img
-						src={selectedItem.image_path 
-							? `http://localhost/mabini-cafe/phpbackend/${selectedItem.image_path.replace(/^\/?/, '')}` 
+						src={selectedItem.image_path
+							? `http://localhost/mabini-cafe/phpbackend/${selectedItem.image_path.replace(/^\/?/, '')}`
 							: ''}
 						alt={selectedItem.name}
 						class="w-40 h-40 object-cover rounded mb-0"
@@ -55,26 +132,29 @@
 					<h2 class="text-2xl font-[1000] uppercase mb-2">{selectedItem.name}</h2>
 					<p class="text-lg font-[300] text-gray-400 mb-4">₱ {selectedItem.price}</p>
 					<p class="text-black font-[500] mb-2">{selectedItem.description}</p>
-					<div class="flex items-center gap-4 my-4">
+					<!-- Quantity Selector -->
+					<div class="box flex items-center gap-4 my-4">
 						<button
-							class="bg-white text-mabini-black px-3 py-1 rounded-full border border-black font-bold text-xl cursor-pointer"
+							class="minus bg-white text-mabini-black px-3 py-1 border-black font-bold text-xl cursor-pointer"
 							on:click={decrease}>-</button
 						>
-						<span class="text-xl font-bold w-8 text-center">{quantity}</span>
+						<span class="text-l font-bold w-8 text-center">{quantity}</span>
 						<button
-							class="bg-white text-mabini-black px-3 py-1 rounded-full border border-black font-bold text-xl cursor-pointer"
+							class="plus bg-white text-mabini-black px-3 py-1  border-black font-bold text-xl cursor-pointer"
 							on:click={increase}>+</button
 						>
+						
 					</div>
 					<div class="flex gap-2 mt-4">
 						<button
-							class="uppercase bg-black text-mabini-beige px-5 py-2 rounded-full font-bold hover:bg-mabini-dark-brown transition cursor-pointer"
-							on:click={() => addToCart(selectedItem)}
+							class="add-to-cart uppercase bg-black text-mabini-white rounded-full font-bold hover:bg-mabini-dark-brown transition cursor-pointer"
+							on:click={() => handleAddToCart(selectedItem)}
 						>
 							Add to Cart
 						</button>
 						<button
-							class="uppercase bg-mabini-beige text-mabini-dark-brown px-6 py-2 rounded-full font-extrabold hover:bg-mabini-black transition cursor-pointer"
+							on:click={() => handleCheckout(selectedItem)}
+							class="buy-now uppercase bg-mabini-beige text-mabini-dark-brown rounded-full font-extrabold hover:bg-mabini-black transition cursor-pointer"
 							>Buy Now</button
 						>
 					</div>
@@ -85,6 +165,37 @@
 {/if}
 
 <style>
+	.box{
+		border: 1px solid black;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+	}
+	.plus {
+		border-left: 1px solid black;
+		border-radius: 0 4px 4px 0;
+	}
+	.minus {
+		border-right: 1px solid black;
+		border-radius: 4px 0 0 4px;
+	}
+	
+	.add-to-cart{
+		padding: 0.5rem 1.25rem;
+		box-shadow: #f5f5dc 0 2px 4px;
+		transition: background-color 0.3s ease;
+	}
+	.buy-now{
+		padding: 0.5rem 1.5rem;
+		box-shadow: #f5f5dc 0 2px 4px;
+		transition: background-color 0.3s ease;
+	}
+	.add-to-cart:hover {
+
+		
+	}
+	.buy-now:hover {
+		color: var(--color-mabini-beige);
+	}
+
 	/* Responsive modal */
 	@media (max-width: 640px) {
 		div.max-w-md {

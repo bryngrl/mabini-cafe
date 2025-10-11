@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { cartStore, cartItems, cartTotal, cartCount } from '$lib/stores/cart';
 	import { authStore } from '$lib/stores/auth';
-	import { showConfirm, showSuccess, showError } from '$lib/utils/sweetalert';
+	import { showConfirm, showSuccess, showError, showLoginRequired } from '$lib/utils/sweetalert';
 	import { browser } from '$app/environment';
 
 	export let isOpen = false;
@@ -30,7 +30,6 @@
 			}
 		};
 	});
-
 
 	async function removeFromCart(itemId: number, itemName: string) {
 		const result = await showConfirm(
@@ -112,11 +111,10 @@
 								/>
 								<div class="item-details">
 									<h3 class="item-name">{item.menu_item_name}</h3>
-									<p class="item-price">₱{parseFloat(item.menu_item_price).toFixed(2)}</p>
 								</div>
-								<div class="item-quantity">
+								<div class="box item-quantity">
 									<button
-										class="qty-btn"
+										class="minus qty-btn"
 										on:click={() =>
 											updateQuantity(item.id, item.quantity - 1, item.menu_item_price)}
 										disabled={item.quantity <= 1}
@@ -125,7 +123,7 @@
 									</button>
 									<span class="qty-value">{item.quantity}</span>
 									<button
-										class="qty-btn"
+										class="plus qty-btn"
 										on:click={() =>
 											updateQuantity(item.id, item.quantity + 1, item.menu_item_price)}
 									>
@@ -141,7 +139,7 @@
 									on:click={() => removeFromCart(item.id, item.menu_item_name)}
 									title="Remove item"
 								>
-									🗑️
+									<img src="/items/icon.svg" alt="Remove" width="24" height="24" />
 								</button>
 							</div>
 						{/each}
@@ -152,6 +150,7 @@
 							class="order-note"
 							bind:value={orderNote}
 							placeholder="Add a note to your order..."
+							style="overflow: hidden;"
 						></textarea>
 					</div>
 					<div class="cart-footer">
@@ -180,6 +179,19 @@
 {/if}
 
 <style>
+	.box {
+		border: 1px solid black;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+	}
+	.plus {
+		border-left: 1px solid black;
+		border-radius: 0 4px 4px 0;
+	}
+	.minus {
+		border-right: 1px solid black;
+		border-radius: 4px 0 0 4px;
+	}
+
 	.taxes-shipping {
 		font-size: 0.75rem;
 		color: white;
@@ -263,9 +275,9 @@
 		gap: 1rem;
 		align-items: center;
 		padding: 1rem;
-		border: 1px solid #e0e0e0;
-		border-radius: 1rem;
-		transition: box-shadow 0.3s;
+		border-bottom: 1px solid #e0e0e0;
+		/* border-radius: 1rem; */
+		/* transition: box-shadow 0.3s; */
 	}
 
 	.cart-item:hover {
@@ -303,30 +315,31 @@
 		align-items: center;
 		gap: 0.5rem;
 		background-color: #f5f5f5;
-		padding: 0.25rem;
-		border-radius: 2rem;
+		/* padding: 0.25rem; */
+		/* border-radius: 2rem; */
 	}
 
 	.qty-btn {
 		width: 32px;
 		height: 32px;
-		border: none;
-		background-color: var(--color-mabini-dark-brown);
-		color: white;
-		border-radius: 50%;
+		color: black;
+		/* border: none; */
+		/* background-color: var(--color-mabini-dark-brown); */
+		/* color: white; */
+		/* border-radius: 50%; */
 		cursor: pointer;
 		font-size: 1.2rem;
 		font-weight: bold;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		transition: all 0.3s;
+		/* transition: all 0.3s; */
 	}
 
 	.qty-btn:hover:not(:disabled) {
-		background-color: var(--color-mabini-yellow);
-		color: var(--color-mabini-dark-brown);
-		transform: scale(1.1);
+		/* background-color: var(--color-mabini-yellow); */
+		color: var(--color-mabini-dark-black);
+		/* transform: scale(1.1); */
 	}
 
 	.qty-btn:disabled {

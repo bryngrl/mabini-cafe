@@ -45,14 +45,34 @@ function createCartStore() {
 		add: async (cartItem) => {
 			update(state => ({ ...state, loading: true, error: null }));
 			try {
-				const result = await addToCart(cartItem);
-				if (cartItem.user_id) {
-					const items = await getCartByCustomerId(cartItem.user_id);
-					update(state => ({ ...state, items: Array.isArray(items) ? items : [], loading: false }));
-				} else {
+				// Check if user is authenticated
+				if (!cartItem.user_id) {
 					update(state => ({ ...state, loading: false }));
+					const error = new Error('Please login to add items to cart');
+					error.type = 'LOGIN_REQUIRED';
+					throw error;
 				}
-				return result;
+
+				// First, fetch current cart items to check for duplicates
+				const currentItems = await getCartByCustomerId(cartItem.user_id);
+				const existingItem = currentItems.find(item => 
+					item.menu_item_id === cartItem.menu_item_id
+				);
+
+				if (existingItem) {
+					// Item already exists, update quantity instead
+					const newQuantity = parseInt(existingItem.quantity) + parseInt(cartItem.quantity);
+					const newSubtotal = parseFloat(existingItem.menu_item_price) * newQuantity;
+					
+					await updateCartItem(existingItem.id, newQuantity, newSubtotal);
+				} else {
+					// Item doesn't exist, add as new item
+					await addToCart(cartItem);
+				}
+
+				// Refresh cart items
+				const items = await getCartByCustomerId(cartItem.user_id);
+				update(state => ({ ...state, items: Array.isArray(items) ? items : [], loading: false }));
 			} catch (error) {
 				update(state => ({ ...state, loading: false, error: error.message }));
 				throw error;
