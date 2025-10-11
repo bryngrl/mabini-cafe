@@ -27,11 +27,11 @@
 			<div>
 				<h3 class="font-bold mb-1">Support</h3>
 				<a class="block text-sm pt-5 hover:text-mabini-yellow" href="/search">Search</a>
-				<a class="block text-sm pt-5 hover:text-mabini-yellow" href="/order-payment"
+				<a class="block text-sm pt-5 hover:text-mabini-yellow" href="/orders-and-payment"
 					>Order & Payment</a
 				>
 				<a class="block text-sm pt-5 hover:text-mabini-yellow" href="/shipping">Shipping</a>
-				<a class="block text-sm pt-5 hover:text-mabini-yellow" href="/contact">Contact us</a>
+				<a class="block text-sm pt-5 hover:text-mabini-yellow" href="/contact-us">Contact us</a>
 			</div>
 		</div>
 	</div>
@@ -43,7 +43,7 @@
 	>
 		<div class="col-span-3 flex items-center gap-4 ml-[100px]">
 			<p>Condition of use and How to order</p>
-			<a href="/policy" class="relative group hover:text-mabini-yellow"> Privacy policy </a>
+			<a href="/privacy-policy" class="relative group hover:text-mabini-yellow"> Privacy policy </a>
 		</div>
 
 		<div class="col-span-2 flex justify-center items-center">

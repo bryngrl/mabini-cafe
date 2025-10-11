@@ -2,9 +2,9 @@
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
 	import { onMount } from 'svelte';
-	import { browser } from '$app/environment';
-	import { auth } from '$lib/stores/auth';
-	import { get } from 'svelte/store';
+	import { menuStore, cartStore, authStore } from '$lib/stores';
+	import { goto } from '$app/navigation';
+	import { showSuccess, showError, showLoginRequired } from '$lib/utils/sweetalert';
 
 	let categories = ['All', 'Pastries', 'Beverages', 'Meals'];
 	let selectedCategory = categories[0];
@@ -43,70 +43,27 @@
 	let loading = false;
 	let error = '';
 
-	// Itemss
+	let selectedItem = null;
+	let modalOpen = false;
+
 	onMount(async () => {
 		loading = true;
 		error = '';
 		try {
-			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/menu');
-			const data = await response.json();
-			if (response.ok && Array.isArray(data)) {
-				items = data.map((item) => ({
-					id: item.id,
-					name: item.name,
-					price: item.price,
-					image: item.image_path
-						? 'http://localhost/mabini-cafe/phpbackend/' + item.image_path.replace(/^\/?/, '')
-						: '',
-					description: item.description
-				}));
-			} else {
-				error = 'Failed to load menu items.';
-			}
-		} catch (err) {
-			error = 'Network error. Please try again.';
+			items = await menuStore.fetchAll();
+		} catch (err: any) {
+			error = err.message || 'Failed to load menu items';
+			console.error('Error loading menu:', err);
 		} finally {
 			loading = false;
 		}
 	});
-	//add to cart
-	async function addToCart(item) {
-		const { isLoggedIn, user } = get(auth);
-		if (!isLoggedIn) {
-			alert('You must be logged in to add items to your cart.');
-			return;
-		}
-		try {
-			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/cart', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					user_id: user.id,
-					menu_item_id: item.id,
-					quantity: 1,
-					subtotal: item.price
-				})
-			});
-			const data = await response.json();
-			if (response.ok) {
-				alert('Added to cart!');
-			} else {
-				alert(data.error || 'Failed to add to cart');
-			}
-		} catch (err) {
-			alert('Network error');
-		}
-	}
-
-	let selectedItem = null;
-	let modalOpen = false;
 
 	function handleViewDetails(item) {
 		selectedItem = item;
 		modalOpen = true;
 	}
+
 	function closeModal() {
 		modalOpen = false;
 		selectedItem = null;
@@ -114,6 +71,39 @@
 
 	function selectSubcategory(subcategory: string) {
 		selectedSubcategory = subcategory;
+	}
+
+	function selectCategory(category: string) {
+		selectedCategory = category;
+		selectedSubcategory = null;
+	}
+
+	async function handleAddToCart(item) {
+		// Check if user is logged in
+		if (!$authStore.isAuthenticated) {
+			const result = await showLoginRequired();
+			if (result.isConfirmed) {
+				goto('/login');
+			}
+			return;
+		}
+
+		try {
+			const quantity = 1;
+			const subtotal = parseFloat(item.price) * quantity;
+			
+			await cartStore.add({
+				user_id: $authStore.user.id,
+				menu_item_id: item.id,
+				quantity: quantity,
+				subtotal: subtotal
+			});
+			
+			await showSuccess(`${item.name} has been added to your cart!`, 'Added to Cart');
+		} catch (err: any) {
+			await showError(err.message || 'Failed to add item to cart', 'Error');
+			console.error('Error adding to cart:', err);
+		}
 	}
 </script>
 
@@ -133,7 +123,7 @@
 					class="btn-primary"
 					class:active={selectedCategory === category}
 					class:selected-category={selectedCategory === category}
-					on:click={() => (selectedCategory = category)}
+					on:click={() => selectCategory(category)}
 				>
 					{category.charAt(0).toUpperCase() + category.slice(1)}
 				</button>
@@ -160,30 +150,46 @@
 
 				<div class="items-container">
 					<h1 class="menu-text">Our Menu</h1>
+
 					{#if loading}
-						<p>Loading menu items...</p>
+						<div class="loading-state">
+							<p>Loading menu items...</p>
+						</div>
+					{:else if error}
+						<div class="error-message">
+							<p>{error}</p>
+						</div>
+					{:else if items.length === 0}
+						<div class="empty-state">
+							<p>No menu items available</p>
+						</div>
+					{:else}
+						<div class="items-grid">
+							{#each items.filter((item) => {
+								const matchesCategory = selectedCategory === 'All' || item.category_name === selectedCategory;
+								const matchesSubcategory = !selectedSubcategory || (item.description && item.description
+											.toLowerCase()
+											.trim() === selectedSubcategory.toLowerCase().trim());
+
+								return matchesCategory && matchesSubcategory;
+							}) as item}
+								<div>
+									<Item
+										{item}
+										on:viewDetails={() => handleViewDetails(item)}
+										on:addToCart={() => handleAddToCart(item)}
+									/>
+								</div>
+							{/each}
+						</div>
 					{/if}
-					{#if error}
-						<p style="color: red;">{error}</p>
-					{/if}
-					<div class="items-grid">
-						{#each items.filter( (item) => (selectedCategory === 'All' ? !selectedSubcategory || (item.description && item.description
-												.toLowerCase()
-												.trim() === selectedSubcategory
-													.toLowerCase()
-													.trim()) : !selectedSubcategory || (item.description && item.description
-												.toLowerCase()
-												.trim() === selectedSubcategory.toLowerCase().trim())) ) as item}
-							<div>
-								<Item
-									{item}
-									on:viewDetails={() => handleViewDetails(item)}
-									on:addToCart={() => addToCart(item)}
-								/>
-							</div>
-						{/each}
-					</div>
-					<ItemModal {selectedItem} {modalOpen} on:close={closeModal} {addToCart} />
+
+					<ItemModal
+						{selectedItem}
+						{modalOpen}
+						on:close={closeModal}
+						on:addToCart={() => selectedItem && handleAddToCart(selectedItem)}
+					/>
 				</div>
 			</div>
 		</div>
@@ -256,18 +262,19 @@
 	.items-grid {
 		display: grid;
 		grid-template-columns: repeat(4, 1fr); /* Always 4 columns on desktop */
-		gap: 1px; /* Reduced gap for closer spacing */
+		gap: 1rem;
 		border-radius: 0rem 0rem 1rem 0rem;
 		border: solid 1px gray;
+		padding: 1rem;
 	}
 	@media (max-width: 1024px) {
 		.items-grid {
-			grid-template-columns: repeat(2, 1fr); /* 2 columns on tablet */
+			grid-template-columns: repeat(2, 1fr);
 		}
 	}
 	@media (max-width: 600px) {
 		.items-grid {
-			grid-template-columns: 1fr; /* 1 column on mobile */
+			grid-template-columns: 1fr; 
 		}
 	}
 	.menu-text {
@@ -294,5 +301,13 @@
 		color: var(--color-mabini-dark-brown);
 		background-color: #bdbdbd;
 		font-weight: bold;
+	}
+
+	.loading-state,
+	.empty-state {
+		padding: 3rem;
+		text-align: center;
+		color: #666;
+		font-size: 1.1rem;
 	}
 </style>

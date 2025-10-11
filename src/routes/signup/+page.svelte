@@ -1,51 +1,44 @@
-<!-- TODO: FETCH API ENDPOINT -->
 <script lang="ts">
-	import { redirect } from "@sveltejs/kit";
+	import { redirect } from '@sveltejs/kit';
+	import { goto } from '$app/navigation';
+	import { signup } from '$lib/utils/fetcher';
+	import { showSuccess, showError } from '$lib/utils/sweetalert';
 
 	let name = '';
 	let email = '';
 	let password = '';
 	let confirmPassword = '';
 	let loading = false;
-	let message = '';
-	let error = '';
+	let showPassword = false;
+	let showConfirmPassword = false;
 
-	async function handleSignup(event: Event) {
-		event.preventDefault();
-		error = '';
-		message = '';
-		
+	async function handleSignup() {
+		loading = true;
+
 		if (password !== confirmPassword) {
-			error = 'Passwords do not match.';
+			await showError('Passwords do not match.', 'Error');
+			loading = false;
 			return;
 		}
-		loading = true;
+
 		try {
-			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/users', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					name,
-					email,
-					password
-				})
+			const result = await signup({
+				username: name,
+				email: email,
+				password: password
 			});
-			const data = await response.json();
-			if (response.ok && data.message) {
-				message = 'Account created successfully!';
-				name = email = password = confirmPassword = '';
+
+			if (result && result.message) {
+				await showSuccess(
+					'Account created successfully! Please check your email for verification code.',
+					'Welcome to Mabini Cafe!'
+				);
 				setTimeout(() => {
-					window.location.href = '/login';
-				}, 1000);	
-				
-			} else {
-				error = data.error || data.message || 'Signup failed.';
+					goto(`/verify-email?email=${encodeURIComponent(email)}`);
+				}, 2000);
 			}
-		} catch (err) {
-			error = 'Network error. Please try again.';
-		} finally {
+		} catch (err: any) {
+			await showError(err.message || 'Signup failed. Please try again.', 'Signup Failed');
 			loading = false;
 		}
 	}
@@ -87,9 +80,9 @@
 					disabled={loading}
 				/>
 			</div>
-			<div class="inputBox">
+			<div class="inputBox password-field">
 				<input
-					type="password"
+					type={showPassword ? 'text' : 'password'}
 					id="password"
 					bind:value={password}
 					class="form-input"
@@ -97,10 +90,18 @@
 					required
 					disabled={loading}
 				/>
+				<button
+					type="button"
+					class="toggle-password"
+					on:click={() => (showPassword = !showPassword)}
+					aria-label={showPassword ? 'Hide password' : 'Show password'}
+				>
+					{showPassword ? 'Hide' : 'Show'}
+				</button>
 			</div>
-			<div class="inputBox">
+			<div class="inputBox password-field">
 				<input
-					type="password"
+					type={showConfirmPassword ? 'text' : 'password'}
 					id="confirmPassword"
 					bind:value={confirmPassword}
 					class="form-input"
@@ -108,13 +109,15 @@
 					required
 					disabled={loading}
 				/>
+				<button
+					type="button"
+					class="toggle-password"
+					on:click={() => (showConfirmPassword = !showConfirmPassword)}
+					aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+				>
+					{showConfirmPassword ? 'Hide' : 'Show'}
+				</button>
 			</div>
-			{#if error}
-				<p style="color: red; padding-top: 0.5rem;">{error}</p>
-			{/if}
-			{#if message}
-				<p style="color: green; padding-top: 0.5rem;">{message}</p>
-			{/if}	
 			<button type="submit" class="login-btn" disabled={loading}>
 				{loading ? 'Signing up...' : 'Sign Up'}
 			</button>
@@ -141,7 +144,7 @@
 		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 		min-width: 350px;
 		max-width: 500px;
-		height: 500px;
+		min-height: 500px;
 		width: 100%;
 		text-align: center;
 	}
@@ -162,9 +165,29 @@
 		border-radius: 0.5rem;
 		font-size: 1rem;
 	}
-	.links {
-		margin-top: 0.7rem;
-		text-align: left;
+	.password-field {
+		position: relative;
+	}
+	.password-field input {
+		padding-right: 3rem;
+	}
+	.toggle-password {
+		position: absolute;
+		right: 0.75rem;
+		top: 50%;
+		transform: translateY(-50%);
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 0.875rem;
+		font-weight: 500;
+		padding: 0.25rem 0.5rem;
+		color: #6b7280;
+		transition: color 0.2s;
+		user-select: none;
+	}
+	.toggle-password:hover {
+		color: #374151;
 	}
 	.login-btn {
 		width: 100%;

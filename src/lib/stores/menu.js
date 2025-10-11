@@ -1,43 +1,131 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
+import { 
+	getAllMenuItems, 
+	getMenuItemById,
+	getMenuItemsByCategory,
+	getMenuItemsByDescription,
+	createMenuItem,
+	updateMenuItem,
+	deleteMenuItem
+} from '$lib/utils/fetcher';
 
-/** @type {import('./$types').PageLoad} */
-export function load({ fetch }) {
-	return fetch('http://localhost/mabini-cafe/phpbackend/routes/menu')
-		.then((response) => {
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
+
+function createMenuStore() {
+	const { subscribe, set, update } = writable({
+		items: [],
+		selectedItem: null,
+		loading: false,
+		error: null
+	});
+
+	return {
+		subscribe,
+
+		
+		fetchAll: async () => {
+			update(state => ({ ...state, loading: true, error: null }));
+			try {
+				const items = await getAllMenuItems();
+				update(state => ({ ...state, items, loading: false }));
+				return items;
+			} catch (error) {
+				update(state => ({ ...state, loading: false, error: error.message }));
+				throw error;
 			}
-			return response.json();
-		})
-		.then((data) => {
-			if (!Array.isArray(data)) {
-				throw new Error('Invalid data format');
+		},
+
+		
+		fetchById: async (itemId) => {
+			update(state => ({ ...state, loading: true, error: null }));
+			try {
+				const item = await getMenuItemById(itemId);
+				update(state => ({ ...state, selectedItem: item, loading: false }));
+				return item;
+			} catch (error) {
+				update(state => ({ ...state, loading: false, error: error.message }));
+				throw error;
 			}
-			return { menuItems: data };
-		})
-		.catch((error) => {
-			console.error('Error fetching menu:', error);
-			return { menuItems: [] };
-		});
-}
+		},
 
-function getInitialMenu() {
-	return { items: /** @type {any[]} */ ([]), loading: false, error: '' };
-}
+		
+		fetchByCategory: async (categoryId) => {
+			update(state => ({ ...state, loading: true, error: null }));
+			try {
+				const items = await getMenuItemsByCategory(categoryId);
+				update(state => ({ ...state, items, loading: false }));
+				return items;
+			} catch (error) {
+				update(state => ({ ...state, loading: false, error: error.message }));
+				throw error;
+			}
+		},
 
-export const menu = writable(getInitialMenu());
+		
+		fetchByDescription: async (description) => {
+			update(state => ({ ...state, loading: true, error: null }));
+			try {
+				const items = await getMenuItemsByDescription(description);
+				update(state => ({ ...state, items, loading: false }));
+				return items;
+			} catch (error) {
+				update(state => ({ ...state, loading: false, error: error.message }));
+				throw error;
+			}
+		},
 
-export async function fetchMenu() {
-	menu.update((m) => ({ ...m, loading: true, error: '' }));
-	try {
-		const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/menu');
-		const data = await response.json();
-		if (response.ok && Array.isArray(data)) {
-			menu.set({ items: data, loading: false, error: '' });
-		} else {
-			menu.set({ items: [], loading: false, error: data.error || 'Failed to fetch menu.' });
+		
+		create: async (itemData, imageFile) => {
+			update(state => ({ ...state, loading: true, error: null }));
+			try {
+				const result = await createMenuItem(itemData, imageFile);
+				
+				const items = await getAllMenuItems();
+				update(state => ({ ...state, items, loading: false }));
+				return result;
+			} catch (error) {
+				update(state => ({ ...state, loading: false, error: error.message }));
+				throw error;
+			}
+		},
+
+		
+		update: async (itemId, itemData, imageFile) => {
+			update(state => ({ ...state, loading: true, error: null }));
+			try {
+				const result = await updateMenuItem(itemId, itemData, imageFile);
+			
+				const items = await getAllMenuItems();
+				update(state => ({ ...state, items, loading: false }));
+				return result;
+			} catch (error) {
+				update(state => ({ ...state, loading: false, error: error.message }));
+				throw error;
+			}
+		},
+
+		delete: async (itemId) => {
+			update(state => ({ ...state, loading: true, error: null }));
+			try {
+				await deleteMenuItem(itemId);
+			
+				const items = await getAllMenuItems();
+				update(state => ({ ...state, items, loading: false }));
+			} catch (error) {
+				update(state => ({ ...state, loading: false, error: error.message }));
+				throw error;
+			}
+		},
+
+		
+		clearError: () => {
+			update(state => ({ ...state, error: null }));
 		}
-	} catch (err) {
-		menu.set({ items: [], loading: false, error: 'Network error.' });
-	}
+	};
 }
+
+export const menuStore = createMenuStore();
+
+
+export const menuItems = derived(menuStore, $menu => $menu.items);
+export const selectedMenuItem = derived(menuStore, $menu => $menu.selectedItem);
+export const menuLoading = derived(menuStore, $menu => $menu.loading);

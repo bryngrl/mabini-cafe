@@ -69,3 +69,64 @@ body {
 .option{
 	@apply bg-mabini-black text-mabini-white hover:bg-neutral-500
 }
+
+.swal-mabini-popup {
+	border-radius: 1.5rem !important;
+	padding: 2rem !important;
+	box-shadow: 0 10px 40px rgba(42, 28, 15, 0.2) !important;
+}
+
+.swal-mabini-title {
+	font-family: 'Creato', sans-serif !important;
+	color: var(--color-mabini-dark-brown) !important;
+	font-weight: 700 !important;
+	font-size: 1.75rem !important;
+	margin-bottom: 1rem !important;
+}
+
+.swal-mabini-button {
+	border-radius: 50px !important;
+	padding: 0.75rem 2.5rem !important;
+	font-weight: 700 !important;
+	text-transform: uppercase !important;
+	font-size: 0.875rem !important;
+	letter-spacing: 0.5px !important;
+	transition: all 0.3s ease !important;
+	border: 2px solid var(--color-mabini-dark-brown) !important;
+}
+
+.swal-mabini-button:hover {
+	background-color: var(--color-mabini-yellow) !important;
+	border-color: var(--color-mabini-yellow) !important;
+	color: var(--color-mabini-dark-brown) !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 4px 12px rgba(255, 174, 0, 0.3) !important;
+}
+
+.swal-mabini-cancel-button {
+	border-radius: 50px !important;
+	padding: 0.75rem 2.5rem !important;
+	font-weight: 700 !important;
+	text-transform: uppercase !important;
+	font-size: 0.875rem !important;
+	letter-spacing: 0.5px !important;
+	transition: all 0.3s ease !important;
+	border: 2px solid #999999 !important;
+}
+
+.swal-mabini-cancel-button:hover {
+	background-color: #666666 !important;
+	border-color: #666666 !important;
+	transform: translateY(-2px) !important;
+}
+
+.swal2-html-container {
+	font-family: 'Creato', sans-serif !important;
+	color: #666666 !important;
+	font-size: 1rem !important;
+	line-height: 1.6 !important;
+}
+
+.swal2-timer-progress-bar {
+	background-color: var(--color-mabini-yellow) !important;
+}

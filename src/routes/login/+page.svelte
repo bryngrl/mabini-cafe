@@ -2,41 +2,29 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { login as setAuthLogin } from '$lib/stores/auth';
+	import { authStore } from '$lib/stores/auth';
+	import { showSuccess, showError } from '$lib/utils/sweetalert';
 
 	let email = '';
 	let loading = false;
 	let password = '';
-	let error = '';
-	let message = '';
+	let showPassword = false;
 
-	async function handleLogin(event: Event) {
-		event.preventDefault();
-		error = '';
-		message = '';
+	async function handleLogin() {
 		loading = true;
+
 		try {
-			const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/users/login', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
-					email,
-					password
-				})
-			});
-			const data = await response.json();
-			if (response.ok && data.token && data.message) {
-				setAuthLogin(data.token);
-				message = 'Login successful!';
-				await goto('/');
-			} else {
-				error = data.message || 'Login failed.';
+			const result = await authStore.loginUser(email, password);
+			
+			if (result && result.token) {
+				localStorage.setItem('token', result.token);
+				await showSuccess('Login successful! Redirecting...', 'Welcome Back!');
+				setTimeout(() => {
+					goto('/');
+				}, 1500);
 			}
-		} catch (err) {
-			error = 'Network error. Please try again.';
-		} finally {
+		} catch (err: any) {
+			await showError(err.message || 'Login failed. Please check your credentials.', 'Login Failed');
 			loading = false;
 		}
 	}
@@ -64,9 +52,9 @@
 					disabled={loading}
 				/>
 			</div>
-			<div class="inputBox">
+			<div class="inputBox password-field">
 				<input
-					type="password"
+					type={showPassword ? 'text' : 'password'}
 					id="password"
 					bind:value={password}
 					class="form-input"
@@ -74,13 +62,15 @@
 					required
 					disabled={loading}
 				/>
+				<button
+					type="button"
+					class="toggle-password"
+					on:click={() => (showPassword = !showPassword)}
+					aria-label={showPassword ? 'Hide password' : 'Show password'}
+				>
+					{showPassword ? 'Hide' : 'Show'}
+				</button>
 			</div>
-			{#if error}
-				<p style="color: red;">{error}</p>
-			{/if}
-			{#if message}
-				<p style="color: green;">{message}</p>
-			{/if}
 			<button type="submit" class="login-btn" disabled={loading}>
 				{loading ? 'Signing in...' : 'Sign In'}
 			</button>
@@ -130,6 +120,30 @@
 		border: 1px solid #ccc;
 		border-radius: 0.5rem;
 		font-size: 1rem;
+	}
+	.password-field {
+		position: relative;
+	}
+	.password-field input {
+		padding-right: 3rem;
+	}
+	.toggle-password {
+		position: absolute;
+		right: 0.75rem;
+		top: 50%;
+		transform: translateY(-50%);
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 0.875rem;
+		font-weight: 500;
+		padding: 0.25rem 0.5rem;
+		color: #6b7280;
+		transition: color 0.2s;
+		user-select: none;
+	}
+	.toggle-password:hover {
+		color: #374151;
 	}
 	.links {
 		margin-top: 0.7rem;

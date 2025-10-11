@@ -4,6 +4,9 @@
 <!-- TODO: Handle file uploads -->
 
 <script>
+	import { goto } from '$app/navigation';
+	import { contactsStore } from '$lib/stores';
+	import { onMount } from 'svelte';
 	let title = '';
 	let name = '';
 	let email = '';
@@ -11,8 +14,54 @@
 	let orderNumber = '';
 	let description = '';
 	let file = null;
-	// Function ulit for handling submission dito
+	let message = '';
+	let error = '';
+	let loading = false;
+
+	async function handleSubmit() {
+		message = '';
+		error = '';
+		loading = true;
+
+		// Validation
+		if (!title || !name || !email || !contactReason || !description) {
+			error = 'Please fill in all required fields';
+			loading = false;
+			return;
+		}
+
+		try {
+			const result = await contactsStore.submit(
+				{
+					topic: title,
+					name: name,
+					email: email,
+					contact_reason: contactReason,
+					message: description,
+					order_id: orderNumber || null
+				},
+				file
+			);
+
+			if (result && result.message) {
+				message = 'Contact form submitted successfully!';
+				title = '';
+				name = '';
+				email = '';
+				contactReason = '';
+				orderNumber = '';
+				description = '';
+				file = null;
+			}
+		} catch (err) {
+			error = (err && err.message) || 'Failed to submit contact form. Please try again.';
+			console.error('Error submitting contact form:', err);
+		} finally {
+			loading = false;
+		}
+	}
 </script>
+
 <svelte:head>
 	<title>Contact Us - Mabini Cafe</title>
 	<meta name="description" content="Get in touch with Mabini Cafe" />
@@ -34,7 +83,11 @@
 		</p>
 		<p class="text-[#e53935] mt-2">* indicates a required field</p>
 	</div>
-	<form method="post" enctype="multipart/form-data" class="flex flex-col gap-5">
+	<form
+		on:submit|preventDefault={handleSubmit}
+		enctype="multipart/form-data"
+		class="flex flex-col gap-5"
+	>
 		<input
 			type="text"
 			name="title"
@@ -86,23 +139,37 @@
 			placeholder="Tell us the details *"
 			class="w-full h-28 px-4 py-3 border border-gray-300 rounded-lg resize-none text-base"
 			bind:value={description}
+			required
 		></textarea>
 		<label
 			for="files"
 			class="flex items-center justify-center border border-dashed border-gray-300 rounded-lg px-4 py-3 text-gray-500 cursor-pointer"
-			>Drag or Paste an image here</label
 		>
+			{file ? file.name : 'Drag or Paste an image here'}
+		</label>
 		<input
 			id="files"
 			name="files"
 			type="file"
+			accept="image/*"
 			class="hidden"
-			on:change={(e) => (file = e.target.files[0])}
+			on:change={(e) => {
+				const target = e.currentTarget;
+				file = target.files ? target.files[0] : null;
+			}}
 		/>
+		{#if error}
+			<p class="text-red-600 text-sm">{error}</p>
+		{/if}
+		{#if message}
+			<p class="text-green-600 text-sm">{message}</p>
+		{/if}
 		<button
 			type="submit"
-			class="w-full px-4 py-3 text-black border border-solid border-black rounded-full font-bold text-base cursor-pointer transition duration-200 hover:bg-mabini-black hover:text-white hover-border-0 mb-12"
-			>Submit</button
+			disabled={loading}
+			class="w-full px-4 py-3 text-black border border-solid border-black rounded-full font-bold text-base cursor-pointer transition duration-200 hover:bg-mabini-black hover:text-white hover-border-0 mb-12 disabled:opacity-50 disabled:cursor-not-allowed"
 		>
+			{loading ? 'Submitting...' : 'Submit'}
+		</button>
 	</form>
 </div>

@@ -1,34 +1,43 @@
 <!-- Home Page -->
 <script lang="ts">
-	import { menu, fetchMenu } from '$lib/stores/menu.js';
+	import { menuStore } from '$lib/stores';
 	import { onMount } from 'svelte';
+
 	let heroImage = '/images/cover-photo-1.png';
 	let heroImage2 = '/images/sofa.png';
 	let heroImage3 = '/images/cover-photo-2.png';
-
 	let products: { name: string; price: string; temp: string; img: string }[] = [];
 	let scrollRef: HTMLDivElement;
+	let loading = true;
 
-	const unsubscribe = menu.subscribe((m) => {
-		products = m.items.map((item) => ({
-			name: item.name,
-			price: `₱${item.price}`,
-			temp: item.temp || '',
-			img: item.image_path
-				? 'http://localhost/mabini-cafe/phpbackend/' + item.image_path.replace(/^\/?/, '')
-				: ''
-		}));
-	});
-
-	onMount(() => {
-		fetchMenu();
+	onMount(async () => {
+		try {
+			const items = await menuStore.fetchAll();
+			products = items.map((item: any) => ({
+				name: item.name,
+				price: `₱${parseFloat(item.price).toFixed(2)}`,
+				temp: item.category,
+				img: item.image_path
+					? `http://localhost/mabini-cafe/phpbackend/${item.image_path.replace(/^\/?/, '')}`
+					: ''
+			}));
+		} catch (error) {
+			console.error('Failed to load menu items:', error);
+		} finally {
+			loading = false;
+		}
 	});
 
 	function scrollRight() {
-		scrollRef.scrollBy({ left: 300, behavior: 'smooth' });
+		if (scrollRef) {
+			scrollRef.scrollBy({ left: 300, behavior: 'smooth' });
+		}
 	}
+
 	function scrollLeft() {
-		scrollRef.scrollBy({ left: -300, behavior: 'smooth' });
+		if (scrollRef) {
+			scrollRef.scrollBy({ left: -300, behavior: 'smooth' });
+		}
 	}
 </script>
 
@@ -74,32 +83,73 @@
 		</h1>
 
 		<!-- Featured Products -->
-		<div class="flex items-center gap-4 justify-center">
-			<button on:click={scrollLeft} class="p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors">
-				<svg width="24" height="24" fill="none">
-					<path d="M15 6l-6 6 6 6" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
-			</button>
-			<div bind:this={scrollRef} class="flex overflow-x-auto gap-6 py-6 px-2 scrollbar-hide">
-				{#each products.slice(0, 10) as product}
-					<div class="min-w-[260px] max-w-[260px] min-h-[370px] bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center justify-between transition-transform hover:scale-105 relative">
-						<img src={product.img} alt={product.name} class="w-40 h-40 object-contain mb-2 mt-2 drop-shadow-md" />
-						<div class="flex flex-col justify-end w-full flex-1">
-							<div class="font-extrabold text-lg text-left mb-2 mt-4 w-full" style="letter-spacing:0.5px">{product.name}</div>
-							<div class="flex items-center justify-between w-full mt-2">
-								<span class="text-gray-400 font-semibold">{product.price}</span>
-								<span class="text-gray-500 text-base font-medium">{product.temp}</span>
+		{#if loading}
+			<div class="flex justify-center py-12">
+				<p class="text-gray-500 text-lg">Loading products...</p>
+			</div>
+		{:else if products.length === 0}
+			<div class="flex justify-center py-12">
+				<p class="text-gray-500 text-lg">No products available</p>
+			</div>
+		{:else}
+			<div class="flex items-center gap-4 justify-center">
+				<button
+					on:click={scrollLeft}
+					class="p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors"
+					aria-label="Scroll left"
+				>
+					<svg width="24" height="24" fill="none">
+						<path
+							d="M15 6l-6 6 6 6"
+							stroke="#333"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
+				<div bind:this={scrollRef} class="flex overflow-x-auto gap-6 py-6 px-2 scrollbar-hide">
+					{#each products.slice(0, 10) as product}
+						<div
+							class="min-w-[260px] max-w-[260px] min-h-[370px] bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center justify-between transition-transform hover:scale-105 relative"
+						>
+							<img
+								src={product.img}
+								alt={product.name}
+								class="w-40 h-40 object-contain mb-2 mt-2 drop-shadow-md"
+							/>
+							<div class="flex flex-col justify-end w-full flex-1">
+								<div
+									class="font-extrabold text-lg text-left mb-2 mt-4 w-full"
+									style="letter-spacing:0.5px"
+								>
+									{product.name}
+								</div>
+								<div class="flex items-center justify-between w-full mt-2">
+									<span class="text-gray-400 font-semibold">{product.price}</span>
+									<span class="text-gray-500 text-base font-medium">{product.temp}</span>
+								</div>
 							</div>
 						</div>
-					</div>
-				{/each}
+					{/each}
+				</div>
+				<button
+					on:click={scrollRight}
+					class="p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors"
+					aria-label="Scroll right"
+				>
+					<svg width="24" height="24" fill="none">
+						<path
+							d="M9 6l6 6-6 6"
+							stroke="#333"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
 			</div>
-			<button on:click={scrollRight} class="p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors">
-				<svg width="24" height="24" fill="none">
-					<path d="M9 6l6 6-6 6" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
-			</button>
-		</div>
+		{/if}
 	</div>
 </section>
 
@@ -112,7 +162,4 @@
 		-ms-overflow-style: none;
 		scrollbar-width: none;
 	}
-	.bg-mabini-yellow { background-color: #FFD600; }
-	.text-mabini-yellow { color: #FFD600; }
-	.text-mabini-dark-brown { color: #4B2E05; }
 </style>

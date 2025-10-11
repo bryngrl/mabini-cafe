@@ -8,9 +8,9 @@
 	const close = () => {
 		dispatch('close');
 	};
-	let quantity = 0;
+	let quantity = 1;
 	function decrease() {
-		if (quantity > 0) quantity--;
+		if (quantity > 1) quantity--;
 	}
 	function increase() {
 		quantity++;
@@ -43,9 +43,11 @@
 				<!-- Left: Image -->
 				<div class="flex-shrink-0 flex justify-center items-center h-full ml-8 object-contain">
 					<img
-						src={selectedItem.image}
+						src={selectedItem.image_path 
+							? `http://localhost/mabini-cafe/phpbackend/${selectedItem.image_path.replace(/^\/?/, '')}` 
+							: ''}
 						alt={selectedItem.name}
-						class="w-32 h-32 object-cover rounded mb-0"
+						class="w-40 h-40 object-cover rounded mb-0"
 					/>
 				</div>
 				<!-- Right: Details -->
@@ -66,7 +68,7 @@
 					</div>
 					<div class="flex gap-2 mt-4">
 						<button
-							class="uppercase bg-black text-mabini-beige px-6 py-2 rounded-full font-bold hover:bg-mabini-dark-brown transition cursor-pointer"
+							class="uppercase bg-black text-mabini-beige px-5 py-2 rounded-full font-bold hover:bg-mabini-dark-brown transition cursor-pointer"
 							on:click={() => addToCart(selectedItem)}
 						>
 							Add to Cart

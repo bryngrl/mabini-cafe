@@ -3,7 +3,10 @@
  ! [] Hamburger Menu
 --->
 <script>
-	import { auth } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
+	import { authStore } from '$lib/stores/auth';
+	import { cartCount } from '$lib/stores/cart';
+	import CartModal from '../ui/CartModal.svelte';
 
 	let links = [
 		{ name: 'Home', href: '/' },
@@ -13,11 +16,24 @@
 
 	let open = false;
 	let accountOpen = false;
-
+	let cartModalOpen = false;
+	
 	function logout() {
-		auth.set({ isLoggedIn: false, token: null, user: null });
+		authStore.logout();
 		localStorage.removeItem('token');
-		window.location.href = '/login';
+		goto('/login');
+	}
+
+	function openCart() {
+		if ($authStore.isAuthenticated) {
+			cartModalOpen = true;
+		} else {
+			goto('/login');
+		}
+	}
+
+	function closeCart() {
+		cartModalOpen = false;
 	}
 </script>
 
@@ -67,7 +83,12 @@
 
 	<!-- Right-aligned links -->
 	<div class="flex-1 flex justify-end gap-4 mr-[50px]">
-		{#if $auth.isLoggedIn}
+		{#if $authStore.loading}
+			<!-- Show loading -->
+			<div class="relative group text-[16px] opacity-50">
+				Loading...
+			</div>
+		{:else if $authStore.isAuthenticated}
 			<div class="relative">
 				<button on:click={() => (accountOpen = !accountOpen)} class="relative group text-[16px] flex items-center gap-2">
 					ACCOUNT
@@ -75,11 +96,23 @@
 				</button>
 				{#if accountOpen}
 					<ul class="absolute right-0 mt-2 w-40 bg-mabini-black text-mabini-white rounded shadow text-[16px] z-50">
-						<li class="px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown" on:click={() => { accountOpen = false; window.location.href = '/settings'; }}>
-							Settings
+						<li>
+							<button
+								type="button"
+								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
+								on:click={() => { accountOpen = false; goto('/settings'); }}
+							>
+								Settings
+							</button>
 						</li>
-						<li class="px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown" on:click={logout}>
-							Logout
+						<li>
+							<button
+								type="button"
+								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
+								on:click={logout}
+							>
+								Logout
+							</button>
 						</li>
 					</ul>
 				{/if}
@@ -94,9 +127,16 @@
 			<img src="/icons/search.png" alt="Search" class="h-5 w-6" />
 			<span class="underline-anim"></span>
 		</a>
-		<a href="/cart" class="relative group">
+		<button class="relative group" on:click={openCart} type="button">
 			<img src="/icons/cart.png" alt="Cart" class="h-5 w-6" />
+			{#if $cartCount > 0}
+				<span class="absolute -top-2 -right-2 bg-mabini-yellow text-mabini-dark-brown text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+					{$cartCount}
+				</span>
+			{/if}
 			<span class="underline-anim"></span>
-		</a>
+		</button>
 	</div>
 </nav>
+
+<CartModal isOpen={cartModalOpen} onClose={closeCart} />
