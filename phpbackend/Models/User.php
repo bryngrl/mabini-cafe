@@ -69,6 +69,15 @@ class User{
         return $stmt->execute();
     }
 
+
+    public function changePassword(){
+        $stmt = $this->conn->prepare("UPDATE ".$this->table." SET password = :password WHERE email =:email");
+        $stmt->bindParam(":password",$this->password);
+        $stmt->bindParam(":email",$this->email);
+        return $stmt->execute();
+    }
+    
+
     // Find user by Email (for login)
     public function findByEmail($email) {
         $stmt = $this->conn->prepare("SELECT * FROM " . $this->table . " WHERE email=:email");

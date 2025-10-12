@@ -43,5 +43,34 @@ class Mail{
 
 }
 
+
+public function sendOtp($email,$otp){
+    $mail = new PHPMailer(true);
+
+
+    // === SERVER SETTINGS ===
+    $mail->isSMTP();                        
+    $mail->Host       = 'smtp.gmail.com';     
+    $mail->SMTPAuth   = true;                 
+    $mail->Username   = 'domdomkenneth23@gmail.com'; 
+    $mail->Password   = 'cqiodnxiytnrsisl';       
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // TLS encryption
+    $mail->Port       = 587;                  // Port para sa TLS
+
+
+    $mail->setFrom('domdomkenneth23@gmail.com', 'Mabini Cafe');
+    $mail->addAddress($email);
+
+    $mail->isHTML(true);
+  
+         $mail->Subject = 'Your OTP Code';
+        $mail->Body    = "<p>Your OTP is: <b>$otp</b></p><p>It will expire in 5 minutes.</p>";
+    // === SEND EMAIL ===
+       return  $mail->send();
+   
+
+}
+
+
 }
 
