@@ -30,7 +30,7 @@ class ContactsController extends Controller{
  * )
  */
     public function index(){
-        echo json_encode($this->model->getAll());
+        echo json_encode($this->model->getAll() ?? []);
     }
 
   /**

@@ -31,7 +31,8 @@ class CartController {
     public function index() {
         
         $carts = $this->model->getAll();
-        echo json_encode($carts);
+              http_response_code(200);
+              echo json_encode($carts ?? []);
     }
 
 /**
@@ -113,14 +114,19 @@ public function store()
  */
     // Show cart by cart ID
     public function show($id) {
-        $cart = $this->model->getById($id);
+     
 
-        if($cart) {
-            echo json_encode($cart);
-        } else {
-            http_response_code(404);
-            echo json_encode(["error" => "Cart not found"]);
-        }
+         if(empty($id) || !is_numeric($id))
+         {
+             http_response_code(400);
+            echo json_encode(["error" => "Invalid customer ID"]);
+           return;
+         }
+          $cart = $this->model->getById($id);
+         
+              http_response_code(200);
+              echo json_encode($carts ?? []);
+
     }
 
 
@@ -148,16 +154,20 @@ public function store()
  * )
  */
     // Show carts by customer ID
-    public function showCartByCustomerId($customer_id) {
-        $carts = $this->model->getByCustomerId($customer_id);
-
-        if($carts) {
-            echo json_encode($carts);
-        } else {
-            http_response_code(404);
-            echo json_encode(["error" => "No carts found for this customer"]);
-        }
+ public function showCartByCustomerId($customer_id) {
+    // Validate customer_id
+    if (empty($customer_id) || !is_numeric($customer_id)) {
+        http_response_code(400);
+        echo json_encode(["error" => "Invalid customer ID"]);
+        return;
     }
+
+    $carts = $this->model->getByCustomerId($customer_id);
+
+  
+    http_response_code(200);
+    echo json_encode($carts ?? []);
+}
 /**
  * @OA\Put(
  *     path="/mabini-cafe/phpbackend/routes/cart/{id}",

@@ -33,7 +33,7 @@ private $model;
     public function index() {
         
         $shipinfo = $this->model->getAll();
-        echo json_encode($shipinfo);
+        echo json_encode($shipinfo ?? []);
     }
 
  /**
@@ -85,13 +85,19 @@ private $model;
  * )
  */
      public function showByUserId($user_id){
-         $shipInfo = $this->model->getByUserId($user_id);
-         if($shipInfo){
-            echo json_encode($shipInfo);
-         }else{
-              http_response_code(404);
-            echo json_encode(["empty" => "user_id not found"]);
+    
+     
+         if(empty($user_id) || !is_numeric($user_id))
+         {
+             http_response_code(400);
+            echo json_encode(["error" => "Invalid user info"]);
+           return;
          }
+     $shipInfo = $this->model->getByUserId($user_id);
+    
+   
+              http_response_code(200);
+              echo json_encode($shipInfo ?? []);
      }
           /**
      * @OA\Post(

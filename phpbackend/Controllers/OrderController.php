@@ -26,7 +26,7 @@ class OrderController {
  * )
  */
     public function index() {
-        echo json_encode($this->model->getAll());
+        echo json_encode($this->model->getAll() ?? []);
     }
 
 
