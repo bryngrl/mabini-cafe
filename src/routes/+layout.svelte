@@ -9,6 +9,16 @@
 	onMount(() => {
 		authStore.init();
 	});
+
+	let links = [
+		'/login',
+		'/signup',
+		'/verify-email',
+		'/checkout',
+		'/checkout/shipping',
+		'/checkout/payment',
+		'/checkout/review'
+	];
 </script>
 
 <link
@@ -16,12 +26,24 @@
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 />
 
-{#if $page.url.pathname !== '/login' && $page.url.pathname !== '/signup' && $page.url.pathname !== '/verify-email'}
+
+
+
+{#if !links.includes($page.url.pathname) || $page.url.pathname.startsWith('/checkout', '/checkout/shipping', '/checkout/payment', '/checkout/review')}
 	<Header />
 {/if}
 <main>
 	<slot />
 </main>
-{#if $page.url.pathname !== '/login' && $page.url.pathname !== '/signup' && $page.url.pathname !== '/verify-email' && $page.url.pathname !== '/checkout'}
+{#if !links.includes($page.url.pathname)}
 	<Footer />
 {/if}
+
+
+
+
+<!-- {/if}
+
+{#if $page.url.pathname !== '/login' && $page.url.pathname !== '/signup' && $page.url.pathname !== '/verify-email' && $page.url.pathname !== '/checkout'}
+	<Footer />
+{/if} -->
