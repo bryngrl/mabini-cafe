@@ -172,7 +172,7 @@
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
 								on:click={() => {
 									accountOpen = false;
-									goto('/settings');
+									goto('/account/settings');
 								}}
 							>
 								Settings
