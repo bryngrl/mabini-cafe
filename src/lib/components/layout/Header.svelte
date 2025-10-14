@@ -8,6 +8,7 @@
 	import { authStore } from '$lib/stores/auth';
 	import { cartCount } from '$lib/stores/cart';
 	import CartModal from '../ui/CartModal.svelte';
+	import { showSuccess } from '$lib/utils/sweetalert';
 
 	let links = [
 		{ name: 'Home', href: '/' },
@@ -28,7 +29,10 @@
 	function logout() {
 		authStore.logout();
 		localStorage.removeItem('token');
-		goto('/login');
+		showSuccess('Logged out successfully');
+		setTimeout(() => {
+			goto('/login');
+		}, 2000);
 	}
 
 	function openCart() {
@@ -62,10 +66,12 @@
 			<div class="relative">
 				<button
 					on:click={() => (open = !open)}
-					class="relative group text-[16px] flex items-center gap-2"
+					class="relative group text-[16px] flex items-center gap-2 cursor-pointer"
 				>
 					SUPPORT
-					<span class="transition-transform duration-300 {open ? 'rotate-180' : ''}"> ˅ </span>
+					<span class="transition-transform duration-300 {open ? 'rotate-180' : ''}">
+						<i class="fa-solid fa-chevron-down"></i>
+					</span>
 				</button>
 				{#if open}
 					<ul
@@ -155,11 +161,11 @@
 			<div class="relative">
 				<button
 					on:click={() => (accountOpen = !accountOpen)}
-					class="relative group text-[16px] flex items-center gap-2"
+					class="relative group text-[16px] flex items-center gap-2 cursor-pointer"
 				>
 					ACCOUNT
 					<span class="transition-transform duration-300 {accountOpen ? 'rotate-180' : ''}">
-						˅
+						<i class="fa-solid fa-chevron-down"></i>
 					</span>
 				</button>
 				{#if accountOpen}
@@ -196,11 +202,11 @@
 			>
 		{/if}
 		<button class="relative group" on:click={openSearch} type="button">
-			<img src="/icons/search.png" alt="Search" class="h-5 w-6" />
+			<img src="/icons/search.png" alt="Search" class="h-5 w-6 cursor-pointer" />
 			<span class="underline-anim"></span>
 		</button>
 		<button class="relative group" on:click={openCart} type="button">
-			<img src="/icons/cart.png" alt="Cart" class="h-5 w-6" />
+			<img src="/icons/cart.png" alt="Cart" class="h-5 w-6 cursor-pointer" />
 			{#if $cartCount > 0}
 				<span
 					class="absolute -top-2 -right-2 bg-mabini-yellow text-mabini-dark-brown text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
@@ -235,8 +241,10 @@
 					on:click={() => (open = !open)}
 					class="text-[20px] font-bold w-full px-6 py-3 pr-10 bg-black text-white flex items-center justify-between"
 				>
-					<span class="flex-1 text-left">SUPPORT</span>
-					<span class="transition-transform duration-300 {open ? 'rotate-180' : ''}"> ˅ </span>
+					<span class="flex-1 text-left cursor-pointer">SUPPORT</span>
+					<span class="transition-transform duration-300 {open ? 'rotate-180' : ''}">
+						<i class="fa-solid fa-chevron-down"></i>
+					</span>
 				</button>
 
 				{#if open}
@@ -283,7 +291,7 @@
 					>
 						<span class="flex-1 text-left">ACCOUNT</span>
 						<span class="transition-transform duration-300 {accountOpen ? 'rotate-180' : ''}">
-							˅
+							<i class="fa-solid fa-chevron-down"></i>
 						</span>
 					</button>
 					{#if accountOpen}
@@ -334,7 +342,7 @@
 					}}
 					type="button"
 				>
-					<img src="/icons/search.png" alt="Search" class="h-7 w-8" />
+					<img src="/icons/search.png" alt="Search" class="h-7 w-8 cursor-pointer" />
 				</button>
 				<button
 					class="relative group"
@@ -344,7 +352,7 @@
 					}}
 					type="button"
 				>
-					<img src="/icons/cart.png" alt="Cart" class="h-7 w-8" />
+					<img src="/icons/cart.png" alt="Cart" class="h-7 w-8 cursor-pointer" />
 					{#if $cartCount > 0}
 						<span
 							class="absolute -top-2 -right-2 bg-mabini-yellow text-mabini-dark-brown text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"

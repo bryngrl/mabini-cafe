@@ -1,3 +1,11 @@
+<!-- TODO: Confirmation in Delete -->
+<!-- TODO: Delete Function -->
+<!-- TODO: Orders Page -->
+<!-- TODO: Account Overview Page -->
+<!-- TODO: Add new Address Function -->
+<!-- TODO: Confirmation for each -->
+<!-- TODO: OTP for changing numbers -->
+
 <script>
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores';
@@ -63,7 +71,7 @@
 		phone: ''
 	};
 	onMount(async () => {
-        authStore.init();
+		authStore.init();
 		if ($authStore.user?.id) {
 			try {
 				const userShippingInfo = await shippingStore.fetchByUserId($authStore.user.id);
@@ -126,21 +134,49 @@
 			<!-- SideBar -->
 			<hr class="border-[1] border-gray-500 w-[50%]" />
 			<div class="w-[50%] flex flex-row self-center">
-				<h2 class="p-4 font-bold text-gray-600 w-full">Account Overview</h2>
-				<button on:click={accountOverview} class="w-auto pr-5">View</button>
+				<h2 class="p-4 font-bold text-gray-600 w-full cursor-pointer" on:click={accountOverview}>
+					Account Overview
+				</h2>
+				<div class="flex items-center justify-center w-full">
+					<input
+						type="radio"
+						name="account-section"
+						checked={accountOverviewActive}
+						on:change={accountOverview}
+						class="checked:bg-green-400 max-w-[4px] max-h-[4px] appearance-none w-auto items-center ml-20 cursor-pointer bg-gray-300 text-white font-bold py-2 px-2 rounded-full border-none focus:outline-none"
+					/>
+				</div>
 			</div>
 
 			<hr class="border-[1] border-gray-500 w-[50%]" />
 			<div class="w-[50%] flex flex-row self-center">
-				<h2 class="p-4 font-bold text-gray-600 w-full">Orders</h2>
-				<button on:click={accountOrders} class="w-auto pr-5">View</button>
+				<h2 class="p-4 font-bold text-gray-600 w-full cursor-pointer" on:click={accountOrders}>
+					Orders
+				</h2>
+				<div class="flex items-center justify-center w-full">
+					<input
+						type="radio"
+						name="account-section"
+						checked={accountOrdersActive}
+						on:change={accountOrders}
+						class="checked:bg-green-400 max-w-[4px] max-h-[4px] appearance-none w-auto items-center ml-20 cursor-pointer bg-gray-300 text-white font-bold py-2 px-2 rounded-full border-none focus:outline-none"
+					/>
+				</div>
 			</div>
 			<hr class="border-[1] border-gray-500 w-[50%]" />
 			<div class="w-[50%] flex flex-row self-center">
-				<h2 class="p-4 font-bold text-gray-600 w-full">Addresses</h2>
-				<button on:click={accountAddresses} class="w-auto pr-5" aria-label="View Addresses"
-					>View</button
-				>
+				<h2 class="p-4 font-bold text-gray-600 w-full cursor-pointer" on:click={accountAddresses}>
+					Addresses
+				</h2>
+				<div class="flex items-center justify-center w-full">
+					<input
+						type="radio"
+						name="account-section"
+						checked={accountAddressesActive}
+						on:change={accountAddresses}
+						class="checked:bg-green-400 max-w-[4px] max-h-[4px] appearance-none w-auto items-center ml-20 cursor-pointer bg-gray-300 text-white font-bold py-2 px-2 rounded-full border-none focus:outline-none"
+					/>
+				</div>
 			</div>
 			<div class="w-[50%] pt-10 self-center">
 				<h2 class="pt-2 text-gray-500">
@@ -148,7 +184,7 @@
 				</h2>
 				<button
 					type="button"
-					class="cursor-pointer p-5 w-2/4 rounded-full bg-transparent border-1 border-black text-black hover:bg-black hover:text-white hover:border-black px-4 py-2 mt-5"
+					class="cursor-pointer p-5 w-2/4 rounded-full bg-transparent border-1 border-black text-black hover:bg-mabini-dark-brown hover:text-white hover:border-transparent px-4 py-2 mt-5"
 					on:click={logout}
 				>
 					Logout
@@ -207,6 +243,57 @@
 								>DELETE</button
 							>
 						</div>
+					</div>
+
+					<!-- OTHER ADDRESSES -->
+					<!-- Display an another address using each with a maximum of 2 other addresses -->
+
+					<!-- Add new Address button then check it if the other address is equal to 2  -->
+					<hr class="border-[1] text-white w-[90%] text-center" />
+
+					<!-- Another Address  -->
+					<!--! TODO: Change it into a dynamic one -->
+					<div class="gap-1 text-left p-7 pl-10 pt-0 w-full flex flex-col">
+						<h2 class="font-medium w-full">Another Address</h2>
+						<div class="w-full flex flex-row items-center justify-between">
+							<p class="text-gray-600">
+								{existingInfo.fname.charAt(0).toUpperCase() + existingInfo.fname.slice(1)}
+								{existingInfo.lname.charAt(0).toUpperCase() + existingInfo.lname.slice(1)}
+							</p>
+							<button
+								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-15 pl-15 max-w-[136px] max-h-[23px] rounded-full
+                                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent"
+								on:click={editAddress}
+							>
+								EDIT
+							</button>
+						</div>
+
+						<div class="w-full flex flex-row items-center justify-between">
+							<p class="w-full text-gray-600">
+								{existingInfo.address},
+								{#if existingInfo.apartment}
+									, {existingInfo.apartment}
+								{/if}
+								{existingInfo.city}
+							</p>
+							<button
+								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-13 pl-13 max-w-[136px] max-h-[23px] rounded-full
+                                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent"
+								>DELETE</button
+							>
+						</div>
+					</div>
+					<!-- Button for adding new address -->
+					<!-- TODO: READJUST THIS SO THAT ITLL BE GONE WHEN THE EDIT BUTTON IS CLICKED -->
+					<div class=" justify-start p-10 pt-0 flex w-full">
+						<button
+							class="text-m cursor-pointer max-w-[213px] max-h-[36px] px-5 font-bold uppercase border-[1px] border-white rounded-full
+                                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent
+                                "
+						>
+							Add New Address
+						</button>
 					</div>
 					{#if isEditAddress && hasExistingShipping}
 						<div class="p-15 pt-0 justify-start items-start text-left w-full gap-4 flex flex-col">
@@ -314,7 +401,7 @@
 							</form>
 
 							<div class="flex flex-row gap-30 mt-2">
-								<!-- CANCEL AND SAVE ADDRESS -->
+								<!-- CANCEL AND SAVE ADDRESS BUTTON -->
 							</div>
 						</div>
 					{/if}
