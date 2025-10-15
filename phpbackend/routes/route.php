@@ -60,6 +60,9 @@ switch($resource){
      case 'shipinfo':
           require_once "ShipInfoRoute.php";
           break;
+     case 'payments':
+         require_once "PaymentRoute.php";
+        break;
     default:
         http_response_code(404);
         echo json_encode(["error"=>"Endpoint not found"]);

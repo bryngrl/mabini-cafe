@@ -1,23 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>REST API Demo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Mabini Café</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .checkout-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 350px;
+    }
+    h2 {
+      text-align: center;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+  </style>
 </head>
 <body>
-    <h1>Users</h1>
-    <button onclick="getUsers()">Load Users</button>
-    <pre id="output"></pre>
 
-    <script>
-    function getUsers() {
-        // relative path lang since magkatabi sila
-       fetch("http://localhost/mabini-cafe/phpbackend/routes/menu")
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("output").innerText = JSON.stringify(data, null, 2);
-        })
-        .catch(error => console.error("Error:", error));
+  <div class="checkout-box">
+    <h2>Checkout</h2>
+
+    <label>Order ID</label>
+    <input type="number" id="orderId" placeholder="Enter Order ID" required>
+
+    <label>Total Amount (₱)</label>
+    <input type="number" id="amount" step="0.01" placeholder="Enter Amount" required>
+
+    <label>Payment Method</label>
+    <select id="paymentMethod">
+      <option value="gcash">GCash</option>
+      <option value="card">Card</option>
+    </select>
+
+    <button onclick="createCheckout()">Proceed to PayMongo</button>
+
+    <p id="responseMsg" style="margin-top:15px; text-align:center; color:red;"></p>
+  </div>
+
+  <script>
+    async function createCheckout() {
+            console.log("Checkout triggered"); 
+      const orderId = document.getElementById('orderId').value;
+      const amount = document.getElementById('amount').value;
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      const msg = document.getElementById('responseMsg');
+
+      if (!orderId || !amount) {
+        msg.textContent = "Please fill in all fields.";
+        return;
+      }
+
+      msg.textContent = "Processing...";
+
+      try {
+        const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/PaymentRoute.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: orderId,
+            amount: parseFloat(amount),
+            payment_method: paymentMethod
+          })
+        });
+
+        const data = await response.json();
+        console.log(data);
+
+        if (data.checkout_url) {
+          msg.style.color = "green";
+          msg.textContent = "Redirecting to PayMongo...";
+          window.location.href = data.checkout_url; // redirect to PayMongo checkout
+        } else {
+          msg.textContent = data.error || "Checkout failed.";
+        }
+      } catch (error) {
+        msg.textContent = "Network or server error.";
+        console.error(error);
+      }
     }
-    </script>
+  </script>
+
 </body>
 </html>

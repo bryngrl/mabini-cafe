@@ -22,7 +22,6 @@
    $stmt = $this->conn->prepare("SELECT 
       a.id,
       b.username as customer_name,
-      b.address as customer_address,
       a.total_amount,
       a.status,
       a.payment_status,
@@ -39,7 +38,6 @@
    $stmt = $this->conn->prepare("SELECT 
       a.id,
       b.username as customer_name,
-      b.address as customer_address,
       a.total_amount,
       a.status,
       a.payment_status,
@@ -59,7 +57,6 @@
       $stmt = $this->conn->prepare("SELECT 
       a.id,
       b.username as customer_name,
-      b.address as customer_address,
       a.total_amount,
       a.status,
       a.payment_status,

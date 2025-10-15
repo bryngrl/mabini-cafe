@@ -115,7 +115,7 @@ class OrderItemsController{
     
    
               http_response_code(200);
-              echo json_encode($order ?? []);
+              echo json_encode($orderItem ?? []);
    }
 
 
