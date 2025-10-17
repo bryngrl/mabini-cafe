@@ -71,7 +71,7 @@
       const paymentMethod = document.getElementById('paymentMethod').value;
       const msg = document.getElementById('responseMsg');
 
-      if (!orderId || !amount) {
+      if (!orderId) {
         msg.textContent = "Please fill in all fields.";
         return;
       }

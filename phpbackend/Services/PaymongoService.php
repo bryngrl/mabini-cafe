@@ -1,25 +1,24 @@
 <?php
-require_once __DIR__ . '/../config/Database.php'; // adjust path as needed
-
+require_once __DIR__ . '/../config/Database.php'; 
+require_once __DIR__ .'/../Models/Order.php';
 class PaymongoService {
     private $conn;
+    private $model;
     private $secretKey = 'sk_test_VevdLzLHEydRC4EqsY4fiUPs'; // your PayMongo test key
 
     public function __construct($db) {
         $this->conn = $db;
+        $this->model = new Order($db);
     }
 
     public function createCheckout($order_id, $payment_method = 'gcash') {
         // ===== 1️⃣ Get order details =====
-        $orderQuery = "SELECT total_amount FROM orders WHERE id = :order_id";
-        $stmt = $this->conn->prepare($orderQuery);
-        $stmt->bindParam(':order_id', $order_id);
-        $stmt->execute();
-        $order = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$order) {
+        $orderQuery = $this->model->getById($order_id);
+     
+        if (!$orderQuery) {
             return ['error' => 'Order not found'];
         }
+           $order = $orderQuery['total_amount'];
 
         // ===== 2️⃣ Get order items =====
         $itemsQuery = "
@@ -63,7 +62,10 @@ class PaymongoService {
                     "payment_method_types" => [$payment_method],
                     "checkout_option" => "payment",
                     "success_url" => $successUrl,
-                    "cancel_url" => $cancelUrl
+                    "cancel_url" => $cancelUrl,
+                      "metadata" => [
+                "order_id" => $order_id
+                 ]
                 ]
             ]
         ];
@@ -83,13 +85,20 @@ class PaymongoService {
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        // ===== 7️⃣ Handle response =====
-        if ($httpcode >= 200 && $httpcode < 300) {
-            $json = json_decode($response, true);
-            $checkoutUrl = $json['data']['attributes']['checkout_url'] ?? null;
-            return ['checkout_url' => $checkoutUrl];
-        } else {
-            return ['error' => "PayMongo API error", 'response' => $response];
-        }
+       // ===== 7️⃣ Handle response =====
+if ($httpcode >= 200 && $httpcode < 300) {
+    $json = json_decode($response, true);
+    $checkoutUrl = $json['data']['attributes']['checkout_url'] ?? null;
+    $checkoutId = $json['data']['id'] ?? null; // <-- dito yung session id
+
+    return [
+        'checkout_url' => $checkoutUrl,
+        'checkout_session_id' => $checkoutId,
+        'total_amount' => $order
+    ];
+} else {
+    return ['error' => "PayMongo API error", 'response' => $response];
+}
+
     }
 }
