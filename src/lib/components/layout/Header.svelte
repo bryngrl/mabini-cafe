@@ -303,7 +303,7 @@
 									on:click={() => {
 										accountOpen = false;
 										mobileMenuOpen = false;
-										goto('/settings');
+										goto('/account/settings');
 									}}
 								>
 									Settings

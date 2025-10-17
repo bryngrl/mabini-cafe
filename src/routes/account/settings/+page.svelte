@@ -8,14 +8,49 @@
 
 <script>
 	import { goto } from '$app/navigation';
-	import { authStore } from '$lib/stores';
+	import { authStore, users } from '$lib/stores';
 	import { showSuccess, showError, showConfirm } from '$lib/utils/sweetalert';
 	import { onMount } from 'svelte';
 	import { shippingStore } from '$lib/stores';
 	import { form } from '$app/server';
 	import { usersStore, currentUser, isAuthenticated } from '$lib/stores';
+	import { orderItemsStore } from '$lib/stores';
 
-	authStore.init();
+	$: $currentUser;
+
+	// Fetch Orders  == TODO: Make sure that the only orders here are
+	// successful only.
+	let orders = [];
+
+	onMount(async () => {
+		authStore.init();
+		try {
+			orders = await orderItemsStore.fetchByUserId($currentUser.id);
+			console.log(orders);
+		} catch (error) {
+			console.error('Error fetching orders:', error);
+		}
+	});
+
+	// To check if orders is empty:
+	$: hasOrders = Array.isArray(orders) && orders.length > 0;
+
+	let username = '';
+	onMount(async () => {
+		authStore.init();
+		if ($currentUser?.id) {
+			try {
+				const user = await usersStore.fetchById($currentUser.id);
+				if (user && user.username) {
+					username = user.username;
+				}
+
+				return user;
+			} catch (error) {
+				console.error('Error fetching user:', error);
+			}
+		}
+	});
 
 	let addNewAddress = false;
 
@@ -66,6 +101,7 @@
 			}
 		}
 	}
+	//##authStore
 
 	let accountOverviewActive = false;
 	let accountOrdersActive = false;
@@ -146,10 +182,10 @@
 		}
 	});
 
-	async function handleSubmit(event) {
-		event.preventDefault();
+	let hasDetails = false;
+	async function handleSubmit() {
 		const shippingData = {
-			user_id: $currentUser.id,
+			user_id: $authStore.user?.id,
 			email: formData.email,
 			first_name: formData.fname,
 			last_name: formData.lname,
@@ -160,11 +196,16 @@
 			region: formData.country,
 			phone: formData.phone
 		};
+
 		try {
 			await shippingStore.store(shippingData);
-			await showSuccess('Shipping information saved successfully!');
+			await showSuccess('Shipping information saved successfully', 'Success');
+			existingInfo = { ...formData };
+			hasExistingShipping = true;
+			isEditAddress = false;
+			hasDetails = true;
 		} catch (error) {
-			console.error('Failed to save shipping info:', error);
+			console.error('Error saving shipping info:', error);
 			await showError('Failed to save shipping information', 'Error');
 		}
 	}
@@ -283,51 +324,59 @@
 				class="flex flex-col justify-start items-center content-center text-left gap-4 min-h-[500px] max-w-[75%] bg-black text-white rounded-3xl"
 			>
 				<h1 class="p-10 pb-0 font-bold text-3xl w-full">
-					Hi, {formData.fname.charAt(0).toUpperCase() + formData.fname.slice(1)}
-					{formData.lname.charAt(0).toUpperCase() + formData.lname.slice(1)}!
+					Hi, {username.charAt(0).toUpperCase() + username.slice(1)}!
 				</h1>
 				<hr class="border-[1] text-white w-[90%] text-center" />
+
+				<!-- if has info -->
 				<!-- Info section -->
-				<div class="gap-1 text-left p-7 pl-10 pt-0 w-full flex flex-col">
-					<p>Your Info</p>
-					<!-- 1st row -->
-					<div class="flex flex-row gap-10 mt-2">
-						<div class="flex flex-col gap-2">
-							<label for="name" class="text-sm">Name</label>
-							<p id="name" class="text-gray-600 font-bold text-md">
-								{formData.fname.charAt(0).toUpperCase() + formData.fname.slice(1)}
-								{formData.lname.charAt(0).toUpperCase() + formData.lname.slice(1)}
-							</p>
+				{#if hasExistingShipping}
+					<div class="gap-1 text-left p-7 pl-10 pt-0 w-full flex flex-col">
+						<p>Your Info</p>
+						<!-- 1st row -->
+						<div class="flex flex-row gap-10 mt-2">
+							<div class="flex flex-col gap-2">
+								<label for="name" class="text-sm">Name</label>
+								<p id="name" class="text-gray-600 font-bold text-md">
+									{formData.fname.charAt(0).toUpperCase() + formData.fname.slice(1)}
+									{formData.lname.charAt(0).toUpperCase() + formData.lname.slice(1)}
+								</p>
+							</div>
+							<div class="flex flex-col gap-2 text-sm">
+								<label for="email">Email</label>
+								<p id="email" class="text-gray-600 font-bold text-md">{formData.email}</p>
+							</div>
 						</div>
-						<div class="flex flex-col gap-2 text-sm">
-							<label for="email">Email</label>
-							<p id="email" class="text-gray-600 font-bold text-md">{formData.email}</p>
+						<!-- 2nd row -->
+						<div class="flex flex-row gap-10 mt-2">
+							<div class="flex flex-col gap-2 text-sm">
+								<label for="phone">Phone</label>
+								<p id="phone" class="text-gray-600 font-bold text-md">{formData.phone}</p>
+							</div>
+							<div class="flex flex-col gap-2 text-sm">
+								<label for="address">Address</label>
+								<p id="address" class="text-gray-600 font-bold text-md">{formData.address}</p>
+							</div>
 						</div>
+						<!-- 3rd row -->
 					</div>
-					<!-- 2nd row -->
-					<div class="flex flex-row gap-10 mt-2">
-						<div class="flex flex-col gap-2 text-sm">
-							<label for="phone">Phone</label>
-							<p id="phone" class="text-gray-600 font-bold text-md">{formData.phone}</p>
-						</div>
-						<div class="flex flex-col gap-2 text-sm">
-							<label for="address">Address</label>
-							<p id="address" class="text-gray-600 font-bold text-md">{formData.address}</p>
-						</div>
-					</div>
-					<!-- 3rd row -->
-				</div>
+				{:else}
+					<h1 class="p-10 pb-0 font-bold text-3xl w-full text-center">
+						You have no account details yet.
+					</h1>
+					<p class="text-gray-600">Add your details in the Addresses section.</p>
+				{/if}
 			</div>
 		{:else if accountOrdersActive}
 			<div
 				class="flex flex-col justify-start items-center content-center text-left gap-4 min-h-[500px] max-w-[75%] bg-black text-white rounded-3xl"
 			>
-				<!-- if has orders -->
-				<!--  -->
-				<!--  -->
-
-				<!-- if no orders -->
-				<h1 class="p-10 pb-0 font-bold text-3xl w-full">You haven't place any orders yet.</h1>
+				{#if hasOrders}
+					<h1 class="p-10 pb-0 font-bold text-3xl w-full">Your total orders.</h1>
+				{:else}
+					<h1 class="p-10 pb-0 font-bold text-3xl w-full">You have no orders yet.</h1>
+					<p class="text-gray-600">Start shopping now and come back to view your orders here.</p>
+				{/if}
 			</div>
 		{:else if accountAddressesActive}
 			<div
@@ -370,8 +419,7 @@
 							<button
 								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-13 pl-13 max-w-[136px] max-h-[23px] rounded-full
                                 hover:bg-red-500 hover:text-white hover:border-transparent"
-								on:click={deleteAddress}
-								>DELETE</button
+								on:click={deleteAddress}>DELETE</button
 							>
 						</div>
 					</div>
@@ -560,7 +608,7 @@
 					<!-- If Delete is Clicked -->
 				{:else}
 					<!-- if No address -->
-					<h1 class="p-10 font-bold text-3xl text-left">You have no saved addresses.</h1>
+					<h1 class="p-10 pb-0 font-bold text-3xl text-left">You have no saved addresses.</h1>
 					<!-- svelte-ignore component_name_lowercase -->
 					<form
 						on:submit|preventDefault={handleSubmit}
@@ -569,7 +617,42 @@
 						<div>
 							<h2 class="text-xl font-bold mb-2 text-white">Add Delivery Address</h2>
 							<h3 class="text-red-800">* indicates required field</h3>
+						</div>
 
+						<div>
+							<input
+								id="email"
+								type="email"
+								bind:value={formData.email}
+								required
+								class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+								placeholder="Email *"
+							/>
+						</div>
+						<div class="flex gap-4">
+							<div class="flex-1">
+								<input
+									id="fname"
+									type="text"
+									bind:value={formData.fname}
+									required
+									class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+									placeholder="First Name *"
+								/>
+							</div>
+							<div class="flex-1">
+								<input
+									id="lname"
+									type="text"
+									bind:value={formData.lname}
+									required
+									class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+									placeholder="Last Name *"
+								/>
+							</div>
+						</div>
+
+						<div>
 							<input
 								id="address"
 								type="text"
@@ -642,6 +725,7 @@
 							<button
 								type="submit"
 								class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
+								on:click={handleSubmit}
 							>
 								Save Information
 							</button>

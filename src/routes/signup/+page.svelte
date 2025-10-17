@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { redirect } from '@sveltejs/kit';
 	import { goto } from '$app/navigation';
-	import { signup } from '$lib/utils/fetcher';
 	import { showSuccess, showError } from '$lib/utils/sweetalert';
+	import { usersStore } from '$lib/stores';
 
 	let name = '';
 	let email = '';
@@ -22,7 +21,7 @@
 		}
 
 		try {
-			const result = await signup({
+			const result = await usersStore.signup({
 				username: name,
 				email: email,
 				password: password
