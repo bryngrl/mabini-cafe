@@ -2,7 +2,6 @@
 <!-- TODO: Function for Deletion of Address -->
 <!-- TODO: Delete Function in  -->
 <!-- TODO: Orders Page -->
-<!-- TODO: Account Overview Page -->
 <!-- TODO: Add new Address Function -->
 <!-- TODO: Confirmation for each -->
 <!-- TODO: OTP for changing numbers -->
@@ -28,14 +27,13 @@
 			goto('/login');
 		}, 2000);
 	}
-	// Only deletes the address, not your name, phone, or email.
+
 	async function deleteAddress() {
 		try {
 			const shippingInfo = await shippingStore.fetchByUserId($currentUser.id);
 			if (shippingInfo && shippingInfo.id) {
 				await shippingStore.delete(shippingInfo.id);
 				showSuccess('Address deleted successfully. Your name, phone, and email remain unchanged.');
-				// Clear address-related fields only
 				formData.address = '';
 				formData.apartment = '';
 				formData.postalcode = '';
@@ -61,7 +59,6 @@
 			try {
 				// @ts-ignore
 				await usersStore.delete($currentUser.id);
-				// Logout and redirect
 				await authStore.logout();
 				goto('/');
 			} catch (error) {
