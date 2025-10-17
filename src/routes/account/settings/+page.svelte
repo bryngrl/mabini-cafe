@@ -1,5 +1,6 @@
-<!-- TODO: Confirmation in Delete -->
-<!-- TODO: Delete Function -->
+<!-- TODO: OTP FOR DELETION -->
+<!-- TODO: Function for Deletion of Address -->
+<!-- TODO: Delete Function in  -->
 <!-- TODO: Orders Page -->
 <!-- TODO: Account Overview Page -->
 <!-- TODO: Add new Address Function -->
@@ -9,10 +10,15 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores';
-	import { showSuccess, showError } from '$lib/utils/sweetalert';
+	import { showSuccess, showError, showConfirm } from '$lib/utils/sweetalert';
 	import { onMount } from 'svelte';
 	import { shippingStore } from '$lib/stores';
 	import { form } from '$app/server';
+	import { usersStore, currentUser, isAuthenticated } from '$lib/stores';
+
+	authStore.init();
+
+	let addNewAddress = false;
 
 	function logout() {
 		authStore.logout();
@@ -22,6 +28,48 @@
 			goto('/login');
 		}, 2000);
 	}
+	// Only deletes the address, not your name, phone, or email.
+	async function deleteAddress() {
+		try {
+			const shippingInfo = await shippingStore.fetchByUserId($currentUser.id);
+			if (shippingInfo && shippingInfo.id) {
+				await shippingStore.delete(shippingInfo.id);
+				showSuccess('Address deleted successfully. Your name, phone, and email remain unchanged.');
+				// Clear address-related fields only
+				formData.address = '';
+				formData.apartment = '';
+				formData.postalcode = '';
+				formData.city = '';
+				formData.country = '';
+				existingInfo.address = '';
+				existingInfo.apartment = '';
+				existingInfo.postalcode = '';
+				existingInfo.city = '';
+				existingInfo.country = '';
+				hasExistingShipping = false;
+				isEditAddress = false;
+			} else {
+				showError('No address found to delete', 'Error');
+			}
+		} catch (error) {
+			console.error('Failed to fetch shipping info:', error);
+		}
+	}
+
+	async function deleteAccount() {
+		if (confirm('Are you sure you want to delete your account?')) {
+			try {
+				// @ts-ignore
+				await usersStore.delete($currentUser.id);
+				// Logout and redirect
+				await authStore.logout();
+				goto('/');
+			} catch (error) {
+				console.error('Failed to delete account:', error);
+			}
+		}
+	}
+
 	let accountOverviewActive = false;
 	let accountOrdersActive = false;
 	let accountAddressesActive = false;
@@ -72,9 +120,11 @@
 	};
 	onMount(async () => {
 		authStore.init();
-		if ($authStore.user?.id) {
+		// @ts-ignore
+		if ($currentUser.id) {
 			try {
-				const userShippingInfo = await shippingStore.fetchByUserId($authStore.user.id);
+				// @ts-ignore
+				const userShippingInfo = await shippingStore.fetchByUserId($currentUser.id);
 
 				if (userShippingInfo && userShippingInfo.email) {
 					existingInfo = {
@@ -98,6 +148,29 @@
 			console.log('No auth user found');
 		}
 	});
+
+	async function handleSubmit(event) {
+		event.preventDefault();
+		const shippingData = {
+			user_id: $currentUser.id,
+			email: formData.email,
+			first_name: formData.fname,
+			last_name: formData.lname,
+			address: formData.address,
+			apartment_suite_etc: formData.apartment,
+			postal_code: formData.postalcode,
+			city: formData.city,
+			region: formData.country,
+			phone: formData.phone
+		};
+		try {
+			await shippingStore.store(shippingData);
+			await showSuccess('Shipping information saved successfully!');
+		} catch (error) {
+			console.error('Failed to save shipping info:', error);
+			await showError('Failed to save shipping information', 'Error');
+		}
+	}
 
 	async function handleUpdateButton() {
 		const shippingData = {
@@ -134,9 +207,13 @@
 			<!-- SideBar -->
 			<hr class="border-[1] border-gray-500 w-[50%]" />
 			<div class="w-[50%] flex flex-row self-center">
-				<h2 class="p-4 font-bold text-gray-600 w-full cursor-pointer" on:click={accountOverview}>
+				<button
+					type="button"
+					class="p-4 font-bold text-gray-600 w-full cursor-pointer bg-transparent border-none text-left"
+					on:click={accountOverview}
+				>
 					Account Overview
-				</h2>
+				</button>
 				<div class="flex items-center justify-center w-full">
 					<input
 						type="radio"
@@ -182,13 +259,22 @@
 				<h2 class="pt-2 text-gray-500">
 					Need help? <a href="/contact-us" class="text-gray-500 !underline">Contact us</a>
 				</h2>
-				<button
-					type="button"
-					class="cursor-pointer p-5 w-2/4 rounded-full bg-transparent border-1 border-black text-black hover:bg-mabini-dark-brown hover:text-white hover:border-transparent px-4 py-2 mt-5"
-					on:click={logout}
-				>
-					Logout
-				</button>
+				<div class="flex flex-row gap-2 justify-center items-center font-bold">
+					<button
+						type="button"
+						class="uppercase cursor-pointer text-sm p-5 w-full max-w-[130px] rounded-full bg-transparent border-1 border-black text-black hover:bg-mabini-dark-brown hover:text-white hover:border-transparent px-4 py-2 mt-5"
+						on:click={logout}
+					>
+						Logout
+					</button>
+					<button
+						type="button"
+						class="text-sm uppercase cursor-pointer w-full p-2 rounded-full bg-transparent border-1 border-red-500 text-red-500 hover:bg-red-500 hover:text-white hover:border-transparent px-4 py-2 mt-5"
+						on:click={deleteAccount}
+					>
+						Delete Account
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -196,9 +282,56 @@
 	<!-- left side -->
 	<div class="grow w-full m-10 mt-0 ml-0 justify-start items-center">
 		{#if accountOverviewActive}
-			<p>Account Overview Content</p>
+			<div
+				class="flex flex-col justify-start items-center content-center text-left gap-4 min-h-[500px] max-w-[75%] bg-black text-white rounded-3xl"
+			>
+				<h1 class="p-10 pb-0 font-bold text-3xl w-full">
+					Hi, {formData.fname.charAt(0).toUpperCase() + formData.fname.slice(1)}
+					{formData.lname.charAt(0).toUpperCase() + formData.lname.slice(1)}!
+				</h1>
+				<hr class="border-[1] text-white w-[90%] text-center" />
+				<!-- Info section -->
+				<div class="gap-1 text-left p-7 pl-10 pt-0 w-full flex flex-col">
+					<p>Your Info</p>
+					<!-- 1st row -->
+					<div class="flex flex-row gap-10 mt-2">
+						<div class="flex flex-col gap-2">
+							<label for="name" class="text-sm">Name</label>
+							<p id="name" class="text-gray-600 font-bold text-md">
+								{formData.fname.charAt(0).toUpperCase() + formData.fname.slice(1)}
+								{formData.lname.charAt(0).toUpperCase() + formData.lname.slice(1)}
+							</p>
+						</div>
+						<div class="flex flex-col gap-2 text-sm">
+							<label for="email">Email</label>
+							<p id="email" class="text-gray-600 font-bold text-md">{formData.email}</p>
+						</div>
+					</div>
+					<!-- 2nd row -->
+					<div class="flex flex-row gap-10 mt-2">
+						<div class="flex flex-col gap-2 text-sm">
+							<label for="phone">Phone</label>
+							<p id="phone" class="text-gray-600 font-bold text-md">{formData.phone}</p>
+						</div>
+						<div class="flex flex-col gap-2 text-sm">
+							<label for="address">Address</label>
+							<p id="address" class="text-gray-600 font-bold text-md">{formData.address}</p>
+						</div>
+					</div>
+					<!-- 3rd row -->
+				</div>
+			</div>
 		{:else if accountOrdersActive}
-			<p>Account Orders Content</p>
+			<div
+				class="flex flex-col justify-start items-center content-center text-left gap-4 min-h-[500px] max-w-[75%] bg-black text-white rounded-3xl"
+			>
+				<!-- if has orders -->
+				<!--  -->
+				<!--  -->
+
+				<!-- if no orders -->
+				<h1 class="p-10 pb-0 font-bold text-3xl w-full">You haven't place any orders yet.</h1>
+			</div>
 		{:else if accountAddressesActive}
 			<div
 				class="flex flex-col justify-start items-center content-center text-left gap-4 min-h-[200px] max-w-[75%] bg-black text-white rounded-3xl"
@@ -239,7 +372,8 @@
 							</p>
 							<button
 								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-13 pl-13 max-w-[136px] max-h-[23px] rounded-full
-                                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent"
+                                hover:bg-red-500 hover:text-white hover:border-transparent"
+								on:click={deleteAddress}
 								>DELETE</button
 							>
 						</div>
@@ -279,23 +413,27 @@
 							</p>
 							<button
 								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-13 pl-13 max-w-[136px] max-h-[23px] rounded-full
-                                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent"
-								>DELETE</button
+                                hover:bg-red-500 hover:text-white hover:border-transparent"
+								on:click={deleteAddress}>DELETE</button
 							>
 						</div>
 					</div>
 					<!-- Button for adding new address -->
 					<!-- TODO: READJUST THIS SO THAT ITLL BE GONE WHEN THE EDIT BUTTON IS CLICKED -->
-					<div class=" justify-start p-10 pt-0 flex w-full">
-						<button
-							class="text-m cursor-pointer max-w-[213px] max-h-[36px] px-5 font-bold uppercase border-[1px] border-white rounded-full
-                                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent
-                                "
-						>
-							Add New Address
-						</button>
-					</div>
-					{#if isEditAddress && hasExistingShipping}
+
+					{#if !isEditAddress}
+						<div class="justify-start p-10 pt-0 flex w-full">
+							<button
+								class="text-m cursor-pointer max-w-[213px] max-h-[36px] px-5 font-bold uppercase border-[1px] border-white rounded-full
+                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent
+                "
+							>
+								Add New Address
+							</button>
+						</div>
+					{/if}
+					<!-- If Edit is clicked -->
+					{#if isEditAddress && hasExistingShipping && !addNewAddress}
 						<div class="p-15 pt-0 justify-start items-start text-left w-full gap-4 flex flex-col">
 							<h2 class="w-full text-left font-bold text-2xl">EDIT INFORMATION</h2>
 							<h3 class="text-red-800">* indicates required field</h3>
@@ -305,6 +443,7 @@
 								on:submit|preventDefault={handleUpdateButton}
 								class="w-full max-w-md rounded-xl space-y-4"
 							>
+								<!-- form fields here -->
 								<div>
 									<input
 										id="email"
@@ -398,13 +537,26 @@
 										placeholder="Phone *"
 									/>
 								</div>
+								<div class="flex flex-row gap-5 mt-2">
+									<button
+										type="submit"
+										class="text-xs cursor-pointer min-w-[220px] max-w-[320px] h-[40px] px-6 font-bold uppercase border-[1px] border-white rounded-full
+									hover:bg-mabini-dark-brown hover:text-white hover:border-transparent flex items-center justify-center"
+									>
+										<span class="mr-2"><i class="fa-classic fa-chevron-left"></i></span> Update Information
+									</button>
+									<button
+										type="button"
+										on:click={cancelEdit}
+										class="text-xs cursor-pointer min-w-[150px] h-[40px] px-6 font-bold uppercase border-[1px] border-white rounded-full
+									hover:bg-mabini-dark-brown hover:text-white hover:border-transparent flex items-center justify-center"
+										>Cancel
+									</button>
+								</div>
 							</form>
-
-							<div class="flex flex-row gap-30 mt-2">
-								<!-- CANCEL AND SAVE ADDRESS BUTTON -->
-							</div>
 						</div>
 					{/if}
+
 					<!-- If Delete is Clicked -->
 					<!-- If Edit is clicked -->
 
@@ -412,6 +564,92 @@
 				{:else}
 					<!-- if No address -->
 					<h1 class="p-10 font-bold text-3xl text-left">You have no saved addresses.</h1>
+					<!-- svelte-ignore component_name_lowercase -->
+					<form
+						on:submit|preventDefault={handleSubmit}
+						class="w-full max-w-md rounded-xl shadow-md space-y-4"
+					>
+						<div>
+							<h2 class="text-xl font-bold mb-2 text-white">Add Delivery Address</h2>
+							<h3 class="text-red-800">* indicates required field</h3>
+
+							<input
+								id="address"
+								type="text"
+								bind:value={formData.address}
+								required
+								class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+								placeholder="Address *"
+							/>
+						</div>
+						<div>
+							<input
+								id="apartment"
+								type="text"
+								bind:value={formData.apartment}
+								class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+								placeholder="Apartment, suite, etc. (optional)"
+							/>
+						</div>
+						<div class="flex gap-4">
+							<div class="flex-1">
+								<input
+									id="postalcode"
+									type="text"
+									bind:value={formData.postalcode}
+									required
+									class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+									placeholder="Postal Code *"
+								/>
+							</div>
+							<div class="flex-1">
+								<input
+									id="city"
+									type="text"
+									bind:value={formData.city}
+									required
+									class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+									placeholder="City *"
+								/>
+							</div>
+						</div>
+						<div>
+							<input
+								id="country"
+								type="text"
+								bind:value={formData.country}
+								required
+								class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+								placeholder="Country *"
+							/>
+						</div>
+						<div>
+							<input
+								id="phone"
+								type="tel"
+								bind:value={formData.phone}
+								required
+								class="w-full border rounded-xl px-3 py-2 text-white bg-transparent"
+								placeholder="Phone *"
+							/>
+						</div>
+
+						<div class="flex flex-row gap-30 mt-2 mb-20">
+							<button
+								type="button"
+								on:click={cancelEdit}
+								class="text-sm cursor-pointer w-fit p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+							>
+								<span><i class="fa-classic fa-chevron-left"></i></span> Cancel
+							</button>
+							<button
+								type="submit"
+								class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
+							>
+								Save Information
+							</button>
+						</div>
+					</form>
 				{/if}
 			</div>
 		{/if}

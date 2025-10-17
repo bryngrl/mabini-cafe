@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { cartStore, cartItems, cartTotal, cartCount } from '$lib/stores/cart';
-	import { authStore } from '$lib/stores/auth';
+	import { authStore, currentUser } from '$lib/stores/auth';
 	import { showError, showSuccess } from '$lib/utils/sweetalert';
 	import { shippingStore, shippingInfo, shippingLoading, shippingError } from '$lib/stores';
 	import { form } from '$app/server';
@@ -74,7 +74,8 @@
 
 		if ($authStore.user?.id) {
 			try {
-				const userShippingInfo = await shippingStore.fetchByUserId($authStore.user.id);
+				// @ts-ignore
+				const userShippingInfo = await shippingStore.fetchByUserId($currentUser.id);
 
 				if (userShippingInfo && userShippingInfo.email) {
 					existingInfo = {
@@ -140,12 +141,14 @@
 		};
 		try {
 			await shippingStore.store(shippingData);
-			await showSuccess('Shipping information saved successfully!');
-			
-			goto('/payment');
+			showSuccess('Shipping information saved successfully!', 'Success');
+			setTimeout(() => {
+				goto('/checkout/shipping');
+			}, 2000);
 		} catch (error) {
 			console.error('Failed to save shipping info:', error);
 			await showError('Failed to save shipping information', 'Error');
+			goto('/checkout');
 		}
 	}
 </script>
@@ -164,8 +167,12 @@
 			<nav class="flex mb-10 text-sm m-auto font-semibold gap-4 items-center justify-center">
 				<a href="/cart" class="text-gray-400 hover:text-white transition px-2"> Cart</a>
 				<a href="/checkout" class="text-white px-2">Information</a>
-				<a href="/checkout/shipping" class="text-gray-400 hover:text-white transition px-2">Shipping</a>
-				<a href="/checkout/payment" class="text-gray-400 hover:text-white transition px-2">Payment</a>
+				<a href="/checkout/shipping" class="text-gray-400 hover:text-white transition px-2"
+					>Shipping</a
+				>
+				<a href="/checkout/payment" class="text-gray-400 hover:text-white transition px-2"
+					>Payment</a
+				>
 			</nav>
 
 			<div class="flex-1 flex-col text-white flex justify-center items-left">
@@ -235,6 +242,7 @@
 					>
 						<h2 class="text-xl font-bold mb-2">Edit Contact Information</h2>
 						<h3 class="text-red-800">* indicates required field</h3>
+
 						<div>
 							<input
 								id="email"
@@ -267,6 +275,7 @@
 								/>
 							</div>
 						</div>
+
 						<div>
 							<h2 class="text-xl font-bold mb-2 text-white">Delivery Address</h2>
 							<input
@@ -354,38 +363,59 @@
 					>
 						<h2 class="text-xl font-bold mb-2">Contact Information</h2>
 						<h3 class="text-red-800">* indicates required field</h3>
+
 						<div>
-							<input
-								id="email"
-								type="email"
-								bind:value={formData.email}
-								required
-								class="w-full border rounded-xl px-3 py-2 text-white"
-								placeholder="Email *"
-							/>
+							{#if existingInfo.email === '' && existingInfo.fname === '' && existingInfo.lname === ''}
+								<!-- Show input fields if no info -->
+								<div class="mb-2">
+									<input
+										id="email"
+										type="email"
+										bind:value={formData.email}
+										required
+										class="w-full border rounded-xl px-3 py-2 text-white"
+										placeholder="Email *"
+									/>
+								</div>
+								<div class="flex gap-4">
+									<div class="flex-1">
+										<input
+											id="fname"
+											type="text"
+											bind:value={formData.fname}
+											required
+											class="w-full border rounded-xl px-3 py-2 text-white"
+											placeholder="First Name *"
+										/>
+									</div>
+									<div class="flex-1">
+										<input
+											id="lname"
+											type="text"
+											bind:value={formData.lname}
+											required
+											class="w-full border rounded-xl px-3 py-2 text-white"
+											placeholder="Last Name *"
+										/>
+									</div>
+								</div>
+							{:else}
+								<!-- Display info if already exists -->
+								<div class="mb-2">
+									<p class="text-gray-300">
+										<span class="font-thin text-gray-600">Email:</span>
+										{existingInfo.email}
+									</p>
+									<p class="text-gray-300">
+										<span class="font-thin text-gray-600">Name:</span>
+										{existingInfo.fname.charAt(0).toUpperCase() + existingInfo.fname.slice(1)}
+										{` `}
+										{existingInfo.lname.charAt(0).toUpperCase() + existingInfo.lname.slice(1)}
+									</p>
+								</div>
+							{/if}
 						</div>
-						<div class="flex gap-4">
-							<div class="flex-1">
-								<input
-									id="fname"
-									type="text"
-									bind:value={formData.fname}
-									required
-									class="w-full border rounded-xl px-3 py-2 text-white"
-									placeholder="First Name *"
-								/>
-							</div>
-							<div class="flex-1">
-								<input
-									id="lname"
-									type="text"
-									bind:value={formData.lname}
-									required
-									class="w-full border rounded-xl px-3 py-2 text-white"
-									placeholder="Last Name *"
-								/>
-							</div>
-						</div>
+
 						<div>
 							<h2 class="text-xl font-bold mb-2 text-white">Delivery Address</h2>
 							<input
@@ -448,15 +478,18 @@
 								placeholder="Phone *"
 							/>
 						</div>
-						<div class="gap-60 mt-4 flex flex-row">
+						<div class="gap-10 mt-4 flex flex-row">
 							<button
 								on:click={redirectToCart}
-								class="text-sm cursor-pointer w-fit p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+								class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
 							>
 								<span><i class="fa-classic fa-chevron-left mr-2"></i></span> Return to Cart
 							</button>
 							<button
-								on:click={redirectToShipping}
+								on:click={() => {
+									handleSubmit(event);
+									redirectToShipping();
+								}}
 								class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
 							>
 								Continue to Shipping
