@@ -52,7 +52,6 @@ class Payment {
         return $stmt->execute();
     }
 
-
     // ========== Update row to paid (for Webhook) ==========
     public function updateToPaidByOrderId($order_id) {
         $query = "UPDATE {$this->table} 
@@ -62,18 +61,6 @@ class Payment {
         $stmt->bindParam(':order_id', $order_id);
         return $stmt->execute();
     }
-
-
-     // ========== Update row to failed (for Webhook) ==========
-  public function updateToFailedByCheckoutId($checkout_session_id) {
-    $query = "UPDATE {$this->table}
-              SET status = 'failed'
-              WHERE checkout_session_id = :checkout_session_id";
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindParam(':checkout_session_id', $checkout_session_id);
-    return $stmt->execute();
-}
-
 
     // ========== Get Payment by Order ID ==========
     public function getByOrderId($order_id) {

@@ -12,9 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // ✅ Database connection
 require_once "../config/Database.php";
 require_once __DIR__ . '/../Models/Payment.php';
+require_once __DIR__ . '/../Models/Order.php';
 $database = new Database();
 $db = $database->getConnection();
 $model = new Payment($db);
+$orderModel = new Order($db);
 
 try {
     // ✅ Read webhook payload
@@ -36,17 +38,13 @@ try {
     $order_id = $data['data']['attributes']['data']['attributes']['metadata']['order_id'] ?? null;
       $checkoutId = $data['data']['attributes']['data']['id'] ?? null;
 if ($eventType === 'payment.paid' && $order_id) {
-    if ($model->updateToPaidByOrderId($order_id)) {
+    if ($model->updateToPaidByOrderId($order_id)&&$orderModel->sePaidStatus($order_id)) {
+    
         echo json_encode(["message" => "Payment marked as PAID for order_id {$order_id}"]);
     } else {
         echo json_encode(["warning" => "No payment record found for order_id {$order_id}"]);
     }
-} elseif (($eventType === 'payment.failed' || $eventType === 'qrph.expired') && $checkoutId) {
-    if ($model->updateToFailedByCheckoutId($checkoutId)) {
-        echo json_encode(["message" => "Payment marked as FAILED for checkout_id {$checkoutId}"]);
-    } else {
-        echo json_encode(["warning" => "No payment record found for checkout_id {$checkoutId}"]);
-    }
+    
 } else {
     echo json_encode(["info" => "Event not handled or missing identifiers"]);
 }

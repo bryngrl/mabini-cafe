@@ -18,3 +18,7 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+
+/phpbackend/Services/PaymongoService.php
+ngrok.exe
