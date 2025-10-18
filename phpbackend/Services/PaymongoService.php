@@ -14,11 +14,12 @@ class PaymongoService {
     public function createCheckout($order_id, $payment_method = 'gcash') {
         // ===== 1️⃣ Get order details =====
         $orderQuery = $this->model->getById($order_id);
-     
+        
         if (!$orderQuery) {
             return ['error' => 'Order not found'];
         }
-           $order = $orderQuery['total_amount'];
+           $shipping_fee = $orderQuery['shipping_fee'];
+           $order = $orderQuery['total_amount']+$shipping_fee;
 
         // ===== 2️⃣ Get order items =====
         $itemsQuery = "
@@ -50,9 +51,18 @@ class PaymongoService {
             ];
         }
 
+        if (!empty($shipping_fee)) {
+        $lineItems[] = [
+        "name" => "Shipping Fee",
+        "amount" => intval($shipping_fee * 100),
+        "currency" => "PHP",
+        "quantity" => 1
+        ];
+        }
+
         // ===== 4️⃣ Redirect URLs =====
-        $successUrl = "http://localhost/mabini-cafe/success.php";
-        $cancelUrl  = "http://localhost/mabini-cafe/cancel.php";
+        $successUrl = "http://127.0.0.1:5500/phpbackend/test.html";
+        $cancelUrl  = "http://127.0.0.1:5500/phpbackend/test.html";
 
         // ===== 5️⃣ Build payload =====
         $payload = [

@@ -1,10 +1,11 @@
 <?php
 
-class Payment {
+class Payment
+{
     private $conn;
     private $table = "payments";
 
-    // ========== Properties ==========
+    // 🧾 Properties
     public $id;
     public $user_id;
     public $order_id;
@@ -15,30 +16,42 @@ class Payment {
     public $checkout_url;
     public $checkout_session_id;
 
-    // ========== Constructor ==========
-    public function __construct($db) {
+    // ⚙️ Constructor
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
-    // ========== Sanitize Helper ==========
-    private function sanitize() {
-        $this->user_id = htmlspecialchars(strip_tags($this->user_id));
-        $this->order_id = htmlspecialchars(strip_tags($this->order_id));
-        $this->amount = htmlspecialchars(strip_tags($this->amount));
-        $this->currency = htmlspecialchars(strip_tags($this->currency));
-        $this->payment_method = htmlspecialchars(strip_tags($this->payment_method));
-        $this->status = htmlspecialchars(strip_tags($this->status));
-        $this->checkout_url = htmlspecialchars(strip_tags($this->checkout_url));
-        $this->checkout_session_id = htmlspecialchars(strip_tags($this->checkout_session_id));
+    // 🧼 Sanitize helper
+    private function sanitize()
+    {
+        foreach ([
+            'user_id',
+            'order_id',
+            'amount',
+            'currency',
+            'payment_method',
+            'status',
+            'checkout_url',
+            'checkout_session_id'
+        ] as $prop) {
+            if (isset($this->$prop)) {
+                $this->$prop = htmlspecialchars(strip_tags($this->$prop));
+            }
+        }
     }
 
-    // ========== Create Payment ==========
-    public function create() {
+    // ➕ Create new payment
+    public function create()
+    {
         $this->sanitize();
 
-        $query = "INSERT INTO {$this->table} 
-                  (user_id, order_id, amount, currency, payment_method, status, checkout_url, checkout_session_id)
-                  VALUES (:user_id, :order_id, :amount, :currency, :payment_method, :status, :checkout_url, :checkout_session_id)";
+        $query = "
+            INSERT INTO {$this->table} 
+            (user_id, order_id, amount, currency, payment_method, status, checkout_url, checkout_session_id)
+            VALUES (:user_id, :order_id, :amount, :currency, :payment_method, :status, :checkout_url, :checkout_session_id)
+        ";
+
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':user_id', $this->user_id);
         $stmt->bindParam(':order_id', $this->order_id);
@@ -52,33 +65,43 @@ class Payment {
         return $stmt->execute();
     }
 
-    // ========== Update row to paid (for Webhook) ==========
-    public function updateToPaidByOrderId($order_id) {
-        $query = "UPDATE {$this->table} 
-                  SET status = 'paid' 
-                  WHERE order_id = :order_id";
+    // 💰 Mark payment as paid (for webhook or manual confirmation)
+    public function updateToPaidByOrderId($order_id)
+    {
+        $query = "
+            UPDATE {$this->table}
+            SET status = 'Paid'
+            WHERE order_id = :order_id
+        ";
+
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':order_id', $order_id);
         return $stmt->execute();
     }
 
-    // ========== Get Payment by Order ID ==========
-    public function getByOrderId($order_id) {
-        $query = "SELECT * FROM {$this->table} WHERE order_id = :order_id";
+    // 🔍 Get payment by order ID
+    public function getByOrderId($order_id)
+    {
+        $query = "
+            SELECT * 
+            FROM {$this->table} 
+            WHERE order_id = :order_id
+        ";
+
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':order_id', $order_id);
         $stmt->execute();
+
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-
-      // ========== Get Payment by Order ID ==========
-    public function getAll() {
+    // 📋 Get all payments
+    public function getAll()
+    {
         $query = "SELECT * FROM {$this->table}";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        return $stmt->fetchall(PDO::FETCH_ASSOC);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-
 }

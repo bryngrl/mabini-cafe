@@ -38,7 +38,7 @@ try {
     $order_id = $data['data']['attributes']['data']['attributes']['metadata']['order_id'] ?? null;
       $checkoutId = $data['data']['attributes']['data']['id'] ?? null;
 if ($eventType === 'payment.paid' && $order_id) {
-    if ($model->updateToPaidByOrderId($order_id)&&$orderModel->sePaidStatus($order_id)) {
+    if ($model->updateToPaidByOrderId($order_id)&&$orderModel->setPaidStatus($order_id)) {
     
         echo json_encode(["message" => "Payment marked as PAID for order_id {$order_id}"]);
     } else {
