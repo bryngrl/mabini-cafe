@@ -26,21 +26,15 @@
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
 />
 
-
-
-
 {#if !links.includes($page.url.pathname) || $page.url.pathname.startsWith('/checkout', '/checkout/shipping', '/checkout/payment', '/checkout/review')}
 	<Header />
 {/if}
 <main>
 	<slot />
 </main>
-{#if !links.includes($page.url.pathname)}
+{#if !links.includes($page.url.pathname) && $page.url.pathname !== '/admin'}
 	<Footer />
 {/if}
-
-
-
 
 <!-- {/if}
 

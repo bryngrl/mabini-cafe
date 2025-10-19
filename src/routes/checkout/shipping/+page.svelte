@@ -12,10 +12,30 @@
 	import { shippingStore, shippingInfo, shippingLoading, shippingError } from '$lib/stores';
 	import { form } from '$app/server';
 
+	// There is no shipping method yet in the backend
+	// There is no update total yet
+	async function updateShippingMethod(method: string) {
+		if (method === 'standard') {
+			formData.shippingMethod = 'standard';
+		} else if (method === 'priority') {
+			formData.shippingMethod = 'priority';
+		}
+	}
+
 	function redirectToInformation() {
 		goto('/checkout');
 	}
-	function redirectToPayment() {
+	function handleSubmitToPayment() {
+		//default == standard
+		if (!formData.shippingMethod) {
+			formData.shippingMethod = 'standard';
+		}
+		const shippingData = {
+			user_id: $authStore.user?.id,
+			shipping_method: formData.shippingMethod
+		};
+		// API otid
+
 		goto('/checkout/payment');
 	}
 	let existingInfo = {
@@ -226,9 +246,10 @@
 							name="shippingMethod"
 							value="standard"
 							bind:group={formData.shippingMethod}
-							class="form-radio mr-2 border-10 border-gray-700 accent-white focus:ring-gray-700"
+							on:change={() => updateShippingMethod('standard')}
+							class="checked:bg-green-400 max-w-[4px] max-h-[4px] appearance-none w-auto items-center cursor-pointer bg-gray-300 text-white font-bold py-2 px-2 rounded-full border-none focus:outline-none"
 						/>
-						<span class="text-black font-medium">Standard Delivery</span>
+						<span class="text-black font-medium pl-2">Standard Delivery</span>
 						<span class="ml-auto text-black">₱79.00</span>
 					</label>
 					<div class="pl-6 mb-4 mt-0 text-gray-600 text-sm">
@@ -240,10 +261,11 @@
 							name="shippingMethod"
 							value="priority"
 							bind:group={formData.shippingMethod}
-							class="form-radio mr-2 border-10 border-gray-700 accent-white focus:ring-gray-700"
+							on:change={() => updateShippingMethod('priority')}
+							class="checked:bg-green-400 max-w-[4px] max-h-[4px] appearance-none w-auto items-center cursor-pointer bg-gray-300 text-white font-bold py-2 px-2 rounded-full border-none focus:outline-none"
 						/>
 
-						<span class="text-black font-medium">Priority Delivery</span>
+						<span class="text-black font-medium pl-2">Priority Delivery</span>
 						<span class="ml-auto text-black">₱109.00</span>
 					</label>
 					<div class="pl-6 mt-0 text-gray-600 text-sm">Estimated delivery time: 30 minutes</div>
@@ -257,7 +279,7 @@
 					<span><i class="fa-classic fa-chevron-left mr-2"></i></span> Return to Information
 				</button>
 				<button
-					on:click={redirectToPayment}
+					on:click={handleSubmitToPayment}
 					class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
 				>
 					Continue to Payment
@@ -441,13 +463,27 @@
 				</div>
 				<div class="flex flex-1 justify-between items-center">
 					<span class="text-gray-600">Shipping</span>
-					<span class="text-gray-600">Calculate at next step</span>
+					<span class="text-gray-600"
+						>{#if formData.shippingMethod === 'standard'}₱79.00{:else if formData.shippingMethod === 'priority'}₱149.00{/if}</span
+					>
 				</div>
 				<hr class="my-4 border-gray-300" />
 				<div class="flex justify-between items-center mb-2">
 					<div class="flex flex-1 justify-between items-center">
 						<span class="text-[25px] font-semibold">Total</span>
-						<span class="text-lg font-bold">₱{$cartTotal.toFixed(2)}</span>
+						<span class="text-lg font-bold">
+							₱
+							{(() => {
+								const shipping =
+									formData.shippingMethod === 'standard'
+										? 79
+										: formData.shippingMethod === 'priority'
+											? 109
+											: 0;
+								const newCartTotal = $cartTotal + shipping;
+								return newCartTotal.toFixed(2);
+							})()}
+						</span>
 					</div>
 				</div>
 			{:else}

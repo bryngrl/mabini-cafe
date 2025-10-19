@@ -225,7 +225,15 @@
 					<div class="flex items-center space-x-2">
 						<p class="text-gray-600 mb-0">Shipping Method</p>
 						<!-- Palitan later into {existingInfo.shippingMethod} -->
-						<p class="text-l p-2 mb-0 text-black">Standard Delivery</p>
+						<p class="text-l p-2 mb-0 text-black">
+							{#if formData.shippingMethod === 'standard'}
+								Standard Delivery
+							{:else if formData.shippingMethod === 'priority'}
+								Priority Delivery
+							{:else}
+								No shipping method selected
+							{/if}
+						</p>
 					</div>
 					<button
 						on:click={enableShippingMethod}
@@ -467,7 +475,7 @@
 		{/if}
 	</div>
 
-	<!-- Right Side -->
+<!-- Right Side -->
 	<div class="grow w-2/4 bg-white text-black p-10">
 		<div class="w-full">
 			<h2 class="text-2xl font-bold mb-4 text-left">Items</h2>
@@ -507,13 +515,25 @@
 				</div>
 				<div class="flex flex-1 justify-between items-center">
 					<span class="text-gray-600">Shipping</span>
-					<span class="text-gray-600">Calculate at next step</span>
+					<span class="text-gray-600">{#if formData.shippingMethod === 'standard'}₱79.00{:else if formData.shippingMethod === 'priority'}₱149.00{/if}</span>
 				</div>
 				<hr class="my-4 border-gray-300" />
 				<div class="flex justify-between items-center mb-2">
 					<div class="flex flex-1 justify-between items-center">
 						<span class="text-[25px] font-semibold">Total</span>
-						<span class="text-lg font-bold">₱{$cartTotal.toFixed(2)}</span>
+						<span class="text-lg font-bold">
+							₱
+							{(() => {
+								const shipping =
+									formData.shippingMethod === 'standard'
+										? 79
+										: formData.shippingMethod === 'priority'
+										? 109
+										: 0;
+								const newCartTotal = $cartTotal + shipping;
+								return newCartTotal.toFixed(2);
+							})()}
+						</span>
 					</div>
 				</div>
 			{:else}
@@ -522,6 +542,7 @@
 		</div>
 	</div>
 </div>
+
 
 <!-- Paymogo LOGO -->
 <!-- <div class="flex gap-0 flex-col items-stretch flex-nowrap justify-start content-center">
