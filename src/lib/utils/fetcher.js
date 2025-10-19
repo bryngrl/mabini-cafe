@@ -3,6 +3,7 @@
  * All backend API calls are organized here by resource type
  */
 
+
 const API_BASE_URL = 'http://localhost/mabini-cafe/phpbackend/routes';
 async function apiFetch(endpoint, options = {}) {
 	try {
@@ -30,7 +31,9 @@ async function apiFetch(endpoint, options = {}) {
 	} catch (error) {
 		console.error(`API Error [${endpoint}]:`, error);
 		if (error.message === 'Failed to fetch') {
-			throw new Error(`Cannot connect to backend at ${API_BASE_URL}. Make sure XAMPP/Apache is running.`);
+			throw new Error(
+				`Cannot connect to backend at ${API_BASE_URL}. Make sure XAMPP/Apache is running.`
+			);
 		}
 		throw error;
 	}
@@ -58,11 +61,17 @@ async function apiFormData(endpoint, formData, method = 'POST') {
 }
 
 // ===============
-// USER 
+// USER
 // ===============
 
 /**
  * Register a new user
+ * @param {object} userData - User information object
+ * @param {string} userData.username - Username
+ * @param {string} userData.email - Email address
+ * @param {string} userData.password - Password
+ * @param {string} userData.address - Address
+ * @param {string} userData.contact_number - Contact number
  */
 export async function signup(userData) {
 	return apiFetch('/users', {
@@ -80,6 +89,8 @@ export async function signup(userData) {
 
 /**
  * User login
+ * @param {string} email - User's email
+ * @param {string} password - User's password
  */
 export async function loginUser(email, password) {
 	return apiFetch('/users/login', {
@@ -91,6 +102,7 @@ export async function loginUser(email, password) {
 
 /**
  * Get all users (admin only)
+ * 
  */
 export async function getAllUsers() {
 	return apiFetch('/users');
@@ -98,6 +110,7 @@ export async function getAllUsers() {
 
 /**
  * Get user by ID
+ * @param {string} userId - User ID
  */
 export async function getUserById(userId) {
 	return apiFetch(`/users/${userId}`);
@@ -105,6 +118,8 @@ export async function getUserById(userId) {
 
 /**
  * Update user profile
+ * @param {string} userId - User ID
+ * @param {object} userData - Updated user information
  */
 export async function updateUser(userId, userData) {
 	return apiFetch(`/users/${userId}`, {
@@ -116,6 +131,7 @@ export async function updateUser(userId, userData) {
 
 /**
  * Delete user account
+ * @param {string} userId - User ID
  */
 export async function deleteUser(userId) {
 	return apiFetch(`/users/${userId}`, {
@@ -502,7 +518,7 @@ export async function getAllContacts() {
  */
 export async function submitContactForm(contactData, imageFile = null) {
 	const formData = new FormData();
-	
+
 	if (contactData.user_id) formData.append('user_id', contactData.user_id);
 	formData.append('name', contactData.name);
 	formData.append('email', contactData.email);
@@ -526,5 +542,135 @@ export async function validateToken() {
 		return null;
 	}
 }
+// ==============
+// SHIPPING INFO
+// ==============
 
+/**
+ * Get all shipping information (admin)
+ */
+export async function getAllShippingInfo() {
+	return apiFetch('/shipinfo');
+}
 
+/**
+ * Get shipping information by ID
+ * @param {number} shipInfoId
+ */
+export async function getShippingInfoById(shipInfoId) {
+	return apiFetch(`/shipinfo/${shipInfoId}`);
+}
+
+/**
+ * Get shipping information by user ID
+ * @param {number} userId
+ */
+export async function getShippingInfoByUserId(userId) {
+	return apiFetch(`/shipinfo?user_id=${userId}`);
+}
+
+/**
+ * Create/Store new shipping information
+ * @param {object} shippingData - Shipping information object
+ * @param {number} shippingData.user_id - User ID (optional)
+ * @param {string} shippingData.email - Email address
+ * @param {string} shippingData.first_name - First name
+ * @param {string} shippingData.last_name - Last name
+ * @param {string} shippingData.address - Street address
+ * @param {string} shippingData.apartment_suite_etc - Apartment/Suite (optional)
+ * @param {string} shippingData.postal_code - Postal/ZIP code
+ * @param {string} shippingData.city - City
+ * @param {string} shippingData.region - Region/State
+ * @param {string} shippingData.phone - Phone number
+ */
+export async function storeShippingInfo(shippingData) {
+	return apiFetch('/shipinfo', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			user_id: shippingData.user_id || null,
+			email: shippingData.email,
+			first_name: shippingData.first_name,
+			last_name: shippingData.last_name,
+			address: shippingData.address,
+			apartment_suite_etc: shippingData.apartment_suite_etc || '',
+			postal_code: shippingData.postal_code,
+			city: shippingData.city,
+			region: shippingData.region,
+			phone: shippingData.phone
+		})
+	});
+}
+
+/**
+ * Update shipping information by user ID
+ * @param {number} userId - User ID
+ * @param {object} shippingData - Updated shipping information
+ */
+export async function updateShippingInfo(userId, shippingData) {
+	return apiFetch(`/shipinfo?user_id=${userId}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			user_id: userId,
+			email: shippingData.email,
+			first_name: shippingData.first_name,
+			last_name: shippingData.last_name,
+			address: shippingData.address,
+			apartment_suite_etc: shippingData.apartment_suite_etc || '',
+			postal_code: shippingData.postal_code,
+			city: shippingData.city,
+			region: shippingData.region,
+			phone: shippingData.phone
+		})
+	});
+}
+
+/**
+ * Delete shipping information by ID
+ * @param {number} shipInfoId
+ */
+export async function deleteShippingInfo(shipInfoId) {
+	return apiFetch(`/shipinfo/${shipInfoId}`, {
+		method: 'DELETE'
+	});
+}
+
+// ======
+// OTP
+// ======
+
+/** Send OTP to email
+ * @param {string} email - Email address to send OTP to
+ */
+export async function sendOtp(email) {
+	return apiFetch('/sendotp', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ email })
+	});
+}
+/**
+ * Verify OTP for password reset
+ * @param {string} email - The user's email
+ * @param {string} otp - The OTP to verify
+ */
+export async function verifyOtp(email, otp) {
+	return apiFetch('/verifyotp', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ email, otp })
+	});
+}
+/**
+ * Reset password after OTP verification
+ * @param {string} email - The user's email
+ * @param {string} newPassword - The new password to set
+ */
+export async function resetPassword(email, newPassword) {
+	return apiFetch('/resetpassword', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ email, newPassword })
+	});
+}
