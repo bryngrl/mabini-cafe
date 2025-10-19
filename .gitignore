@@ -22,3 +22,4 @@ vite.config.ts.timestamp-*
 
 /phpbackend/Services/PaymongoService.php
 ngrok.exe
+STORE_USAGE_EXAMPLES.md

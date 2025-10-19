@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { redirect } from '@sveltejs/kit';
 	import { goto } from '$app/navigation';
-	import { signup } from '$lib/utils/fetcher';
 	import { showSuccess, showError } from '$lib/utils/sweetalert';
+	import { usersStore } from '$lib/stores';
+	import { otpStore } from '$lib/stores';
 
 	let name = '';
 	let email = '';
@@ -22,23 +22,20 @@
 		}
 
 		try {
-			const result = await signup({
-				username: name,
-				email: email,
-				password: password
-			});
+			// Send OTP first before creating account
+			await otpStore.sendOtp(email);
 
-			if (result && result.message) {
-				await showSuccess(
-					'Account created successfully! Please check your email for verification code.',
-					'Welcome to Mabini Cafe!'
-				);
-				setTimeout(() => {
-					goto(`/verify-email?email=${encodeURIComponent(email)}`);
-				}, 2000);
-			}
+			await showSuccess(
+				'Verification code sent! Please check your email.',
+				'Verify Your Email'
+			);
+			
+			// Redirect to OTP verification with signup data
+			setTimeout(() => {
+				goto(`/verify-signup?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`);
+			}, 2000);
 		} catch (err: any) {
-			await showError(err.message || 'Signup failed. Please try again.', 'Signup Failed');
+			await showError(err.message || 'Failed to send verification code. Please try again.', 'Error');
 			loading = false;
 		}
 	}
@@ -54,7 +51,7 @@
 			<a href="/"><img src="/images/LOGO-4.png" alt="LOGO" style="filter: invert(1);" /></a>
 			<h2 class="uppercase text-left">Create Account</h2>
 			<p class="text-gray-600 font-normal text-left">
-				Enter your email and we'll send you a sign-in code.
+				Enter your details and we'll send you a verification code.
 			</p>
 		</div>
 		<form on:submit|preventDefault={handleSignup}>

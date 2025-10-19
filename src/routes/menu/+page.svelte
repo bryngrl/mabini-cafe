@@ -2,62 +2,47 @@
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
 	import { onMount } from 'svelte';
-	import { menuStore, cartStore, authStore } from '$lib/stores';
+	import { menuStore, cartStore, authStore, menuItems } from '$lib/stores';
+	import { currentUser } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { showSuccess, showError, showLoginRequired } from '$lib/utils/sweetalert';
 
-	let categories = ['All', 'Pastries', 'Beverages', 'Meals'];
-	let selectedCategory = categories[0];
+	// Export the data from the server load
+	export let data: { items: any[]; error?: string };
+
+	onMount(() => {
+		authStore.init();
+	});
+
+	let items = data.items || [];
+	let loading = false;
+	let error = data.error || '';
+
+	$: uniqueCategories = [...new Set(items.map((item) => item.category_name))].filter(Boolean);
+	$: categories = ['All', ...uniqueCategories];
+
+	let selectedCategory = 'All';
 	let selectedSubcategory: string | null = null;
 
-	let subcategories: Record<string, string[]> = {
-		All: [
-			'Savory Special Waffle',
-			'Sweet Special Waffle',
-			'Croffle',
-			'Pizza',
-			'Pasta',
-			'All Day Breakfast',
-			'Ube Series',
-			'Refreshers',
-			'Non-Caffeine Frappe',
-			'Matcha Series',
-			'Hot Coffee',
-			'Iced Coffee',
-			'Caffeine Frappe'
-		],
-		Pastries: ['Savory Special Waffle', 'Sweet Special Waffle', 'Croffle'],
-		Beverages: [
-			'Ube Series',
-			'Refreshers',
-			'Non-Caffeine Frappe',
-			'Matcha Series',
-			'Hot Coffee',
-			'Iced Coffee',
-			'Caffeine Frappe'
-		],
-		Meals: ['Pizza', 'Pasta', 'All Day Breakfast']
-	};
+	$: subcategories = (() => {
+		const subcatMap: Record<string, string[]> = {};
 
-	let items = [];
-	let loading = false;
-	let error = '';
+		const allSubcats = [...new Set(items.map((item) => item.description))].filter(Boolean);
+		subcatMap['All'] = allSubcats;
+
+		uniqueCategories.forEach((category) => {
+			const categoryItems = items.filter((item) => item.category_name === category);
+			const categorySubcats = [...new Set(categoryItems.map((item) => item.description))].filter(
+				Boolean
+			);
+			subcatMap[category] = categorySubcats;
+		});
+
+		return subcatMap;
+	})();
 
 	let selectedItem = null;
 	let modalOpen = false;
-
-	onMount(async () => {
-		loading = true;
-		error = '';
-		try {
-			items = await menuStore.fetchAll();
-		} catch (err: any) {
-			error = err.message || 'Failed to load menu items';
-			console.error('Error loading menu:', err);
-		} finally {
-			loading = false;
-		}
-	});
 
 	function handleViewDetails(item) {
 		selectedItem = item;
@@ -82,17 +67,16 @@
 		try {
 			const quantity = 1;
 			const subtotal = parseFloat(item.price) * quantity;
-			
+
 			await cartStore.add({
 				user_id: $authStore.user?.id,
 				menu_item_id: item.id,
 				quantity: quantity,
 				subtotal: subtotal
 			});
-			
+
 			await showSuccess(`${item.name} has been added to your cart!`, 'Added to Cart');
 		} catch (err: any) {
-			// Handle login required error
 			if (err.type === 'LOGIN_REQUIRED') {
 				const result = await showLoginRequired();
 				if (result.isConfirmed) {
@@ -100,7 +84,7 @@
 				}
 				return;
 			}
-			
+
 			await showError(err.message || 'Failed to add item to cart', 'Error');
 			console.error('Error adding to cart:', err);
 		}
@@ -165,14 +149,16 @@
 						</div>
 					{:else}
 						<div class="items-grid">
-							{#each items.filter((item) => {
-								const matchesCategory = selectedCategory === 'All' || item.category_name === selectedCategory;
-								const matchesSubcategory = !selectedSubcategory || (item.description && item.description
-											.toLowerCase()
-											.trim() === selectedSubcategory.toLowerCase().trim());
+							{#each items
+								.filter((item) => {
+									const matchesCategory = selectedCategory === 'All' || item.category_name === selectedCategory;
+									const matchesSubcategory = !selectedSubcategory || (item.description && item.description
+												.toLowerCase()
+												.trim() === selectedSubcategory.toLowerCase().trim());
 
-								return matchesCategory && matchesSubcategory;
-							}) as item}
+									return matchesCategory && matchesSubcategory;
+								})
+								.slice(0, 50) as item}
 								<div>
 									<Item
 										{item}
@@ -261,7 +247,7 @@
 
 	.items-grid {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr); /* Always 4 columns on desktop */
+		grid-template-columns: repeat(4, 1fr);
 		gap: 1rem;
 		border-radius: 0rem 0rem 1rem 0rem;
 		border: solid 1px gray;
@@ -274,7 +260,7 @@
 	}
 	@media (max-width: 600px) {
 		.items-grid {
-			grid-template-columns: 1fr; 
+			grid-template-columns: 1fr;
 		}
 	}
 	.menu-text {
