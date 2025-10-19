@@ -43,7 +43,7 @@ private $auth;
         //   }
 
 
-          echo json_encode($this->model->getAll());
+          echo json_encode($this->model->getAll() ?? []);
 
     }
 
@@ -86,7 +86,7 @@ private $auth;
     $admin = $this->model->getById($id);
 
     if($admin){
-     echo json_encode($admin);
+     echo json_encode($admin ?? []);
     }else{
        http_response_code(404);
         echo json_encode(["error"=>"Admin not found"]);

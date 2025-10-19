@@ -57,14 +57,20 @@ class OrderItemsController{
 
     // return specific order to server
    public function show($id){
+
+  
+         if(empty($id) || !is_numeric($id))
+         {
+             http_response_code(400);
+            echo json_encode(["error" => "Invalid order ID"]);
+           return;
+         }
+
     $order = $this->model->getById($id);
     
-    if($order)
-    {
-        echo json_encode($order);
-    }else{
-        echo json_encode(["Nothing"=>"no OrderItem found"]);
-    }
+   
+              http_response_code(200);
+              echo json_encode($order ?? []);
    }
 
 //     
@@ -96,14 +102,20 @@ class OrderItemsController{
 
   
    public function showByOrderId($orderId){
-    $orderItem = $this->model->getByOrderId($orderId);
+ 
+      if(empty($orderId) || !is_numeric($orderId))
+         {
+             http_response_code(400);
+            echo json_encode(["error" => "Invalid order ID"]);
+           return;
+         }
 
-    if($orderItem)
-    {
-        echo json_encode($orderItem);
-    }else{
-          echo json_encode(["Nothing"=>"no OrderItem found"]);
-    }
+   $orderItem = $this->model->getByOrderId($orderId);
+
+    
+   
+              http_response_code(200);
+              echo json_encode($orderItem ?? []);
    }
 
 
