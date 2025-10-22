@@ -17,7 +17,9 @@
 		'/checkout',
 		'/checkout/shipping',
 		'/checkout/payment',
-		'/checkout/review'
+		'/checkout/review',
+		'/verify-signup',
+		'/forgot-password'
 	];
 </script>
 
@@ -36,8 +38,23 @@
 	<Footer />
 {/if}
 
-<!-- {/if}
+<style>
+	/* Hide scrollbar globally */
+	:global(body) {
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
 
-{#if $page.url.pathname !== '/login' && $page.url.pathname !== '/signup' && $page.url.pathname !== '/verify-email' && $page.url.pathname !== '/checkout'}
-	<Footer />
-{/if} -->
+	:global(body::-webkit-scrollbar) {
+		display: none;
+	}
+
+	/* Hide scrollbar for all elements */
+	:global(*) {
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+	}
+	:global(*::-webkit-scrollbar) {
+		display: none;
+	}
+</style>

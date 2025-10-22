@@ -10,16 +10,11 @@
 	import { authStore } from '$lib/stores/auth';
 	import { showError, showSuccess } from '$lib/utils/sweetalert';
 	import { shippingStore, shippingInfo, shippingLoading, shippingError } from '$lib/stores';
+	import { selectedShippingMethod, shippingCost, checkoutTotal } from '$lib/stores/checkout';
 	import { form } from '$app/server';
 
-	// There is no shipping method yet in the backend
-	// There is no update total yet
-	async function updateShippingMethod(method: string) {
-		if (method === 'standard') {
-			formData.shippingMethod = 'standard';
-		} else if (method === 'priority') {
-			formData.shippingMethod = 'priority';
-		}
+	function updateShippingMethod(method: string) {
+		selectedShippingMethod.set(method);
 	}
 
 	function redirectToInformation() {
@@ -27,16 +22,31 @@
 	}
 	function handleSubmitToPayment() {
 		//default == standard
-		if (!formData.shippingMethod) {
-			formData.shippingMethod = 'standard';
+		if (!$selectedShippingMethod) {
+			selectedShippingMethod.set('standard');
 		}
-		const shippingData = {
-			user_id: $authStore.user?.id,
-			shipping_method: formData.shippingMethod
-		};
-		// API otid
-
 		goto('/checkout/payment');
+	}
+
+	let userAddresses = [];
+	let selectedAddress = null;
+	let showAddressSelector = false;
+
+	function selectAddress(address) {
+		selectedAddress = address;
+		existingInfo = {
+			email: address.email,
+			fname: address.first_name,
+			lname: address.last_name,
+			address: address.address,
+			apartment: address.apartment_suite_etc || '',
+			postalcode: address.postal_code,
+			city: address.city,
+			country: address.region,
+			phone: address.phone
+		};
+		formData = { ...existingInfo };
+		showAddressSelector = false;
 	}
 	let existingInfo = {
 		email: '',
@@ -104,21 +114,12 @@
 
 		if ($authStore.user?.id) {
 			try {
-				const userShippingInfo = await shippingStore.fetchByUserId($authStore.user.id);
+				await shippingStore.fetchByUserId($authStore.user.id);
+				userAddresses = $shippingInfo || [];
 
-				if (userShippingInfo && userShippingInfo.email) {
-					existingInfo = {
-						email: userShippingInfo.email,
-						fname: userShippingInfo.first_name,
-						lname: userShippingInfo.last_name,
-						address: userShippingInfo.address,
-						apartment: userShippingInfo.apartment_suite_etc || '',
-						postalcode: userShippingInfo.postal_code,
-						city: userShippingInfo.city,
-						country: userShippingInfo.region,
-						phone: userShippingInfo.phone
-					};
-					formData = { ...existingInfo };
+				if (userAddresses.length > 0) {
+					const defaultAddress = userAddresses[0];
+					selectAddress(defaultAddress);
 					hasExistingShipping = true;
 				}
 			} catch (error) {
@@ -196,7 +197,7 @@
 		</nav>
 		<!-- Field Form -->
 
-		{#if !isEditMode && !isAddress && !isContact}
+		{#if !isEditMode && !isAddress && !isContact && !showAddressSelector}
 			<div
 				class="flex-1 flex-col text-white flex justify-center items-left bg-mabini-white shadow-md rounded-xl"
 			>
@@ -207,12 +208,23 @@
 							{existingInfo.address}, {existingInfo.city}, {existingInfo.postalcode}
 						</p>
 					</div>
-					<button
-						on:click={enableAddress}
-						class="cursor-pointer text-mabini-dark-brown underline text-sm hover:text-mabini-yellow"
-					>
-						Change
-					</button>
+					<div class="flex gap-2">
+						{#if userAddresses.length > 1}
+							<button
+								on:click={() => showAddressSelector = true}
+								class="cursor-pointer text-mabini-dark-brown underline text-sm hover:text-mabini-yellow"
+							>
+								Change
+							</button>
+						{:else}
+							<button
+								on:click={enableAddress}
+								class="cursor-pointer text-mabini-dark-brown underline text-sm hover:text-mabini-yellow"
+							>
+								Change
+							</button>
+						{/if}
+					</div>
 				</div>
 
 				<hr class="border-gray-400 ml-8 mr-8 border-1" />
@@ -245,7 +257,7 @@
 							type="radio"
 							name="shippingMethod"
 							value="standard"
-							bind:group={formData.shippingMethod}
+							bind:group={$selectedShippingMethod}
 							on:change={() => updateShippingMethod('standard')}
 							class="checked:bg-green-400 max-w-[4px] max-h-[4px] appearance-none w-auto items-center cursor-pointer bg-gray-300 text-white font-bold py-2 px-2 rounded-full border-none focus:outline-none"
 						/>
@@ -260,7 +272,7 @@
 							type="radio"
 							name="shippingMethod"
 							value="priority"
-							bind:group={formData.shippingMethod}
+							bind:group={$selectedShippingMethod}
 							on:change={() => updateShippingMethod('priority')}
 							class="checked:bg-green-400 max-w-[4px] max-h-[4px] appearance-none w-auto items-center cursor-pointer bg-gray-300 text-white font-bold py-2 px-2 rounded-full border-none focus:outline-none"
 						/>
@@ -420,6 +432,40 @@
 					</div>
 				</div>
 			</form>
+		{:else if showAddressSelector}
+			<!-- Address Selection -->
+			<div class="w-full rounded-xl shadow-md space-y-4 bg-mabini-white p-6">
+				<div class="p-2 rounded-lg text-mabini-black">
+					<h2 class="text-xl font-bold mb-4 text-black">Select Delivery Address</h2>
+					<div class="space-y-3">
+						{#each userAddresses as address}
+							<button
+								type="button"
+								on:click={() => selectAddress(address)}
+								class="w-full p-4 text-left border rounded-lg hover:bg-gray-100 transition
+									{selectedAddress?.id === address.id ? 'border-mabini-dark-brown bg-gray-50' : 'border-gray-300'}"
+							>
+								<p class="font-semibold text-black">
+									{address.first_name} {address.last_name}
+								</p>
+								<p class="text-gray-600 text-sm">
+									{address.address}{#if address.apartment_suite_etc}, {address.apartment_suite_etc}{/if}
+								</p>
+								<p class="text-gray-600 text-sm">
+									{address.city}, {address.region} {address.postal_code}
+								</p>
+								<p class="text-gray-600 text-sm">{address.phone}</p>
+							</button>
+						{/each}
+					</div>
+				</div>
+				<button
+					on:click={() => showAddressSelector = false}
+					class="text-sm cursor-pointer w-fit p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+				>
+					<span><i class="fa-classic fa-chevron-left mr-2"></i></span> Cancel
+				</button>
+			</div>
 		{/if}
 	</div>
 
@@ -463,27 +509,21 @@
 				</div>
 				<div class="flex flex-1 justify-between items-center">
 					<span class="text-gray-600">Shipping</span>
-					<span class="text-gray-600"
-						>{#if formData.shippingMethod === 'standard'}₱79.00{:else if formData.shippingMethod === 'priority'}₱149.00{/if}</span
-					>
+					<span class="text-gray-600">
+						{#if $selectedShippingMethod === 'standard'}
+							₱79.00
+						{:else if $selectedShippingMethod === 'priority'}
+							₱109.00
+						{:else}
+							-
+						{/if}
+					</span>
 				</div>
 				<hr class="my-4 border-gray-300" />
 				<div class="flex justify-between items-center mb-2">
 					<div class="flex flex-1 justify-between items-center">
 						<span class="text-[25px] font-semibold">Total</span>
-						<span class="text-lg font-bold">
-							₱
-							{(() => {
-								const shipping =
-									formData.shippingMethod === 'standard'
-										? 79
-										: formData.shippingMethod === 'priority'
-											? 109
-											: 0;
-								const newCartTotal = $cartTotal + shipping;
-								return newCartTotal.toFixed(2);
-							})()}
-						</span>
+						<span class="text-lg font-bold">₱{$checkoutTotal.toFixed(2)}</span>
 					</div>
 				</div>
 			{:else}

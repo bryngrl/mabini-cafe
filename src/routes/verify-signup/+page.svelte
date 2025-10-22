@@ -11,6 +11,7 @@
 	let otpCode = '';
 	let resendLoading = false;
 
+
 	$: loading = $otpLoading;
 
 	$: if ($otpError) {
@@ -49,6 +50,7 @@
 					'Account created successfully! You can now log in.',
 					'Welcome to Mabini Cafe!'
 				);
+
 				// Reset OTP store
 				otpStore.reset();
 				setTimeout(() => {
@@ -56,7 +58,10 @@
 				}, 2000);
 			}
 		} catch (err: any) {
-			await showError(err.message || 'Verification failed. Please try again.', 'Verification Failed');
+			await showError(
+				err.message || 'Verification failed. Please try again.',
+				'Verification Failed'
+			);
 		}
 	}
 
@@ -93,7 +98,7 @@
 	<div class="container">
 		<div class="page-header">
 			<a href="/"><img src="/images/LOGO-4.png" alt="LOGO" style="filter: invert(1);" /></a>
-			<h2 class="uppercase text-left">Enter Verification Code</h2>
+			<h2 class="text-left text-2xl font-extrabold text-mabini-dark-brown">Enter Code</h2>
 			<p class="text-gray-600 font-normal text-left">
 				We sent a 6-digit code to <strong>{email}</strong>
 			</p>
@@ -108,7 +113,7 @@
 					class="form-input otp-input"
 					placeholder="Enter 6-digit code"
 					maxlength="6"
-					pattern="[0-9]{6}"
+					inputmode="numeric"
 					required
 					disabled={loading}
 					autocomplete="off"
@@ -121,22 +126,17 @@
 		</form>
 
 		<div class="action-links">
-			<button
-				type="button"
-				class="link-btn"
-				on:click={handleResendCode}
-				disabled={resendLoading}
-			>
+			<button type="button" class="link-btn" on:click={handleResendCode} disabled={resendLoading}>
 				{resendLoading ? 'Resending...' : 'Resend Code'}
 			</button>
 			<button type="button" class="link-btn" on:click={handleSignupWithDifferentEmail}>
 				Sign up with different email
 			</button>
-			<button type="button" class="link-btn" on:click={handleGoToLogin}>
-				Already have an account? Log in
-			</button>
 		</div>
 	</div>
+	<button type="button" class="text-gray-600 underline hover:text-white p-5 cursor-pointer" on:click={handleGoToLogin}>
+		Already have an account? Log in
+	</button>
 </div>
 
 <style>
@@ -155,7 +155,7 @@
 		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
 		min-width: 350px;
 		max-width: 500px;
-		min-height: 500px;
+		min-height: 300px;
 		width: 100%;
 		text-align: center;
 	}
@@ -213,18 +213,20 @@
 		margin: 0 auto;
 	}
 	.action-links {
-		margin-top: 2rem;
+		margin-top: 0.75rem;
 		display: flex;
 		flex-direction: column;
-		gap: 0.75rem;
+		gap: 5px;
 	}
 	.link-btn {
+        text-align: left;
 		background: none;
 		border: none;
 		color: #666;
 		cursor: pointer;
 		font-size: 0.9rem;
 		padding: 0.5rem;
+        padding-bottom: 0;
 		transition: color 0.2s;
 		text-decoration: underline;
 	}

@@ -19,6 +19,7 @@ class Cart{
     public function getAll(){
         $stmt = $this->conn->prepare("SELECT
           a.id,
+          a.menu_item_id,
           b.username AS customer_name,
           c.name AS menu_item_name,
           d.name AS category_name,
@@ -68,6 +69,7 @@ class Cart{
      {
          $stmt = $this->conn->prepare("SELECT
           a.id,
+          a.menu_item_id,
           b.username AS customer_name,
           c.name AS menu_item_name,
           d.name AS category_name,

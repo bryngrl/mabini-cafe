@@ -3,7 +3,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores/auth';
+	import { otpStore } from '$lib/stores';
 	import { showSuccess, showError } from '$lib/utils/sweetalert';
+	import Swal from 'sweetalert2';
 
 	let email = '';
 	let loading = false;
@@ -26,6 +28,37 @@
 		} catch (err: any) {
 			await showError(err.message || 'Login failed. Please check your credentials.', 'Login Failed');
 			loading = false;
+		}
+	}
+
+	async function handleForgotPassword() {
+		const { value: resetEmail } = await Swal.fire({
+			title: 'Reset Password',
+			input: 'email',
+			inputLabel: 'Enter your email address',
+			inputPlaceholder: 'your@email.com',
+			inputValue: email,
+			showCancelButton: true,
+			confirmButtonText: 'Send Code',
+			confirmButtonColor: '#000',
+			inputValidator: (value) => {
+				if (!value) {
+					return 'Please enter your email address';
+				}
+				if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+					return 'Please enter a valid email address';
+				}
+			}
+		});
+
+		if (resetEmail) {
+			try {
+				await otpStore.sendOtp(resetEmail);
+				await showSuccess('Verification code sent! Check your email.', 'Code Sent');
+				goto(`/forgot-password?email=${encodeURIComponent(resetEmail)}`);
+			} catch (err: any) {
+				await showError(err.message || 'Failed to send code. Please try again.', 'Error');
+			}
 		}
 	}
 </script>
@@ -75,7 +108,7 @@
 				{loading ? 'Signing in...' : 'Sign In'}
 			</button>
 			<div class="links">
-				<a href="#" class="text-gray-600">Forgot Password</a>
+				<button type="button" on:click={handleForgotPassword} class="forgot-link">Forgot Password</button>
 			</div>
 		</form>
 	</div>
@@ -148,6 +181,19 @@
 	.links {
 		margin-top: 0.7rem;
 		text-align: left;
+	}
+	.forgot-link {
+		background: none;
+		border: none;
+		color: #6b7280;
+		cursor: pointer;
+		font-size: 1rem;
+		padding: 0;
+		text-decoration: underline;
+		transition: color 0.2s;
+	}
+	.forgot-link:hover {
+		color: #374151;
 	}
 	.login-btn {
 		width: 100%;

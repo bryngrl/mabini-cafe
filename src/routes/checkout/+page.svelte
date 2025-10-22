@@ -7,14 +7,19 @@
 	import { authStore, currentUser } from '$lib/stores/auth';
 	import { showError, showSuccess } from '$lib/utils/sweetalert';
 	import { shippingStore, shippingInfo, shippingLoading, shippingError } from '$lib/stores';
+	import { selectedAddressId } from '$lib/stores/checkout';
 	import { form } from '$app/server';
 
+	// Store for selected address ID
 	function redirectToCart() {
 		goto('/cart');
 	}
 	function redirectToShipping() {
 		goto('/checkout/shipping');
 	}
+
+	let userAddresses = [];
+	let selectedAddress = null;
 
 	let existingInfo = {
 		email: '',
@@ -41,6 +46,7 @@
 	};
 	let hasExistingShipping = false;
 	let isEditMode = false;
+	let showAddressSelector = false;
 
 	function enableEditMode() {
 		isEditMode = true;
@@ -49,6 +55,24 @@
 	function cancelEdit() {
 		formData = { ...existingInfo };
 		isEditMode = false;
+	}
+
+	function selectAddress(address) {
+		selectedAddress = address;
+		selectedAddressId.set(address.id);
+		existingInfo = {
+			email: address.email,
+			fname: address.first_name,
+			lname: address.last_name,
+			address: address.address,
+			apartment: address.apartment_suite_etc || '',
+			postalcode: address.postal_code,
+			city: address.city,
+			country: address.region,
+			phone: address.phone
+		};
+		formData = { ...existingInfo };
+		showAddressSelector = false;
 	}
 
 	// Get the cart items and check if the user is logged in
@@ -74,22 +98,14 @@
 
 		if ($authStore.user?.id) {
 			try {
-				// @ts-ignore
-				const userShippingInfo = await shippingStore.fetchByUserId($currentUser.id);
+				// Fetch all shipping addresses
+				await shippingStore.fetchByUserId($currentUser.id);
+				userAddresses = $shippingInfo || [];
 
-				if (userShippingInfo && userShippingInfo.email) {
-					existingInfo = {
-						email: userShippingInfo.email,
-						fname: userShippingInfo.first_name,
-						lname: userShippingInfo.last_name,
-						address: userShippingInfo.address,
-						apartment: userShippingInfo.apartment_suite_etc || '',
-						postalcode: userShippingInfo.postal_code,
-						city: userShippingInfo.city,
-						country: userShippingInfo.region,
-						phone: userShippingInfo.phone
-					};
-					formData = { ...existingInfo };
+				if (userAddresses.length > 0) {
+					// Select the first address by default
+					const defaultAddress = userAddresses[0];
+					selectAddress(defaultAddress);
 					hasExistingShipping = true;
 				}
 			} catch (error) {
@@ -176,17 +192,27 @@
 			</nav>
 
 			<div class="flex-1 flex-col text-white flex justify-center items-left">
-				{#if hasExistingShipping && !isEditMode}
+				{#if hasExistingShipping && !isEditMode && !showAddressSelector}
 					<!-- Display existing shipping info -->
 					<div class="w-full rounded-xl shadow-md space-y-4 bg-mabini-white p-6">
 						<div class="p-2 rounded-lg text-mabini-black flex justify-between items-center w-full">
 							<h2 class="text-l font-thin text-gray-600">Review Your Information</h2>
-							<button
-								on:click={enableEditMode}
-								class="text-mabini-dark-brown underline text-sm hover:text-mabini-yellow"
-							>
-								Edit
-							</button>
+							<div class="flex gap-2">
+								{#if userAddresses.length > 1}
+									<button
+										on:click={() => showAddressSelector = true}
+										class="text-mabini-dark-brown underline text-sm hover:text-mabini-yellow"
+									>
+										Change Address
+									</button>
+								{/if}
+								<button
+									on:click={enableEditMode}
+									class="text-mabini-dark-brown underline text-sm hover:text-mabini-yellow"
+								>
+									Edit
+								</button>
+							</div>
 						</div>
 						<hr class="border-gray-300 my-4" />
 						<div class="p-2 rounded-lg text-mabini-black">
@@ -231,6 +257,40 @@
 							class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
 						>
 							Continue to Shipping
+						</button>
+					</div>
+				{:else if showAddressSelector}
+					<!-- Address Selection -->
+					<div class="w-full rounded-xl shadow-md space-y-4 bg-mabini-white p-6">
+						<div class="p-2 rounded-lg text-mabini-black">
+							<h2 class="text-xl font-bold mb-4">Select Delivery Address</h2>
+							<div class="space-y-3">
+								{#each userAddresses as address}
+									<button
+										type="button"
+										on:click={() => selectAddress(address)}
+										class="w-full p-4 text-left border rounded-lg hover:bg-gray-100 transition
+											{selectedAddress?.id === address.id ? 'border-mabini-dark-brown bg-gray-50' : 'border-gray-300'}"
+									>
+										<p class="font-semibold text-black">
+											{address.first_name} {address.last_name}
+										</p>
+										<p class="text-gray-600 text-sm">
+											{address.address}{#if address.apartment_suite_etc}, {address.apartment_suite_etc}{/if}
+										</p>
+										<p class="text-gray-600 text-sm">
+											{address.city}, {address.region} {address.postal_code}
+										</p>
+										<p class="text-gray-600 text-sm">{address.phone}</p>
+									</button>
+								{/each}
+							</div>
+						</div>
+						<button
+							on:click={() => showAddressSelector = false}
+							class="text-sm cursor-pointer w-fit p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+						>
+							<span><i class="fa-classic fa-chevron-left mr-2"></i></span> Cancel
 						</button>
 					</div>
 				{:else if hasExistingShipping && isEditMode}

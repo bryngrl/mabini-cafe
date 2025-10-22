@@ -8,3 +8,4 @@ export { usersStore, users, selectedUser, usersLoading } from './users';
 export { adminsStore, admins, selectedAdmin, adminsLoading } from './admins';
 export { shippingStore, shippingInfo, shippingLoading, shippingError } from './shipping';
 export { otpStore, otpLoading, otpError, otpStep, otpSent, otpVerified, otpEmail } from './otp';
+export { selectedAddressId, selectedShippingMethod, shippingCost, checkoutTotal, resetCheckout } from './checkout';

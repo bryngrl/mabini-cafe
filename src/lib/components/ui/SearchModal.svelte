@@ -269,13 +269,7 @@
 		align-items: center;
 	}
 
-	.search-icon {
-		position: absolute;
-		left: 1rem;
-		color: #666;
-		z-index: 1;
-	}
-
+	
 	.search-input {
 		width: 100%;
 		padding: 1rem;

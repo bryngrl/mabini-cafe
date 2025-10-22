@@ -3,7 +3,6 @@
  * All backend API calls are organized here by resource type
  */
 
-
 const API_BASE_URL = 'http://localhost/mabini-cafe/phpbackend/routes';
 async function apiFetch(endpoint, options = {}) {
 	try {
@@ -102,7 +101,7 @@ export async function loginUser(email, password) {
 
 /**
  * Get all users (admin only)
- * 
+ *
  */
 export async function getAllUsers() {
 	return apiFetch('/users');
@@ -635,6 +634,38 @@ export async function deleteShippingInfo(shipInfoId) {
 		method: 'DELETE'
 	});
 }
+/**
+ * Add a new Shipping Info
+ * @param {number} userId - current user ID
+ * @param {object} shippingData - new Shipping Data
+ * @param {string} shippingData.email - Email address
+ * @param {string} shippingData.first_name - First name
+ * @param {string} shippingData.last_name - Last name
+ * @param {string} shippingData.address - Street address
+ * @param {string} shippingData.apartment_suite_etc - Apartment/Suite (optional)
+ * @param {string} shippingData.postal_code - Postal/ZIP code
+ * @param {string} shippingData.city - City
+ * @param {string} shippingData.region - Region/State
+ * @param {string} shippingData.phone - Phone number
+ */
+export async function addNewShippingInfo(userId, shippingData) {
+	return apiFetch('/shipinfo', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			user_id: userId,
+			email: shippingData.email,
+			first_name: shippingData.first_name,
+			last_name: shippingData.last_name,
+			address: shippingData.address,
+			apartment_suite_etc: shippingData.apartment_suite_etc || '',
+			postal_code: shippingData.postal_code,
+			city: shippingData.city,
+			region: shippingData.region,
+			phone: shippingData.phone
+		})
+	});
+}
 
 // ======
 // OTP
@@ -644,7 +675,7 @@ export async function deleteShippingInfo(shipInfoId) {
  * @param {string} email - Email address to send OTP to
  */
 export async function sendOtp(email) {
-	return apiFetch('/sendotp', {
+	return apiFetch('/users/sendotp', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ email })
@@ -656,7 +687,7 @@ export async function sendOtp(email) {
  * @param {string} otp - The OTP to verify
  */
 export async function verifyOtp(email, otp) {
-	return apiFetch('/verifyotp', {
+	return apiFetch('/users/verifyotp', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ email, otp })
@@ -668,7 +699,7 @@ export async function verifyOtp(email, otp) {
  * @param {string} newPassword - The new password to set
  */
 export async function resetPassword(email, newPassword) {
-	return apiFetch('/resetpassword', {
+	return apiFetch('/users/changepassword', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ email, newPassword })

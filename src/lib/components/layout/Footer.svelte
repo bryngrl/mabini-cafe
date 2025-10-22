@@ -9,8 +9,6 @@
 	function openSearch() {
 		searchModalOpen = true;
 	}
-
-
 </script>
 
 <div class="text-mabini-white">
@@ -29,20 +27,29 @@
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
 			<div>
 				<h3 class="font-bold mb-2 text-base md:text-lg">Maypajo Branch</h3>
-				<p class="text-sm font-light">191 A. Mabini St., Maypajo Brgy 30, Caloocan, Philippines</p>
+				<a href="https://maps.app.goo.gl/4aRGC8c8QohPmd1K8" target="_blank">
+					<p class="text-sm font-light hover:text-mabini-yellow">
+						191 A. Mabini St., Maypajo Brgy 30, Caloocan, Philippines
+					</p>
+				</a>
 
 				<h3 class="font-bold mb-2 pt-3 text-base md:text-lg">10th Avenue Branch</h3>
-				<p class="text-sm font-light">
-					Anmars Bldg., 10th Avenue, Corner 3rd Street, Grace Park East, Brgy 91, Caloocan City,
-					Caloocan, Philippines
-				</p>
+				<a href="https://maps.app.goo.gl/7CgzA4To4A66dDKJ8" target="_blank">
+					<p class="text-sm font-light hover:text-mabini-yellow">
+						Anmars Bldg., 10th Avenue, Corner 3rd Street, Grace Park East, Brgy 91, Caloocan City,
+						Caloocan, Philippines
+					</p>
+				</a>
 				<p class="text-sm font-light pt-5">
 					Delivery service for Mabini Cafe is available in Metro Manila only.
 				</p>
 			</div>
 			<div class="mt-6 md:mt-0">
 				<h3 class="font-bold mb-1 text-base md:text-lg">Support</h3>
-				<button class="block text-sm pt-3 md:pt-5 hover:text-mabini-yellow" on:click={openSearch}>Search</button>
+				<button
+					class="block text-sm pt-3 md:pt-5 hover:text-mabini-yellow cursor-pointer"
+					on:click={openSearch}>Search</button
+				>
 				<a class="block text-sm pt-3 md:pt-5 hover:text-mabini-yellow" href="/orders-and-payment"
 					>Order & Payment</a
 				>
@@ -80,7 +87,7 @@
 						class="w-8 h-8 hover:color-mabini-yellow"
 					/>
 				</a>
-				<a href="https://instagram.com/mabinicafe_ph" target="_blank">
+				<a href="https://instagram.com/mabinicafe_ph" target="_blank" class="cursor-pointer">
 					<img src="/items/instagram.svg" alt="Instagram" width="32" height="32" class="w-8 h-8" />
 				</a>
 			</div>

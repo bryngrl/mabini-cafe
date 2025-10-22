@@ -1,17 +1,13 @@
-<!-- TODO: OTP FOR DELETION -->
-<!-- TODO: Function for Deletion of Address -->
-<!-- TODO: Delete Function in  -->
-<!-- TODO: Orders Page -->
-<!-- TODO: Add new Address Function -->
-<!-- TODO: Confirmation for each -->
-<!-- TODO: OTP for changing numbers -->
-
 <script>
+	// TODO: OTP in Adding new phone
+	// TODO: OTP in Submitting an address
+	//
+
 	import { goto } from '$app/navigation';
 	import { authStore, users } from '$lib/stores';
 	import { showSuccess, showError, showConfirm } from '$lib/utils/sweetalert';
 	import { onMount } from 'svelte';
-	import { shippingStore } from '$lib/stores';
+	import { shippingStore, shippingInfo } from '$lib/stores';
 	import { form } from '$app/server';
 	import { usersStore, currentUser, isAuthenticated } from '$lib/stores';
 	import { orderItemsStore } from '$lib/stores';
@@ -22,19 +18,30 @@
 	// successful only.
 	let orders = [];
 
-	onMount(async () => {
-		authStore.init();
+	async function getUserOrders() {
 		try {
-			orders = await orderItemsStore.fetchByUserId($currentUser.id);
-			console.log(orders);
-		} catch (error) {
-			console.error('Error fetching orders:', error);
-		}
-	});
+			const userOrder = await orderItemsStore.fetchByUserId($currentUser?.id);
 
-	// To check if orders is empty:
+			if (!userOrder || !userOrder.ok) {
+				console.error('Failed to fetch orders');
+				return [];
+			}
+			const orders = await userOrder.json();
+			return orders;
+		} catch (error) {
+			console.error('Something goes wrong', error);
+			return [];
+		}
+	}
+	$: if ($currentUser?.id) {
+		getUserOrders().then((result) => {
+			orders = result;
+		});
+	}
 	$: hasOrders = Array.isArray(orders) && orders.length > 0;
 
+	// Getting the Account Overview details
+	// Specifically for username
 	let username = '';
 	onMount(async () => {
 		authStore.init();
@@ -53,8 +60,16 @@
 	});
 
 	let addNewAddress = false;
+	let editingAddressId = null;
 
+	// Reactive statement to track if user has any addresses
+	$: userAddresses = $shippingInfo || [];
+	$: hasExistingShipping = userAddresses.length > 0;
+	$: hasReachedAddressLimit = userAddresses.length >= 3;
+
+	// Logout button
 	function logout() {
+		showConfirm('Do you want you to logout?', 'Logout');
 		authStore.logout();
 		localStorage.removeItem('token');
 		showSuccess('Logged out successfully');
@@ -63,32 +78,33 @@
 		}, 2000);
 	}
 
-	async function deleteAddress() {
+	// Deleting Address
+	async function deleteAddress(addressId) {
+		const confirmed = await showConfirm(
+			'Are you sure you want to delete this address?',
+			'Delete Address'
+		);
+		if (!confirmed) return;
+
 		try {
-			const shippingInfo = await shippingStore.fetchByUserId($currentUser.id);
-			if (shippingInfo && shippingInfo.id) {
-				await shippingStore.delete(shippingInfo.id);
-				showSuccess('Address deleted successfully. Your name, phone, and email remain unchanged.');
-				formData.address = '';
-				formData.apartment = '';
-				formData.postalcode = '';
-				formData.city = '';
-				formData.country = '';
-				existingInfo.address = '';
-				existingInfo.apartment = '';
-				existingInfo.postalcode = '';
-				existingInfo.city = '';
-				existingInfo.country = '';
-				hasExistingShipping = false;
-				isEditAddress = false;
-			} else {
-				showError('No address found to delete', 'Error');
+			await shippingStore.deleteAddress(addressId, $currentUser.id);
+			await showSuccess('Address deleted successfully!', 'Success');
+			
+			// Refresh addresses
+			await shippingStore.fetchByUserId($currentUser.id);
+			
+			// Reset form if we were editing this address
+			if (editingAddressId === addressId) {
+				cancelEdit();
 			}
 		} catch (error) {
-			console.error('Failed to fetch shipping info:', error);
+			console.error('Failed to delete address:', error);
+			await showError('Failed to delete address', 'Error');
 		}
 	}
 
+	// Deleting Account
+	// Use sweetalerts
 	async function deleteAccount() {
 		if (confirm('Are you sure you want to delete your account?')) {
 			try {
@@ -101,8 +117,8 @@
 			}
 		}
 	}
-	//##authStore
 
+	// TODO: Simplify this further
 	let accountOverviewActive = false;
 	let accountOrdersActive = false;
 	let accountAddressesActive = false;
@@ -120,15 +136,58 @@
 		accountOrdersActive = false;
 	}
 	let isEditAddress = false;
-	function editAddress() {
+	
+	function editAddress(address) {
 		isEditAddress = true;
+		addNewAddress = false;
+		editingAddressId = address.id;
+		formData = {
+			email: address.email,
+			fname: address.first_name,
+			lname: address.last_name,
+			address: address.address,
+			apartment: address.apartment_suite_etc || '',
+			postalcode: address.postal_code,
+			city: address.city,
+			country: address.region,
+			phone: address.phone
+		};
 	}
-	function cancelEdit() {
-		formData = { ...existingInfo };
+	
+	function showAddNewAddressForm() {
+		addNewAddress = true;
 		isEditAddress = false;
+		editingAddressId = null;
+		formData = {
+			email: $currentUser?.email || '',
+			fname: '',
+			lname: '',
+			address: '',
+			apartment: '',
+			postalcode: '',
+			city: '',
+			country: '',
+			phone: ''
+		};
+	}
+	
+	function cancelEdit() {
+		formData = {
+			email: '',
+			fname: '',
+			lname: '',
+			address: '',
+			apartment: '',
+			postalcode: '',
+			city: '',
+			country: '',
+			phone: ''
+		};
+		isEditAddress = false;
+		addNewAddress = false;
+		editingAddressId = null;
 	}
 
-	let hasExistingShipping = false;
 	let formData = {
 		email: '',
 		fname: '',
@@ -140,52 +199,20 @@
 		country: '',
 		phone: ''
 	};
-	let existingInfo = {
-		email: '',
-		fname: '',
-		lname: '',
-		address: '',
-		apartment: '',
-		postalcode: '',
-		city: '',
-		country: '',
-		phone: ''
-	};
-	onMount(async () => {
-		authStore.init();
-		// @ts-ignore
-		if ($currentUser.id) {
-			try {
-				// @ts-ignore
-				const userShippingInfo = await shippingStore.fetchByUserId($currentUser.id);
 
-				if (userShippingInfo && userShippingInfo.email) {
-					existingInfo = {
-						email: userShippingInfo.email,
-						fname: userShippingInfo.first_name,
-						lname: userShippingInfo.last_name,
-						address: userShippingInfo.address,
-						apartment: userShippingInfo.apartment_suite_etc || '',
-						postalcode: userShippingInfo.postal_code,
-						city: userShippingInfo.city,
-						country: userShippingInfo.region,
-						phone: userShippingInfo.phone
-					};
-					formData = { ...existingInfo };
-					hasExistingShipping = true;
-				}
-			} catch (error) {
-				console.error('Error fetching shipping info:', error);
-			}
-		} else {
-			console.log('No auth user found');
+	// Fetching shipping addresses
+	$: if ($currentUser?.id) {
+		shippingStore.fetchByUserId($currentUser.id);
+	}
+
+	// Add New Address
+	async function handleAddNewAddress() {
+		if (userAddresses.length >= 3) {
+			await showError('You can only have up to 3 addresses', 'Address Limit Reached');
+			return;
 		}
-	});
 
-	let hasDetails = false;
-	async function handleSubmit() {
 		const shippingData = {
-			user_id: $authStore.user?.id,
 			email: formData.email,
 			first_name: formData.fname,
 			last_name: formData.lname,
@@ -198,21 +225,20 @@
 		};
 
 		try {
-			await shippingStore.store(shippingData);
-			await showSuccess('Shipping information saved successfully', 'Success');
-			existingInfo = { ...formData };
-			hasExistingShipping = true;
-			isEditAddress = false;
-			hasDetails = true;
+			await shippingStore.addAddress($currentUser.id, shippingData);
+			await showSuccess('New address added successfully!', 'Success');
+			// Refresh the page
+			window.location.reload();
 		} catch (error) {
-			console.error('Error saving shipping info:', error);
-			await showError('Failed to save shipping information', 'Error');
+			console.error('Error adding address:', error);
+			await showError('Failed to add address', 'Error');
 		}
 	}
 
-	async function handleUpdateButton() {
+	// Update Existing Address
+	async function handleUpdateAddress() {
 		const shippingData = {
-			user_id: $authStore.user?.id,
+			user_id: $currentUser.id,
 			email: formData.email,
 			first_name: formData.fname,
 			last_name: formData.lname,
@@ -225,13 +251,14 @@
 		};
 
 		try {
-			await shippingStore.update($authStore.user?.id, shippingData);
-			await showSuccess('Shipping information updated successfully', 'Success');
-			existingInfo = { ...formData };
-			isEditAddress = false;
+			await shippingStore.updateAddress($currentUser.id, shippingData);
+			await showSuccess('Address updated successfully!', 'Success');
+			cancelEdit();
+			// Refresh addresses
+			await shippingStore.fetchByUserId($currentUser.id);
 		} catch (error) {
-			console.error('Error updating shipping info:', error);
-			await showError('Failed to update shipping information', 'Error');
+			console.error('Error updating address:', error);
+			await showError('Failed to update address', 'Error');
 		}
 	}
 </script>
@@ -330,7 +357,7 @@
 
 				<!-- if has info -->
 				<!-- Info section -->
-				{#if hasExistingShipping}
+				{#if hasExistingShipping && userAddresses.length > 0}
 					<div class="gap-1 text-left p-7 pl-10 pt-0 w-full flex flex-col">
 						<p>Your Info</p>
 						<!-- 1st row -->
@@ -338,24 +365,24 @@
 							<div class="flex flex-col gap-2">
 								<label for="name" class="text-sm">Name</label>
 								<p id="name" class="text-gray-600 font-bold text-md">
-									{formData.fname.charAt(0).toUpperCase() + formData.fname.slice(1)}
-									{formData.lname.charAt(0).toUpperCase() + formData.lname.slice(1)}
+									{userAddresses[0].first_name.charAt(0).toUpperCase() + userAddresses[0].first_name.slice(1)}
+									{userAddresses[0].last_name.charAt(0).toUpperCase() + userAddresses[0].last_name.slice(1)}
 								</p>
 							</div>
 							<div class="flex flex-col gap-2 text-sm">
 								<label for="email">Email</label>
-								<p id="email" class="text-gray-600 font-bold text-md">{formData.email}</p>
+								<p id="email" class="text-gray-600 font-bold text-md">{userAddresses[0].email}</p>
 							</div>
 						</div>
 						<!-- 2nd row -->
 						<div class="flex flex-row gap-10 mt-2">
 							<div class="flex flex-col gap-2 text-sm">
 								<label for="phone">Phone</label>
-								<p id="phone" class="text-gray-600 font-bold text-md">{formData.phone}</p>
+								<p id="phone" class="text-gray-600 font-bold text-md">{userAddresses[0].phone}</p>
 							</div>
 							<div class="flex flex-col gap-2 text-sm">
 								<label for="address">Address</label>
-								<p id="address" class="text-gray-600 font-bold text-md">{formData.address}</p>
+								<p id="address" class="text-gray-600 font-bold text-md">{userAddresses[0].address}</p>
 							</div>
 						</div>
 						<!-- 3rd row -->
@@ -372,7 +399,37 @@
 				class="flex flex-col justify-start items-center content-center text-left gap-4 min-h-[500px] max-w-[75%] bg-black text-white rounded-3xl"
 			>
 				{#if hasOrders}
-					<h1 class="p-10 pb-0 font-bold text-3xl w-full">Your total orders.</h1>
+					<h1 class="p-10 pb-0 font-bold text-3xl w-full pl-6">Your total orders.</h1>
+					<hr class="border-[1] text-white w-[90%] text-center" />
+					<!-- Orders List -->
+					{#each orders as order}
+						<div class="w-full p-6">
+							<h2 class="text-xl font-bold mb-2">Order # {order.id}</h2>
+							<p class="text-gray-400 mb-4">
+								Placed on: {new Date(order.order_date).toLocaleDateString()}
+							</p>
+							<!-- Order Items -->
+							{#each order.items as item}
+								<div class="flex justify-between items-center mb-2">
+									<div>
+										<p class="font-medium">
+											{item.menu_item_name} x {item.quantity}
+										</p>
+										<p class="text-gray-400 text-sm">
+											₱ {item.menu_item_price} each
+										</p>
+									</div>
+									<p class="font-bold">₱ {item.menu_item_price * item.quantity}</p>
+								</div>
+							{/each}
+							<!-- Order Total -->
+							<div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-700">
+								<p class="font-bold text-lg">Total:</p>
+								<p class="font-extrabold text-lg">₱ {order.total_amount}</p>
+							</div>
+						</div>
+						<hr class="border-[1] text-white w-[90%] text-center" />
+					{/each}
 				{:else}
 					<h1 class="p-10 pb-0 font-bold text-3xl w-full">You have no orders yet.</h1>
 					<p class="text-gray-600">Start shopping now and come back to view your orders here.</p>
@@ -385,107 +442,74 @@
 				<!-- if has address -->
 				{#if hasExistingShipping}
 					<h1 class="p-10 pb-0 font-bold text-3xl w-full">
-						Your addresses, {existingInfo.fname.charAt(0).toUpperCase() +
-							existingInfo.fname.slice(1)}
-						{existingInfo.lname.charAt(0).toUpperCase() + existingInfo.lname.slice(1)}
+						Your addresses, {userAddresses[0]?.first_name.charAt(0).toUpperCase() +
+							userAddresses[0]?.first_name.slice(1)}
+						{userAddresses[0]?.last_name.charAt(0).toUpperCase() + userAddresses[0]?.last_name.slice(1)}
 					</h1>
 					<hr class="border-[1] text-white w-[90%] text-center" />
 
-					<!-- Type of Address -->
-					<div class="gap-1 text-left p-7 pl-10 pt-0 w-full flex flex-col">
-						<h2 class="font-medium w-full">Default Address</h2>
-						<div class="w-full flex flex-row items-center justify-between">
-							<p class="text-gray-600">
-								{existingInfo.fname.charAt(0).toUpperCase() + existingInfo.fname.slice(1)}
-								{existingInfo.lname.charAt(0).toUpperCase() + existingInfo.lname.slice(1)}
-							</p>
-							<button
-								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-15 pl-15 max-w-[136px] max-h-[23px] rounded-full
-                                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent"
-								on:click={editAddress}
-							>
-								EDIT
-							</button>
+					<!-- Display all addresses dynamically -->
+					{#each userAddresses as address, index}
+						<div class="gap-1 text-left p-7 pl-10 pt-0 w-full flex flex-col">
+							<h2 class="font-medium w-full">{index === 0 ? 'Default Address' : `Address ${index + 1}`}</h2>
+							<div class="w-full flex flex-row items-center justify-between">
+								<p class="text-gray-600">
+									{address.first_name.charAt(0).toUpperCase() + address.first_name.slice(1)}
+									{address.last_name.charAt(0).toUpperCase() + address.last_name.slice(1)}
+								</p>
+								<button
+									class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-15 pl-15 max-w-[136px] max-h-[23px] rounded-full
+									hover:bg-mabini-dark-brown hover:text-white hover:border-transparent"
+									on:click={() => editAddress(address)}
+								>
+									EDIT
+								</button>
+							</div>
+
+							<div class="w-full flex flex-row items-center justify-between">
+								<p class="w-full text-gray-600">
+									{address.address}{#if address.apartment_suite_etc}, {address.apartment_suite_etc}{/if}, {address.city}, {address.region}
+								</p>
+								<button
+									class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-13 pl-13 max-w-[136px] max-h-[23px] rounded-full
+									hover:bg-red-500 hover:text-white hover:border-transparent"
+									on:click={() => deleteAddress(address.id)}>DELETE</button
+								>
+							</div>
 						</div>
+						{#if index < userAddresses.length - 1}
+							<hr class="border-[1] text-white w-[90%] text-center" />
+						{/if}
+					{/each}
 
-						<div class="w-full flex flex-row items-center justify-between">
-							<p class="w-full text-gray-600">
-								{existingInfo.address},
-								{#if existingInfo.apartment}
-									, {existingInfo.apartment}
-								{/if}
-								{existingInfo.city}
-							</p>
-							<button
-								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-13 pl-13 max-w-[136px] max-h-[23px] rounded-full
-                                hover:bg-red-500 hover:text-white hover:border-transparent"
-								on:click={deleteAddress}>DELETE</button
-							>
-						</div>
-					</div>
-
-					<!-- OTHER ADDRESSES -->
-					<!-- Display an another address using each with a maximum of 2 other addresses -->
-
-					<!-- Add new Address button then check it if the other address is equal to 2  -->
-					<hr class="border-[1] text-white w-[90%] text-center" />
-
-					<!-- Another Address  -->
-					<!--! TODO: Change it into a dynamic one -->
-					<div class="gap-1 text-left p-7 pl-10 pt-0 w-full flex flex-col">
-						<h2 class="font-medium w-full">Another Address</h2>
-						<div class="w-full flex flex-row items-center justify-between">
-							<p class="text-gray-600">
-								{existingInfo.fname.charAt(0).toUpperCase() + existingInfo.fname.slice(1)}
-								{existingInfo.lname.charAt(0).toUpperCase() + existingInfo.lname.slice(1)}
-							</p>
-							<button
-								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-15 pl-15 max-w-[136px] max-h-[23px] rounded-full
-                                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent"
-								on:click={editAddress}
-							>
-								EDIT
-							</button>
-						</div>
-
-						<div class="w-full flex flex-row items-center justify-between">
-							<p class="w-full text-gray-600">
-								{existingInfo.address},
-								{#if existingInfo.apartment}
-									, {existingInfo.apartment}
-								{/if}
-								{existingInfo.city}
-							</p>
-							<button
-								class="cursor-pointer w-auto text-sm font-bold flex items-center justify-center text-center border-1 border-white p-2 pr-13 pl-13 max-w-[136px] max-h-[23px] rounded-full
-                                hover:bg-red-500 hover:text-white hover:border-transparent"
-								on:click={deleteAddress}>DELETE</button
-							>
-						</div>
-					</div>
 					<!-- Button for adding new address -->
-					<!-- TODO: READJUST THIS SO THAT ITLL BE GONE WHEN THE EDIT BUTTON IS CLICKED -->
-
-					{#if !isEditAddress}
+					{#if !isEditAddress && !addNewAddress}
+						<hr class="border-[1] text-white w-[90%] text-center" />
 						<div class="justify-start p-10 pt-0 flex w-full">
-							<button
-								class="text-m cursor-pointer max-w-[213px] max-h-[36px] px-5 font-bold uppercase border-[1px] border-white rounded-full
-                hover:bg-mabini-dark-brown hover:text-white hover:border-transparent
-                "
-							>
-								Add New Address
-							</button>
+							{#if hasReachedAddressLimit}
+								<p class="text-gray-500 text-sm">You have reached the maximum limit of 3 addresses</p>
+							{:else}
+								<button
+									on:click={showAddNewAddressForm}
+									class="text-m cursor-pointer max-w-[213px] max-h-[36px] px-5 font-bold uppercase border-[1px] border-white rounded-full
+									hover:bg-mabini-dark-brown hover:text-white hover:border-transparent"
+								>
+									Add New Address
+								</button>
+							{/if}
 						</div>
 					{/if}
-					<!-- If Edit is clicked -->
-					{#if isEditAddress && hasExistingShipping && !addNewAddress}
+					<!-- If Edit or Add New is clicked -->
+					{#if (isEditAddress || addNewAddress) && hasExistingShipping}
 						<div class="p-15 pt-0 justify-start items-start text-left w-full gap-4 flex flex-col">
-							<h2 class="w-full text-left font-bold text-2xl">EDIT INFORMATION</h2>
+							<h2 class="w-full text-left font-bold text-2xl">
+								{isEditAddress ? 'EDIT ADDRESS' : 'ADD NEW ADDRESS'}
+							</h2>
 							<h3 class="text-red-800">* indicates required field</h3>
 
 							<!-- svelte-ignore component_name_lowercase -->
 							<form
-								on:submit|preventDefault={handleUpdateButton}
+								on:submit|preventDefault={isEditAddress ? handleUpdateAddress : handleAddNewAddress}
 								class="w-full max-w-md rounded-xl space-y-4"
 							>
 								<!-- form fields here -->
@@ -588,7 +612,7 @@
 										class="text-xs cursor-pointer min-w-[220px] max-w-[320px] h-[40px] px-6 font-bold uppercase border-[1px] border-white rounded-full
 									hover:bg-mabini-dark-brown hover:text-white hover:border-transparent flex items-center justify-center"
 									>
-										<span class="mr-2"><i class="fa-classic fa-chevron-left"></i></span> Update Information
+										{isEditAddress ? 'Update Address' : 'Add Address'}
 									</button>
 									<button
 										type="button"
@@ -611,7 +635,7 @@
 					<h1 class="p-10 pb-0 font-bold text-3xl text-left">You have no saved addresses.</h1>
 					<!-- svelte-ignore component_name_lowercase -->
 					<form
-						on:submit|preventDefault={handleSubmit}
+						on:submit|preventDefault={handleAddNewAddress}
 						class="w-full max-w-md rounded-xl shadow-md space-y-4"
 					>
 						<div>
@@ -716,18 +740,10 @@
 
 						<div class="flex flex-row gap-30 mt-2 mb-20">
 							<button
-								type="button"
-								on:click={cancelEdit}
-								class="text-sm cursor-pointer w-fit p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
-							>
-								<span><i class="fa-classic fa-chevron-left"></i></span> Cancel
-							</button>
-							<button
 								type="submit"
 								class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
-								on:click={handleSubmit}
 							>
-								Save Information
+								Save Address
 							</button>
 						</div>
 					</form>
