@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { form } from '$app/server';
 	import { ordersStore, orders, menuStore, menuItems } from '$lib/stores';
+	import { authStore } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { showError, showSuccess } from '$lib/utils/sweetalert';
 
@@ -140,6 +142,19 @@
 		month: 'long',
 		day: 'numeric'
 	});
+
+	async function handleLogout() {
+		try {
+			authStore.logout();
+			await showSuccess('Logged out successfully', 'Goodbye!');
+			setTimeout(() => {
+				goto('/login');
+			}, 1500);
+		} catch (err) {
+			console.error('Error logging out:', err);
+			await showError('Failed to logout. Please try again.');
+		}
+	}
 </script>
 
 <div class="flex min-h-screen min-h-full items-stretch">
@@ -195,7 +210,7 @@
 				type="button"
 				class="w-full justify-start items-center flex flex-row gap-7 cursor-pointer active:border-1 active:border-white active:rounded-md p-2"
 				aria-label="Logout"
-				onclick={() => (selectedTab = 'logout')}
+				onclick={handleLogout}
 			>
 				<img src="/admin/logout.svg" alt="Logout Icon" class="w-10 h-10" />
 				<span class="flex flex-col items-center justify-center text-center text-lg">Logout</span>
@@ -499,19 +514,6 @@
 							</form>
 						</div>
 					</div>
-				</div>
-			</div>
-		{:else if selectedTab === 'logout'}
-			<!-- Logout Content -->
-			<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
-				<!-- Black Header -->
-				<div class="w-full h-[10%] bg-black rounded-t-2xl">
-					<!-- Title -->
-					<h1 class="text-white text-2xl p-5 text-start">Logout Section</h1>
-				</div>
-				<!-- White Content with border -->
-				<div class="w-full h-[90%] rounded-b-2xl">
-					<p class="p-5">Logout content goes here</p>
 				</div>
 			</div>
 		{/if}

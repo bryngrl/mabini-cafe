@@ -20,10 +20,21 @@
 			
 			if (result && result.token) {
 				localStorage.setItem('token', result.token);
-				await showSuccess('Login successful! Redirecting...', 'Welcome Back!');
-				setTimeout(() => {
-					goto('/');
-				}, 1500);
+				
+				// Check if user is admin
+				const isAdmin = result.info && result.info.role === 'admin';
+				
+				if (isAdmin) {
+					await showSuccess('Admin login successful! Redirecting to dashboard...', 'Welcome Back Admin!');
+					setTimeout(() => {
+						goto('/admin');
+					}, 1500);
+				} else {
+					await showSuccess('Login successful! Redirecting...', 'Welcome Back!');
+					setTimeout(() => {
+						goto('/');
+					}, 1500);
+				}
 			}
 		} catch (err: any) {
 			await showError(err.message || 'Login failed. Please check your credentials.', 'Login Failed');

@@ -37,7 +37,7 @@ class ShipInfo {
         $stmt = $this->conn->prepare("SELECT * FROM " . $this->table . " WHERE user_id = :user_id");
         $stmt->bindParam(":user_id", $user_id);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function create() {
