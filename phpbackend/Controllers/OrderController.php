@@ -135,27 +135,31 @@ class OrderController {
      *     )
      * )
      */
-    public function store() {
-        $data = json_decode(file_get_contents("php://input"), true);
+  public function store() {
+    $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!empty($data['user_id']) && !empty($data['total_amount']) && !empty($data['shipping_fee_id'])) {
+    if (!empty($data['user_id']) && !empty($data['total_amount']) && !empty($data['shipping_fee_id'])) {
 
-            $this->model->user_id = $data['user_id'];
-            $this->model->total_amount = $data['total_amount']+$this->shippingmodel->getShippingFeeById($data[$shipping_fee_id]);
-            $this->model->shipping_fee_id = $data['shipping_fee_id'];
+        $shipping_data = $this->shippingmodel->getShippingFeeById($data['shipping_fee_id']);
 
-            if ($this->model->create()) {
-                http_response_code(201);
-                echo json_encode(["message" => "Order created successfully"]);
-            } else {
-                http_response_code(500);
-                echo json_encode(["error" => "Failed to create order"]);
-            }
+      $shipping_fee = $shipping_data['fee']; 
+
+        $this->model->user_id = $data['user_id'];
+        $this->model->total_amount = $data['total_amount'] + $shipping_fee;
+        $this->model->shipping_fee_id = $data['shipping_fee_id'];
+
+        if ($this->model->create()) {
+            http_response_code(201);
+            echo json_encode(["message" => "Order created successfully"]);
         } else {
-            http_response_code(400);
-            echo json_encode(["error" => "user_id, total_amount, and shipping_fee_id required"]);
+            http_response_code(500);
+            echo json_encode(["error" => "Failed to create order"]);
         }
+    } else {
+        http_response_code(400);
+        echo json_encode(["error" => "user_id, total_amount, and shipping_fee_id required"]);
     }
+}
 
   /**
  * @OA\Put(
