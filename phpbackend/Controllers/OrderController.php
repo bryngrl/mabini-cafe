@@ -30,7 +30,8 @@ class OrderController {
      *                 @OA\Property(property="payment_status", type="string", example="Paid"),
      *                 @OA\Property(property="payment_method", type="string", example="Online"),
      *                 @OA\Property(property="shipping_fee_id", type="integer", example=2),
-     *                 @OA\Property(property="order_time", type="string", example="2025-10-18 10:25:00")
+     *                 @OA\Property(property="order_time", type="string", example="2025-10-18 10:25:00"),
+     *                 @OA\Property(property="message", type="string", example="please give to my mother")
      *             )
      *         )
      *     ),
@@ -65,7 +66,8 @@ class OrderController {
      *             @OA\Property(property="payment_status", type="string", example="Pending"),
      *             @OA\Property(property="payment_method", type="string", example="Cash"),
      *             @OA\Property(property="shipping_fee_id", type="integer", example=1),
-     *             @OA\Property(property="order_time", type="string", example="2025-10-18 14:00:00")
+     *             @OA\Property(property="order_time", type="string", example="2025-10-18 14:00:00"),
+     *             @OA\Property(property="message", type="string", example="please give to my mother")
      *         )
      *     ),
      *     @OA\Response(response=404, description="Order not found")
@@ -112,7 +114,8 @@ class OrderController {
      *             required={"user_id", "total_amount", "shipping_fee_id"},
      *             @OA\Property(property="user_id", type="integer", example=1),
      *             @OA\Property(property="total_amount", type="number", format="float", example=250.75),
-     *             @OA\Property(property="shipping_fee_id", type="integer", example=2)
+     *             @OA\Property(property="shipping_fee_id", type="integer", example=2),
+     *             @OA\Property(property="message", type="string", example="please give to my mother")
      *         )
      *     ),
      *     @OA\Response(
@@ -334,9 +337,16 @@ class OrderController {
 
       /**
  * @OA\Put(
- *     path="/mabini-cafe/phpbackend/routes/orders/setToOnline",
+ *     path="/mabini-cafe/phpbackend/routes/orders/setToOnline/{id}",
  *     tags={"Orders"},
  *     summary="set payment to Online",
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="unique id of order.",
+ *         @OA\Schema(type="integer", example=1)
+ *     ),
  *     @OA\Response(
  *         response=500,
  *         description="Internal Server Error"
