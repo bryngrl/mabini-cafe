@@ -12,6 +12,7 @@ class Order
     public $payment_status;
     public $payment_method;
     public $shipping_fee_id;
+    public $message;
 
     public function __construct($db)
     {
@@ -33,6 +34,7 @@ public function getAll()
             c.ship_name AS shipping_name,
             c.fee AS shipping_fee,
             a.created_at AS order_time
+            a.message
         FROM {$this->table} a
         JOIN users b ON a.user_id = b.id
         JOIN shipping_fee c ON a.shipping_fee_id = c.id
@@ -55,6 +57,7 @@ public function getById($id)
             a.shipping_fee_id,
             c.ship_name AS shipping_name,
             c.fee AS shipping_fee,
+            a.message
             a.created_at AS order_time
         FROM {$this->table} a
         JOIN users b ON a.user_id = b.id
@@ -81,6 +84,7 @@ public function getByCustomerId($customerId)
             a.shipping_fee_id,
             c.ship_name AS shipping_name,
             c.fee AS shipping_fee,
+            a.message
             a.created_at AS order_time
         FROM {$this->table} a
         JOIN users b ON a.user_id = b.id
@@ -132,12 +136,13 @@ public function getByCustomerId($customerId)
     public function create()
     {
         $stmt = $this->conn->prepare("
-            INSERT INTO {$this->table} (user_id, total_amount, shipping_fee_id) 
-            VALUES (:user_id, :total_amount, :shipping_fee_id)
+            INSERT INTO {$this->table} (user_id, total_amount, shipping_fee_id,message) 
+            VALUES (:user_id, :total_amount, :shipping_fee_id,:message)
         ");
         $stmt->bindParam(":user_id", $this->user_id);
         $stmt->bindParam(":total_amount", $this->total_amount);
         $stmt->bindParam(":shipping_fee_id", $this->shipping_fee_id);
+         $stmt->bindParam(":message", $this->message);
         return $stmt->execute();
     }
 

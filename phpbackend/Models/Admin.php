@@ -12,7 +12,7 @@
 
     public function __construct($db)
         {
-            $this->conn = new $db ;
+            $this->conn =  $db ;
         }
 
 

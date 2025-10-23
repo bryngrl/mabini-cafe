@@ -365,8 +365,8 @@ public function store() {
 
 /**
  * @OA\Post(
- *    path="/mabini-cafe/phpbackend/routes/users/sendotp",
- *    summary="Sends OTP",
+ *    path="/mabini-cafe/phpbackend/routes/users/forgotpasswordotp",
+ *    summary="Sends OTP for forgot password",
  *    description="Sends OTP to email",
  *    tags={"User"},
  *    @OA\RequestBody(
@@ -393,7 +393,7 @@ public function store() {
  * )
  */
 
-   public function sendOTP(){
+   public function forgotpassOTP(){
      $data = json_decode(file_get_contents("php://input"), true);
      $email=$data['email'];
      $user = $this->model->findByEmail($email);
@@ -420,6 +420,54 @@ public function store() {
 
          }
 
+/**
+ * @OA\Post(
+ *    path="/mabini-cafe/phpbackend/routes/users/signupotp",
+ *    summary="Sends OTP for signup",
+ *    description="Sends OTP to email for signup",
+ *    tags={"User"},
+ *    @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"email"},
+ *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
+ *         )
+ *     ),
+ *    @OA\Response(
+ *        response=200,
+ *        description="OTP sent successfully",
+ *        @OA\JsonContent(
+ *            @OA\Property(property="message", type="string", example="OTP sent successfully")
+ *        )
+ *    ),
+ *    @OA\Response(
+ *        response=400,
+ *        description="Username and password required or invalid email",
+ *        @OA\JsonContent(
+ *            @OA\Property(property="error", type="string", example="Username and password required")
+ *        )
+ *    )
+ * )
+ */
+
+public function signupOTP(){
+     $data = json_decode(file_get_contents("php://input"), true);
+     $email=$data['email'];
+
+       $token = $this->otp->generate_otp($email); 
+          $otp = $token["otp"];
+           
+          $sendOTP = $this->mail->sendOTP($email,$otp);
+             if($sendOTP && $otp !=null){
+             echo json_encode([
+                "message" => "otp sent successfully",
+                "token" =>$token["token"]
+             ]);
+             }else{
+                 http_response_code(400);
+                echo json_encode(["error"=>"failed to send otp"]);
+             }
+}
 
 /**
  * @OA\Post(

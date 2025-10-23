@@ -15,6 +15,7 @@ class ShipInfo {
     public $city;
     public $region;
     public $phone;
+    public $default_address; // boolean (0 or 1)
 
     public function __construct($db) {
         $this->conn = $db;
@@ -43,8 +44,8 @@ class ShipInfo {
     public function create() {
         $stmt = $this->conn->prepare("
             INSERT INTO " . $this->table . " 
-            (user_id, email, first_name, last_name, address, apartment_suite_etc, postal_code, city, region, phone)
-            VALUES (:user_id, :email, :first_name, :last_name, :address, :apartment_suite_etc, :postal_code, :city, :region, :phone)
+            (user_id, email, first_name, last_name, address, apartment_suite_etc, postal_code, city, region, phone, default_address)
+            VALUES (:user_id, :email, :first_name, :last_name, :address, :apartment_suite_etc, :postal_code, :city, :region, :phone, :default_address)
         ");
 
         $stmt->bindParam(':user_id', $this->user_id);
@@ -57,6 +58,7 @@ class ShipInfo {
         $stmt->bindParam(':city', $this->city);
         $stmt->bindParam(':region', $this->region);
         $stmt->bindParam(':phone', $this->phone);
+        $stmt->bindParam(':default_address', $this->default_address);
 
         return $stmt->execute();
     }
@@ -73,7 +75,8 @@ class ShipInfo {
                 postal_code = :postal_code,
                 city = :city, 
                 region = :region, 
-                phone = :phone 
+                phone = :phone,
+                default_address = :default_address
             WHERE user_id = :user_id
         ");
 
@@ -86,6 +89,7 @@ class ShipInfo {
         $stmt->bindParam(':city', $this->city);
         $stmt->bindParam(':region', $this->region);
         $stmt->bindParam(':phone', $this->phone);
+        $stmt->bindParam(':default_address', $this->default_address);
         $stmt->bindParam(':user_id', $this->user_id);
 
         return $stmt->execute();
@@ -97,4 +101,3 @@ class ShipInfo {
         return $stmt->execute();
     }
 }
-

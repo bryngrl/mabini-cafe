@@ -15,10 +15,13 @@ switch ($method) {
         break;
 
     case 'POST':
-        if($subresource == 'sendotp')
-        $controller->sendOTP();
+        if($subresource == 'forgotpasswordotp')
+        $controller->forgotpassOTP();
         else if($subresource == 'verifyotp')
         $controller->verify_otp();
+        else if($subresource == 'signupotp'){
+            $controller->signupOTP();
+        }
        else
         $controller->store();
         break;
