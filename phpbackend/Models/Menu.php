@@ -118,7 +118,6 @@ class Menu {
            description=:description, 
            price=:price, 
            category_id=:category_id, 
-           image_path=:image_path,
            isAvailable=:isAvailable 
        WHERE id=:id"
     );
@@ -127,10 +126,17 @@ class Menu {
     $stmt->bindParam(':description', $this->description);
     $stmt->bindParam(':price', $this->price);
     $stmt->bindParam(':category_id', $this->category_id);
-    $stmt->bindParam(':image_path', $this->image_path);
     $stmt->bindParam(':isAvailable', $this->isAvailable);
     return $stmt->execute();
   }
+public function updateImage(){
+    $stmt = $this->conn->prepare(
+        "UPDATE ".$this->table." SET image_path=:image_path WHERE id=:id"
+    );
+    $stmt->bindParam(':id', $this->id);
+    $stmt->bindParam(':image_path', $this->image_path);
+    return $stmt->execute();
+}
 
   // DELETE menu item
   public function delete(){

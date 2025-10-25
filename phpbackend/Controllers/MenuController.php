@@ -162,13 +162,12 @@ class MenuController
             echo json_encode(["error" => "Failed to create menu"]);
         }
     }
-
-  /**
- * @OA\Put(
+/**
+ * @OA\PUT(
  *     path="/mabini-cafe/phpbackend/routes/menu/{id}",
  *     tags={"Menu/Products"},
- *     summary="Update an existing menu item",
- *     description="Updates a menu item by ID. Supports updating availability.",
+ *     summary="Update menu information",
+ *     description="Updates menu info like name, description, price, category, and availability.",
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
@@ -178,67 +177,105 @@ class MenuController
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\MediaType(
- *             mediaType="multipart/form-data",
+ *             mediaType="application/json",
  *             @OA\Schema(
  *                 required={"name","price"},
  *                 @OA\Property(property="name", type="string", example="Iced Latte"),
  *                 @OA\Property(property="description", type="string", example="Chilled espresso with milk and ice"),
  *                 @OA\Property(property="price", type="number", format="float", example=135.00),
  *                 @OA\Property(property="category_id", type="integer", example=3),
- *                 @OA\Property(property="isAvailable", type="boolean", example=false, description="Mark if the menu item is available"),
+ *                 @OA\Property(property="isAvailable", type="boolean", example=true)
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(response=200, description="Menu info updated successfully"),
+ *     @OA\Response(response=400, description="Validation error"),
+ *     @OA\Response(response=500, description="Failed to update menu info")
+ * )
+ */
+public function updateInfo($id)
+{
+    $this->model->id = $id;
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    $this->model->name = $input['name'] ?? null;
+    $this->model->description = $input['description'] ?? null;
+    $this->model->price = isset($input['price']) ? floatval($input['price']) : null;
+    $this->model->category_id = isset($input['category_id']) ? intval($input['category_id']) : null;
+    $this->model->isAvailable = isset($input['isAvailable']) ? (int)filter_var($input['isAvailable'], FILTER_VALIDATE_BOOLEAN) : 1;
+
+    if (!$this->model->name || $this->model->price === null) {
+        http_response_code(400);
+        echo json_encode(["error" => "Name and price are required"]);
+        return;
+    }
+
+    if ($this->model->update()) {
+        http_response_code(200);
+        echo json_encode(["message" => "Menu info updated successfully"]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to update menu info"]);
+    }
+}
+
+/**
+ * @OA\POST(
+ *     path="/mabini-cafe/phpbackend/routes/menu/image?menu_id={menu_id}",
+ *     tags={"Menu/Products"},
+ *     summary="Update menu image",
+ *     description="Updates only the menu image.",
+ *     @OA\Parameter(
+ *         name="menu_id",
+ *         in="query",
+ *         required=true,
+ *         @OA\Schema(type="integer", example=5)
+ *     ),
+ *     @OA\RequestBody(
+ *         @OA\MediaType(
+ *             mediaType="multipart/form-data",
+ *             @OA\Schema(
+ *                 required={"image"},
  *                 @OA\Property(property="image", type="string", format="binary")
  *             )
  *         )
  *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Menu updated successfully"
- *     ),
- *     @OA\Response(
- *         response=400,
- *         description="Validation error: Name and price are required"
- *     ),
- *     @OA\Response(
- *         response=500,
- *         description="Failed to update menu item"
- *     )
+ *     @OA\Response(response=200, description="Menu image updated successfully"),
+ *     @OA\Response(response=400, description="No image uploaded"),
+ *     @OA\Response(response=500, description="Failed to update image")
  * )
  */
-    public function update($id)
-    {
-        $this->model->id = $id;
-        $this->model->name = $_POST['name'] ?? null;
-        $this->model->description = $_POST['description'] ?? null;
-        $this->model->price = $_POST['price'] ?? null;
-        $this->model->category_id = $_POST['category_id'] ?? null;
-        $this->model->isAvailable = isset($_POST['isAvailable']) ? filter_var($_POST['isAvailable'], FILTER_VALIDATE_BOOLEAN) : true;
+public function updateImage($id)
+{
+    $this->model->id = $id;
 
-        if (empty($this->model->name) || empty($this->model->price)) {
-            http_response_code(400);
-            echo json_encode(["error" => "Name and price are required"]);
-            return;
-        }
+    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== 0) {
+        http_response_code(400);
+        echo json_encode(["error" => "No image uploaded"]);
+        return;
+    }
 
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-            $image = $_FILES['image'];
-            $imageName = time() . "_" . $image['name'];
-            $targetDir = "../uploads/menu/";
-            if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
-            $targetFile = $targetDir . $imageName;
+    $image = $_FILES['image'];
+    $imageName = time() . "_" . basename($image['name']);
+    $targetDir = "../uploads/menu/";
+    if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
+    $targetFile = $targetDir . $imageName;
 
-            if (move_uploaded_file($image['tmp_name'], $targetFile)) {
-                $this->model->image_path = "uploads/menu/" . $imageName;
-            }
-        }
-
-        if ($this->model->update()) {
+    if (move_uploaded_file($image['tmp_name'], $targetFile)) {
+        $this->model->image_path = "uploads/menu/" . $imageName;
+        if ($this->model->updateImage()) {
             http_response_code(200);
-            echo json_encode(["message" => "Menu updated successfully"]);
+            echo json_encode(["message" => "Menu image updated successfully"]);
         } else {
             http_response_code(500);
-            echo json_encode(["error" => "Failed to update menu"]);
+            echo json_encode(["error" => "Failed to update image"]);
         }
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Failed to upload image"]);
     }
+}
+
 
   /**
  * @OA\Delete(

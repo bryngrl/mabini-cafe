@@ -18,12 +18,19 @@ switch ($method) {
         break;
 
     case 'POST':
+
+        $menu_id = $_GET['menu_id'] ?? null;
+             $menu_id = $_GET['menu_id'] ?? $_POST['menu_id'] ?? null;
+     if ($menu_id) 
+        $controller->updateImage($menu_id);
+         else
         $controller->store();
         break;
 
     case 'PUT':
+     
         if ($id) {
-            $controller->update($id);
+            $controller->updateInfo($id);
         }
         break;
 
