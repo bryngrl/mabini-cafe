@@ -1,6 +1,7 @@
 import { writable, derived } from 'svelte/store';
 import { 
-	sendOtp,
+	sendOtpForgotPassword,
+	sendOtpSignup,
 	verifyOtp,
 	resetPassword
 } from '$lib/utils/fetcher';
@@ -10,9 +11,10 @@ function createOtpStore() {
 		otpSent: false,
 		otpVerified: false,
 		email: null,
+		token: null, 
 		loading: false,
 		error: null,
-		step: 'email' // email, otp, password, success
+		step: 'email' 
 	});
 
 	return {
@@ -22,7 +24,7 @@ function createOtpStore() {
 		 * Send OTP to email for password reset
 		 * @param {string} email - Email address to send OTP to
 		 */
-		sendOtp: async (email) => {
+		sendOtpForgotPassword: async (email) => {
 			update(state => ({ 
 				...state, 
 				loading: true, 
@@ -31,10 +33,43 @@ function createOtpStore() {
 			}));
 			
 			try {
-				const result = await sendOtp(email);
+				const result = await sendOtpForgotPassword(email);
 				update(state => ({ 
 					...state, 
 					otpSent: true,
+					token: result.token, // Store the token
+					loading: false,
+					step: 'otp'
+				}));
+				return result;
+			} catch (error) {
+				update(state => ({ 
+					...state, 
+					loading: false, 
+					error: error instanceof Error ? error.message : 'Failed to send OTP'
+				}));
+				throw error;
+			}
+		},
+
+		/**
+		 * Send OTP to email for signup verification
+		 * @param {string} email - Email address to send OTP to
+		 */
+		sendOtpSignup: async (email) => {
+			update(state => ({ 
+				...state, 
+				loading: true, 
+				error: null,
+				email: email 
+			}));
+			
+			try {
+				const result = await sendOtpSignup(email);
+				update(state => ({ 
+					...state, 
+					otpSent: true,
+					token: result.token, 
 					loading: false,
 					step: 'otp'
 				}));
@@ -51,14 +86,14 @@ function createOtpStore() {
 
 		/**
 		 * Verify OTP code
-		 * @param {string} email - Email address
+		 * @param {string} token - JWT token from sendOtp
 		 * @param {string} otp - OTP code to verify
 		 */
-		verifyOtp: async (email, otp) => {
+		verifyOtp: async (token, otp) => {
 			update(state => ({ ...state, loading: true, error: null }));
 			
 			try {
-				const result = await verifyOtp(email, otp);
+				const result = await verifyOtp(token, otp);
 				update(state => ({ 
 					...state, 
 					otpVerified: true,
@@ -110,6 +145,7 @@ function createOtpStore() {
 				otpSent: false,
 				otpVerified: false,
 				email: null,
+				token: null,
 				loading: false,
 				error: null,
 				step: 'email'
@@ -159,3 +195,4 @@ export const otpStep = derived(otpStore, $otp => $otp.step);
 export const otpSent = derived(otpStore, $otp => $otp.otpSent);
 export const otpVerified = derived(otpStore, $otp => $otp.otpVerified);
 export const otpEmail = derived(otpStore, $otp => $otp.email);
+export const otpToken = derived(otpStore, $otp => $otp.token);

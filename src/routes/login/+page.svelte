@@ -1,5 +1,3 @@
-<!-- TODO: FETCH URL AND REDIRECT TSAKA STORE NG TOKEN -->
-
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores/auth';
@@ -16,25 +14,47 @@
 		loading = true;
 
 		try {
-			const result = await authStore.loginUser(email, password);
 			
-			if (result && result.token) {
-				localStorage.setItem('token', result.token);
-				
-				// Check if user is admin
-				const isAdmin = result.info && result.info.role === 'admin';
-				
-				if (isAdmin) {
+			try {
+				const adminResult = await authStore.loginAdmin(email, password);
+				if (adminResult && adminResult.info) {
+					
+					const token = adminResult.token || localStorage.getItem('token');
+					if (token) {
+						localStorage.setItem('token', token);
+					}
+					localStorage.setItem('user', JSON.stringify({
+						...adminResult.info,
+						role: 'admin'
+					}));
+					
 					await showSuccess('Admin login successful! Redirecting to dashboard...', 'Welcome Back Admin!');
 					setTimeout(() => {
 						goto('/admin');
 					}, 1500);
-				} else {
-					await showSuccess('Login successful! Redirecting...', 'Welcome Back!');
-					setTimeout(() => {
-						goto('/');
-					}, 1500);
+					return;
 				}
+			} catch (adminErr) {
+				
+				console.log('Not an admin, trying user login...');
+			}
+
+		
+			const userResult = await authStore.loginUser(email, password);
+			if (userResult && userResult.token && userResult.info) {
+			
+				localStorage.setItem('token', userResult.token);
+				localStorage.setItem('user', JSON.stringify({
+					...userResult.info,
+					role: 'user' 
+				}));
+				
+				await showSuccess('Login successful! Redirecting...', 'Welcome Back!');
+				setTimeout(() => {
+					goto('/');
+				}, 1500);
+			} else {
+				throw new Error('Invalid login response from server');
 			}
 		} catch (err: any) {
 			await showError(err.message || 'Login failed. Please check your credentials.', 'Login Failed');
@@ -64,7 +84,7 @@
 
 		if (resetEmail) {
 			try {
-				await otpStore.sendOtp(resetEmail);
+				await otpStore.sendOtpForgotPassword(resetEmail);
 				await showSuccess('Verification code sent! Check your email.', 'Code Sent');
 				goto(`/forgot-password?email=${encodeURIComponent(resetEmail)}`);
 			} catch (err: any) {
@@ -139,14 +159,19 @@
 	}
 	.container {
 		background: white;
-		padding: 2rem 2.5rem;
+		padding: 1.5rem;
 		border-radius: 1rem;
 		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-		min-width: 350px;
+		width: 90%;
 		max-width: 500px;
-		height: 400px;
-		width: 100%;
+		min-height: 400px;
 		text-align: center;
+	}
+	@media (min-width: 640px) {
+		.container {
+			padding: 2rem 2.5rem;
+			width: 100%;
+		}
 	}
 	.page-header {
 		text-align: center;

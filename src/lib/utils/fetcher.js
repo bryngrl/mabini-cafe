@@ -371,7 +371,9 @@ export async function createOrder(orderData) {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 			user_id: orderData.user_id,
-			total_amount: orderData.total_amount
+			total_amount: orderData.total_amount,
+			shipping_fee_id: orderData.shipping_fee_id,
+			message: orderData.message
 		})
 	});
 }
@@ -671,37 +673,49 @@ export async function addNewShippingInfo(userId, shippingData) {
 // OTP
 // ======
 
-/** Send OTP to email
+/** Send OTP to email for password reset
  * @param {string} email - Email address to send OTP to
  */
-export async function sendOtp(email) {
-	return apiFetch('/users/sendotp', {
+export async function sendOtpForgotPassword(email) {
+	return apiFetch('/users/forgotpasswordotp', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ email })
 	});
 }
-/**
- * Verify OTP for password reset
- * @param {string} email - The user's email
- * @param {string} otp - The OTP to verify
+
+/** Send OTP to email for signup verification
+ * @param {string} email - Email address to send OTP to
  */
-export async function verifyOtp(email, otp) {
+export async function sendOtpSignup(email) {
+	return apiFetch('/users/signupotp', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ email })
+	});
+}
+
+/**
+ * Verify OTP code
+ * @param {string} token - JWT token received from sendOtp
+ * @param {string} otp - The OTP code to verify
+ */
+export async function verifyOtp(token, otp) {
 	return apiFetch('/users/verifyotp', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ email, otp })
+		body: JSON.stringify({ token, otp })
 	});
 }
 /**
  * Reset password after OTP verification
  * @param {string} email - The user's email
- * @param {string} newPassword - The new password to set
+ * @param {string} password - The new password to set (backend expects 'password', not 'newPassword')
  */
-export async function resetPassword(email, newPassword) {
+export async function resetPassword(email, password) {
 	return apiFetch('/users/changepassword', {
-		method: 'POST',
+		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ email, newPassword })
+		body: JSON.stringify({ email, password })
 	});
 }

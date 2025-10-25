@@ -33,7 +33,7 @@ public function getAll()
             a.shipping_fee_id,
             c.ship_name AS shipping_name,
             c.fee AS shipping_fee,
-            a.created_at AS order_time
+            a.created_at AS order_time,
             a.message
         FROM {$this->table} a
         JOIN users b ON a.user_id = b.id
@@ -57,7 +57,7 @@ public function getById($id)
             a.shipping_fee_id,
             c.ship_name AS shipping_name,
             c.fee AS shipping_fee,
-            a.message
+            a.message,
             a.created_at AS order_time
         FROM {$this->table} a
         JOIN users b ON a.user_id = b.id
@@ -84,7 +84,7 @@ public function getByCustomerId($customerId)
             a.shipping_fee_id,
             c.ship_name AS shipping_name,
             c.fee AS shipping_fee,
-            a.message
+            a.message,
             a.created_at AS order_time
         FROM {$this->table} a
         JOIN users b ON a.user_id = b.id
@@ -184,7 +184,7 @@ public function getByCustomerId($customerId)
     {
         $stmt = $this->conn->prepare("
             UPDATE {$this->table} 
-            SET status = 'Canceled' 
+            SET status = 'Cancelled' 
             WHERE id = :id
         ");
         $stmt->bindParam(":id", $id);

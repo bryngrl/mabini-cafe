@@ -73,7 +73,7 @@
 	<meta name="description" content="Manage your cart at Mabini Cafe" />
 </svelte:head>
 
-<div class="flex min-h-[100vh]">
+<div class="flex flex-col lg:flex-row min-h-[100vh]">
 	{#if isLoading}
 		<div class="flex-1 bg-white text-black flex items-center justify-center">
 			<div class="text-center">
@@ -84,40 +84,40 @@
 			</div>
 		</div>
 	{:else}
-		<div class="flex-1 bg-white text-black flex p-20">
-			<div>
-				<h2 class="text-2xl font-bold mb-4 text-left">YOUR CART</h2>
+		<div class="flex-1 bg-white text-black flex p-4 sm:p-8 lg:p-20">
+			<div class="w-full">
+				<h2 class="text-xl sm:text-2xl font-bold mb-4 text-left">YOUR CART</h2>
 				<!-- formssssszzz -->
 				<div>
 					{#if $cartItems.length === 0}
 						<p>Your cart is empty.</p>
 					{:else}
 						{#each $cartItems as item}
-							<div class="flex items-center gap-10 mb-4">
+							<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-10 mb-4 pb-4 border-b sm:border-b-0">
 								<img
 									src={item.menu_item_image
 										? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
 										: '/images/placeholder.png'}
 									alt={item.menu_item_name}
-									class="w-24 h-24 object-cover"
+									class="w-20 h-20 sm:w-24 sm:h-24 object-cover self-center sm:self-start"
 								/>
 
-								<div class="flex-1 flex justify-between items-start">
-									<div class="flex items-start justify-between">
+								<div class="flex-1 flex flex-col sm:flex-row justify-between items-start w-full gap-2">
+									<div class="flex items-start justify-between w-full sm:w-auto">
 										<div class="flex-1 flex flex-col justify-between items-start">
-											<h3 class="text-lg font-bold min-h-[2.5rem] flex items-start self-start">
+											<h3 class="text-base sm:text-lg font-bold min-h-[2rem] sm:min-h-[2.5rem] flex items-start self-start">
 												{item.menu_item_name}
 											</h3>
-											<div class=" box flex items-center gap-4 my-4 bg-gray-50 min-w-[120px]">
+											<div class="box flex items-center gap-2 sm:gap-4 my-2 sm:my-4 bg-gray-50 min-w-[100px] sm:min-w-[120px]">
 												<button
-													class="minus bg-white px-3 py-1 text-gray-700 font-bold text-sm"
+													class="minus bg-white px-2 sm:px-3 py-1 text-gray-700 font-bold text-sm"
 													on:click={() =>
 														updateQuantity(item.id, item.quantity - 1, item.menu_item_price)}
 													disabled={item.quantity <= 1}>-</button
 												>
-												<span class="text-l font-bold w-8 text-center">{item.quantity}</span>
+												<span class="text-base sm:text-lg font-bold w-6 sm:w-8 text-center">{item.quantity}</span>
 												<button
-													class="plus px-3 py-1 bg-white text-gray-700 font-bold text-sm"
+													class="plus px-2 sm:px-3 py-1 bg-white text-gray-700 font-bold text-sm"
 													on:click={() =>
 														updateQuantity(item.id, item.quantity + 1, item.menu_item_price)}
 													>+</button
@@ -125,7 +125,13 @@
 											</div>
 										</div>
 									</div>
-									<div class="h-24 w-24 ml-3 mt-6 mb-8 self-center flex items-center">
+									<div class="flex sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto gap-4 sm:gap-0 sm:h-24 sm:ml-3 sm:mt-6 sm:mb-8">
+										<p class="text-base sm:text-lg font-bold sm:min-h-[2.5rem] flex items-start">
+											₱{(typeof item.subtotal === 'number' && !isNaN(item.subtotal)
+												? item.subtotal
+												: item.menu_item_price * (item.quantity || 1) || 0
+											).toFixed(2)}
+										</p>
 										<button
 											class="remove-btn"
 											on:click={() => removeFromCart(item.id, item.menu_item_name)}
@@ -140,14 +146,6 @@
 											/>
 										</button>
 									</div>
-									<!-- <div class="flex flex-col justify-between h-full items-start"> -->
-										<p class="text-lg font-bold min-h-[2.5rem] flex items-start self-start">
-											₱{(typeof item.subtotal === 'number' && !isNaN(item.subtotal)
-												? item.subtotal
-												: item.menu_item_price * (item.quantity || 1) || 0
-											).toFixed(2)}
-										</p>
-									<!-- </div> -->
 								</div>
 							</div>
 						{/each}
@@ -156,15 +154,15 @@
 			</div>
 		</div>
 
-		<div class="flex-1 bg-white text-black flex p-15">
-			<div class="bg-[#666666] rounded-xl p-10 w-full h-fit text-white">
+		<div class="flex-1 bg-white text-black flex p-4 sm:p-8 lg:p-15">
+			<div class="bg-[#666666] rounded-xl p-6 sm:p-10 w-full h-fit text-white">
 				<div class="flex items-center justify-between w-full">
-					<h2 class="text-[24px]">Subtotal</h2>
-					<p class="text-lg font-[900] pl-20">₱{$cartTotal.toFixed(2)}</p>
+					<h2 class="text-lg sm:text-[24px]">Subtotal</h2>
+					<p class="text-base sm:text-lg font-[900] pl-4 sm:pl-20">₱{$cartTotal.toFixed(2)}</p>
 				</div>
-				<p class="text-normal pt-5 pb-5">* shipping calculated at checkout.</p>
+				<p class="text-sm sm:text-normal pt-3 sm:pt-5 pb-3 sm:pb-5">* shipping calculated at checkout.</p>
 				<button
-					class="cursor-pointer w-full bg-mabini-dark-brown font-bold rounded-full py-2 px-10 text-base tracking-wide text-center"
+					class="cursor-pointer w-full bg-mabini-dark-brown font-bold rounded-full py-2 px-6 sm:px-10 text-sm sm:text-base tracking-wide text-center"
 					disabled={$cartItems.length === 0}
 					on:click={checkout}
 				>

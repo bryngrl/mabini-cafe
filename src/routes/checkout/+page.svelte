@@ -175,9 +175,9 @@
 </svelte:head>
 
 <!-- Head -->
-<div class="flex gap-[2px] h-screen content-center">
+<div class="flex flex-col lg:flex-row gap-[2px] min-h-screen content-center">
 	<!-- left side -->
-	<div class=" grow w-2/4 bg-black text-white flex justify-center p-10">
+	<div class="w-full lg:w-2/4 bg-black text-white flex justify-center p-4 sm:p-6 lg:p-10">
 		<div>
 			<img src="/images/LOGO-4.png" alt="Logo" class="mb-2 w-[238px] h-[68px] m-auto" />
 			<nav class="flex mb-10 text-sm m-auto font-semibold gap-4 items-center justify-center">
@@ -245,16 +245,16 @@
 						</div>
 					</div>
 
-					<div class="gap-60 mt-4 flex flex-row">
+					<div class="gap-4 sm:gap-10 mt-4 flex flex-col sm:flex-row sm:justify-center">
 						<button
 							on:click={redirectToCart}
-							class="text-sm cursor-pointer w-fit p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+							class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
 						>
 							<span><i class="fa-classic fa-chevron-left mr-2"></i></span> Return to Cart
 						</button>
 						<button
 							on:click={redirectToShipping}
-							class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
+							class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
 						>
 							Continue to Shipping
 						</button>
@@ -288,7 +288,7 @@
 						</div>
 						<button
 							on:click={() => showAddressSelector = false}
-							class="text-sm cursor-pointer w-fit p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+							class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
 						>
 							<span><i class="fa-classic fa-chevron-left mr-2"></i></span> Cancel
 						</button>
@@ -399,17 +399,17 @@
 							/>
 						</div>
 
-						<div class="flex flex-row gap-30 mt-2">
+						<div class="flex flex-col sm:flex-row gap-30 mt-2">
 							<button
 								type="button"
 								on:click={cancelEdit}
-								class="text-sm cursor-pointer w-fit p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+								class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
 							>
 								<span><i class="fa-classic fa-chevron-left"></i></span> Cancel
 							</button>
 							<button
 								type="submit"
-								class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
+								class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
 							>
 								Update Information
 							</button>
@@ -538,10 +538,10 @@
 								placeholder="Phone *"
 							/>
 						</div>
-						<div class="gap-10 mt-4 flex flex-row">
+						<div class="gap-10 mt-4 flex flex-col sm:flex-row">
 							<button
 								on:click={redirectToCart}
-								class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+								class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
 							>
 								<span><i class="fa-classic fa-chevron-left mr-2"></i></span> Return to Cart
 							</button>
@@ -550,7 +550,7 @@
 									handleSubmit(event);
 									redirectToShipping();
 								}}
-								class="text-sm cursor-pointer w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
+								class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
 							>
 								Continue to Shipping
 							</button>
@@ -561,7 +561,7 @@
 		</div>
 	</div>
 	<!-- right side -->
-	<div class="grow w-2/4 bg-white text-black p-10">
+	<div class="w-full lg:w-2/4 bg-white text-black p-4 sm:p-6 lg:p-10">
 		<!-- Cart Items -->
 
 		<div class="w-full">
@@ -571,21 +571,21 @@
 				<p class="text-gray-500">Loading cart...</p>
 			{:else if $cartItems.length > 0}
 				{#each $cartItems as item}
-					<div class="flex items-center gap-10 mb-4">
+					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-10 mb-4 pb-4 border-b sm:border-b-0">
 						<img
 							src={item.menu_item_image
 								? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
 								: '/images/placeholder.png'}
 							alt={item.menu_item_name}
-							class="w-24 h-24 object-cover rounded-lg border border-gray-300"
+							class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-gray-300"
 						/>
-						<div class="flex-1 flex justify-between items-center">
-							<div>
-								<h3 class="text-lg font-semibold">{item.menu_item_name}</h3>
-								<p class="text-gray-600">Quantity: {item.quantity}</p>
-								<p class="text-gray-600">₱{parseFloat(item.menu_item_price).toFixed(2)} each</p>
+						<div class="flex-1 flex flex-col sm:flex-row justify-between items-start sm:items-center w-full">
+							<div class="mb-2 sm:mb-0">
+								<h3 class="text-base sm:text-lg font-semibold">{item.menu_item_name}</h3>
+								<p class="text-sm sm:text-base text-gray-600">Quantity: {item.quantity}</p>
+								<p class="text-sm sm:text-base text-gray-600">₱{parseFloat(item.menu_item_price).toFixed(2)} each</p>
 							</div>
-							<p class="text-lg text-gray-500 font-semibold pl-[250px]">
+							<p class="text-base sm:text-lg text-gray-500 font-semibold">
 								₱{parseFloat(item.subtotal).toFixed(2)}
 							</p>
 						</div>
@@ -617,3 +617,5 @@
 		</div>
 	</div>
 </div>
+
+

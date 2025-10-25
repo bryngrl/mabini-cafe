@@ -23,7 +23,7 @@
 
 		try {
 			// Send OTP first before creating account
-			await otpStore.sendOtp(email);
+			await otpStore.sendOtpSignup(email);
 
 			await showSuccess(
 				'Verification code sent! Please check your email.',
@@ -136,14 +136,19 @@
 	}
 	.container {
 		background: white;
-		padding: 2rem 2.5rem;
+		padding: 1.5rem;
 		border-radius: 1rem;
 		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-		min-width: 350px;
+		width: 90%;
 		max-width: 500px;
 		min-height: 500px;
-		width: 100%;
 		text-align: center;
+	}
+	@media (min-width: 640px) {
+		.container {
+			padding: 2rem 2.5rem;
+			width: 100%;
+		}
 	}
 	.page-header {
 		text-align: center;

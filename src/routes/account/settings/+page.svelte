@@ -10,29 +10,26 @@
 	import { shippingStore, shippingInfo } from '$lib/stores';
 	import { form } from '$app/server';
 	import { usersStore, currentUser, isAuthenticated } from '$lib/stores';
-	import { orderItemsStore } from '$lib/stores';
+	import { ordersStore } from '$lib/stores';
 
 	$: $currentUser;
 
-	// Fetch Orders  == TODO: Make sure that the only orders here are
-	// successful only.
+	// Fetch Orders by customer ID
 	let orders = [];
 
 	async function getUserOrders() {
 		try {
-			const userOrder = await orderItemsStore.fetchByUserId($currentUser?.id);
-
-			if (!userOrder || !userOrder.ok) {
-				console.error('Failed to fetch orders');
+			if (!$currentUser?.id) {
 				return [];
 			}
-			const orders = await userOrder.json();
-			return orders;
+			const userOrders = await ordersStore.fetchByCustomerId($currentUser.id);
+			return userOrders || [];
 		} catch (error) {
-			console.error('Something goes wrong', error);
+			console.error('Error fetching orders:', error);
 			return [];
 		}
 	}
+	
 	$: if ($currentUser?.id) {
 		getUserOrders().then((result) => {
 			orders = result;
@@ -396,43 +393,105 @@
 			</div>
 		{:else if accountOrdersActive}
 			<div
-				class="flex flex-col justify-start items-center content-center text-left gap-4 min-h-[500px] max-w-[75%] bg-black text-white rounded-3xl"
+				class="flex flex-col justify-start items-center content-center text-left gap-4 min-h-[500px] max-w-[75%] bg-black text-white rounded-3xl pb-10"
 			>
 				{#if hasOrders}
-					<h1 class="p-10 pb-0 font-bold text-3xl w-full pl-6">Your total orders.</h1>
+					<h1 class="p-10 pb-0 font-bold text-3xl w-full pl-6">Your Orders</h1>
 					<hr class="border-[1] text-white w-[90%] text-center" />
 					<!-- Orders List -->
-					{#each orders as order}
-						<div class="w-full p-6">
-							<h2 class="text-xl font-bold mb-2">Order # {order.id}</h2>
-							<p class="text-gray-400 mb-4">
-								Placed on: {new Date(order.order_date).toLocaleDateString()}
-							</p>
-							<!-- Order Items -->
-							{#each order.items as item}
-								<div class="flex justify-between items-center mb-2">
+					<div class="w-full px-6 space-y-6">
+						{#each orders as order}
+							<div class="bg-gray-900 rounded-lg p-6">
+								<div class="flex justify-between items-start mb-4">
 									<div>
-										<p class="font-medium">
-											{item.menu_item_name} x {item.quantity}
+										<h2 class="text-xl font-bold">Order #{String(order.id).padStart(4, '0')}</h2>
+										<p class="text-gray-400 text-sm mt-1">
+											Placed on: {order.order_time
+												? new Date(order.order_time.replace(' ', 'T')).toLocaleDateString('en-US', {
+														month: 'long',
+														day: 'numeric',
+														year: 'numeric',
+														hour: 'numeric',
+														minute: '2-digit',
+														hour12: true
+													})
+												: 'N/A'}
 										</p>
-										<p class="text-gray-400 text-sm">
-											₱ {item.menu_item_price} each
-										</p>
-									</div>
-									<p class="font-bold">₱ {item.menu_item_price * item.quantity}</p>
 								</div>
-							{/each}
-							<!-- Order Total -->
-							<div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-700">
-								<p class="font-bold text-lg">Total:</p>
-								<p class="font-extrabold text-lg">₱ {order.total_amount}</p>
+								<!-- Status Badge -->
+								<span class="px-4 py-2 rounded-full text-sm font-bold capitalize
+									{order.status?.toLowerCase() === 'pending' || !order.status ? 'bg-yellow-200 text-yellow-800' :
+									order.status?.toLowerCase() === 'preparing' ? 'bg-blue-200 text-blue-800' :
+									order.status?.toLowerCase() === 'delivering' ? 'bg-purple-200 text-purple-800' :
+									order.status?.toLowerCase() === 'completed' ? 'bg-green-200 text-green-800' :
+									'bg-red-200 text-red-800'}">
+									{order.status || 'pending'}
+								</span>
+							</div>								<!-- Order Items (if available) -->
+								{#if order.items && order.items.length > 0}
+									<div class="space-y-2 mb-4">
+										{#each order.items as item}
+											<div class="flex justify-between items-center">
+												<div>
+													<p class="font-medium">{item.name} x {item.quantity}</p>
+													<p class="text-gray-400 text-sm">₱{item.price} each</p>
+												</div>
+												<p class="font-bold">₱{item.price * item.quantity}</p>
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<p class="text-gray-400 text-sm mb-4">Order details not available</p>
+								{/if}
+
+								<!-- Order Details -->
+								<div class="border-t border-gray-700 pt-4 space-y-2">
+									{#if order.shipping_name}
+										<div class="flex justify-between text-sm">
+											<span class="text-gray-400">Shipping Method:</span>
+											<span>{order.shipping_name}</span>
+										</div>
+									{/if}
+									{#if order.shipping_fee}
+										<div class="flex justify-between text-sm">
+											<span class="text-gray-400">Shipping Fee:</span>
+											<span>₱{order.shipping_fee}</span>
+										</div>
+									{/if}
+									<div class="flex justify-between text-sm">
+										<span class="text-gray-400">Payment Method:</span>
+										<span class="capitalize">{order.payment_method || 'N/A'}</span>
+									</div>
+									<div class="flex justify-between text-sm">
+										<span class="text-gray-400">Payment Status:</span>
+										<span class="px-2 py-1 rounded-full text-xs font-bold
+											{order.payment_status === 'Paid' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}">
+											{order.payment_status || 'Pending'}
+										</span>
+									</div>
+								</div>
+
+								<!-- Order Total -->
+								<div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-700">
+									<p class="font-bold text-lg">Total Amount:</p>
+									<p class="font-extrabold text-xl text-green-400">₱{order.total_amount}</p>
+								</div>
+
+								{#if order.message}
+									<div class="mt-4 pt-4 border-t border-gray-700">
+										<p class="text-gray-400 text-sm">Message:</p>
+										<p class="text-sm italic">{order.message}</p>
+									</div>
+								{/if}
 							</div>
-						</div>
-						<hr class="border-[1] text-white w-[90%] text-center" />
-					{/each}
+						{/each}
+					</div>
 				{:else}
-					<h1 class="p-10 pb-0 font-bold text-3xl w-full">You have no orders yet.</h1>
-					<p class="text-gray-600">Start shopping now and come back to view your orders here.</p>
+					<h1 class="p-10 pb-0 font-bold text-3xl w-full text-center">You have no orders yet.</h1>
+					<p class="text-gray-400 text-center">Start shopping now and come back to view your orders here.</p>
+					<a href="/menu" class="bg-mabini-yellow text-black px-6 py-3 rounded-full font-bold hover:bg-yellow-500 transition-colors">
+						Browse Menu
+					</a>
 				{/if}
 			</div>
 		{:else if accountAddressesActive}

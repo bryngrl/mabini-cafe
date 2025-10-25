@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { showSuccess, showError } from '$lib/utils/sweetalert';
-	import { otpStore, otpLoading, otpError } from '$lib/stores';
+	import { otpStore, otpLoading, otpError, otpToken } from '$lib/stores';
 	import { onMount } from 'svelte';
 
 	let email = '';
@@ -13,6 +13,7 @@
 	let step: 'otp' | 'password' = 'otp';
 
 	$: loading = $otpLoading;
+	$: token = $otpToken;
 
 	$: if ($otpError) {
 		showError($otpError, 'Error');
@@ -34,8 +35,13 @@
 			return;
 		}
 
+		if (!token) {
+			await showError('Session expired. Please request a new code.', 'Error');
+			return;
+		}
+
 		try {
-			await otpStore.verifyOtp(email, otpCode);
+			await otpStore.verifyOtp(token, otpCode);
 			await showSuccess('Code verified! Please enter your new password.', 'Success');
 			step = 'password';
 		} catch (err: any) {
@@ -80,7 +86,7 @@
 		resendLoading = true;
 
 		try {
-			await otpStore.sendOtp(email);
+			await otpStore.sendOtpForgotPassword(email);
 			await showSuccess('Verification code resent! Please check your email.', 'Code Resent');
 		} catch (err: any) {
 			await showError(err.message || 'Failed to resend code. Please try again.', 'Error');
@@ -200,14 +206,19 @@
 	}
 	.container {
 		background: white;
-		padding: 2rem 2.5rem;
+		padding: 1.5rem;
 		border-radius: 1rem;
 		box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-		min-width: 350px;
+		width: 90%;
 		max-width: 500px;
 		min-height: 300px;
-		width: 100%;
 		text-align: center;
+	}
+	@media (min-width: 640px) {
+		.container {
+			padding: 2rem 2.5rem;
+			width: 100%;
+		}
 	}
 	.page-header {
 		text-align: center;

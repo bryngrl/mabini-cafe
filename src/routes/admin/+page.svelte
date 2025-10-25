@@ -5,6 +5,7 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { showError, showSuccess } from '$lib/utils/sweetalert';
+	import ViewItemModal from '$lib/components/ui/ViewItemModal.svelte';
 
 	interface Order {
 		id: number;
@@ -15,10 +16,34 @@
 		status: string;
 		payment_status: string;
 		payment_method: string;
+		items?: any[];
+		shipping_address?: string;
+		message?: string;
+		shipping_name?: string;
+		shipping_fee?: number;
+		shipping_fee_id?: number;
 	}
 
 	let selectedTab = $state('customize');
 	let currentDate = $state(new Date());
+	let selectedOrder: Order | null = $state(null);
+	let showOrderModal = $state(false);
+	let searchQuery = $state('');
+	let mobileMenuOpen = $state(false);
+
+	function toggleMobileMenu() {
+		mobileMenuOpen = !mobileMenuOpen;
+	}
+
+	function selectTab(tab: string) {
+		selectedTab = tab;
+		mobileMenuOpen = false;
+	}
+
+	// Pagination state
+	let ordersPage = $state(1);
+	let productsPage = $state(1);
+	const itemsPerPage = 10;
 
 	// Type-safe orders reference
 	let ordersList = $derived($orders as Order[]);
@@ -31,6 +56,14 @@
 	let productImage: File | null = $state(null);
 	let imagePreview = $state('');
 
+	// Hero images for customize section
+	let hero1Image: File | null = $state(null);
+	let hero2Image: File | null = $state(null);
+	let hero3Image: File | null = $state(null);
+	let hero1Preview = $state('');
+	let hero2Preview = $state('');
+	let hero3Preview = $state('');
+
 	const categories = [
 		{ id: 1, name: 'Pastries' },
 		{ id: 2, name: 'Meals' },
@@ -41,38 +74,77 @@
 		[...new Set($menuItems.map((item: any) => item.description))].filter(Boolean) as string[]
 	);
 
-	onMount(() => {
-		currentDate = new Date();
+	// Filtered products for Product Manager
+	let filteredProducts = $derived(
+		$menuItems.filter((item: any) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+	);
+
+	// Paginated orders
+	let paginatedOrders = $derived.by(() => {
+		const startIndex = (ordersPage - 1) * itemsPerPage;
+		const endIndex = startIndex + itemsPerPage;
+		return ordersList.slice(startIndex, endIndex);
 	});
+
+	let totalOrdersPages = $derived(Math.ceil(ordersList.length / itemsPerPage));
+
+	// Paginated products
+	let paginatedProducts = $derived.by(() => {
+		const startIndex = (productsPage - 1) * itemsPerPage;
+		const endIndex = startIndex + itemsPerPage;
+		return filteredProducts.slice(startIndex, endIndex);
+	});
+
+	let totalProductsPages = $derived(Math.ceil(filteredProducts.length / itemsPerPage));
+
+	// Helper function to generate page numbers
+	function getPageNumbers(currentPage: number, totalPages: number): (number | string)[] {
+		if (totalPages <= 7) {
+			return Array.from({ length: totalPages }, (_, i) => i + 1);
+		}
+
+		if (currentPage <= 3) {
+			return [1, 2, 3, 4, '...', totalPages];
+		}
+
+		if (currentPage >= totalPages - 2) {
+			return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+		}
+
+		return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+	}
 
 	onMount(async () => {
+		currentDate = new Date();
 		try {
-			await ordersStore.fetchAll();
-			await menuStore.fetchAll();
+			await Promise.all([ordersStore.fetchAll(), menuStore.fetchAll()]);
 		} catch (err) {
-			console.error('Error fetching data:', err);
+			console.error(err);
 			showError('Failed to fetch data');
 		}
+		
 	});
 
-	async function handleStatusChange(orderId: number, newStatus: string) {
+	// Reset to page 1 when search query changes
+	$effect(() => {
+		searchQuery;
+		productsPage = 1;
+	});
+
+	async function handleStatusChange(orderId: number, status: string) {
 		try {
-			switch (newStatus) {
+			switch (status.toLowerCase()) {
 				case 'preparing':
 					await ordersStore.updateToPreparing(orderId);
-					showSuccess('Order status updated to Preparing');
 					break;
 				case 'delivering':
 					await ordersStore.updateToDelivering(orderId);
-					showSuccess('Order status updated to Delivering');
 					break;
 				case 'completed':
 					await ordersStore.updateToCompleted(orderId);
-					showSuccess('Order status updated to Completed');
 					break;
 				case 'cancelled':
 					await ordersStore.updateToCancelled(orderId);
-					showSuccess('Order status updated to Cancelled');
 					break;
 			}
 		} catch (err) {
@@ -93,6 +165,59 @@
 			reader.readAsDataURL(file);
 		}
 	}
+
+	function handleHeroImageChange(e: Event, heroNumber: number) {
+		const target = e.target as HTMLInputElement;
+		const file = target.files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				const preview = e.target?.result as string;
+				if (heroNumber === 1) {
+					hero1Image = file;
+					hero1Preview = preview;
+				} else if (heroNumber === 2) {
+					hero2Image = file;
+					hero2Preview = preview;
+				} else if (heroNumber === 3) {
+					hero3Image = file;
+					hero3Preview = preview;
+				}
+			};
+			reader.readAsDataURL(file);
+		}
+	}
+
+	// TODO: Backend not ready yet
+	// async function handleHeroImagesSubmit(e: Event) {
+	// 	e.preventDefault();
+	// 	try {
+	// 		// Backend endpoint needed: POST /routes/HeroRoute.php
+	// 		// Should accept: hero1, hero2, hero3 as file uploads
+	// 		// API structure:
+	// 		// const formData = new FormData();
+	// 		// if (hero1Image) formData.append('hero1', hero1Image);
+	// 		// if (hero2Image) formData.append('hero2', hero2Image);
+	// 		// if (hero3Image) formData.append('hero3', hero3Image);
+	// 		//
+	// 		// const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/HeroRoute.php', {
+	// 		//   method: 'POST',
+	// 		//   body: formData
+	// 		// });
+	// 		//
+	// 		// Backend should return: { success: true, message: 'Hero images updated' }
+	// 		await showSuccess('Hero images updated successfully!');
+	// 		hero1Image = null;
+	// 		hero2Image = null;
+	// 		hero3Image = null;
+	// 		hero1Preview = '';
+	// 		hero2Preview = '';
+	// 		hero3Preview = '';
+	// 	} catch (err) {
+	// 		console.error('Error updating hero images:', err);
+	// 		await showError('Failed to update hero images. Please try again.');
+	// 	}
+	// }
 
 	async function handleProductSubmit(e: Event) {
 		e.preventDefault();
@@ -155,15 +280,50 @@
 			await showError('Failed to logout. Please try again.');
 		}
 	}
+
+	function viewOrderDetails(order: Order) {
+		selectedOrder = order;
+		showOrderModal = true;
+	}
+
+	function closeOrderModal() {
+		showOrderModal = false;
+		selectedOrder = null;
+	}
+
+	// TODO: Backend not ready yet
+	// async function toggleProductAvailability(productId: number, currentStatus: boolean) {
+	// 	try {
+	// 		// Backend endpoint needed: PUT /routes/MenuRoute.php
+	// 		// Should accept: { id: number, is_available: boolean }
+	// 		// API call:
+	// 		// const response = await fetch(`http://localhost/mabini-cafe/phpbackend/routes/MenuRoute.php?id=${productId}`, {
+	// 		//   method: 'PUT',
+	// 		//   headers: { 'Content-Type': 'application/json' },
+	// 		//   body: JSON.stringify({ is_available: !currentStatus })
+	// 		// });
+	// 		//
+	// 		// Backend should return: { success: true, message: 'Product availability updated' }
+	// 		await menuStore.fetchAll(); // Refresh the list
+	// 		await showSuccess('Product availability updated!');
+	// 	} catch (err) {
+	// 		console.error('Error toggling product availability:', err);
+	// 		await showError('Failed to update product availability.');
+	// 	}
+	// }
 </script>
 
-<div class="flex min-h-screen min-h-full items-stretch">
-	<!-- Black bg -->
-	<div class="w-[30%] min-h-full bg-black text-white flex flex-col justify-between text-center">
+<div class="flex flex-col lg:flex-row min-h-screen items-stretch">
+	<!-- Sidebar - Desktop always visible, Mobile dropdown -->
+	<div
+		class="w-full lg:w-[30%] min-h-full bg-black text-white flex flex-col justify-between text-center {mobileMenuOpen
+			? 'block'
+			: 'hidden lg:flex'}"
+	>
 		<!-- Top: Logo and navigation -->
 		<div>
-			<!-- Logo -->
-			<div class="flex justify-center p-10 pt-20">
+			<!-- Logo - Hidden on mobile (shown in mobile header) -->
+			<div class="hidden lg:flex justify-center p-10 pt-20">
 				<img src="/admin/logo.svg" alt="Logo" class="max-w-full max-h-full" />
 			</div>
 			<!-- Icons -->
@@ -173,10 +333,12 @@
 					type="button"
 					class="w-full justify-start items-center flex flex-row gap-7 cursor-pointer active:border-1 active:border-white active:rounded-md p-2"
 					aria-label="Customize"
-					onclick={() => (selectedTab = 'customize')}
+					onclick={() => selectTab('customize')}
 				>
 					<img src="/admin/overview.svg" alt="Customize Icon" class="w-10 h-10" />
-					<span class="flex flex-col items-center justify-center text-center text-lg">Customize</span>
+					<span class="flex flex-col items-center justify-center text-center text-lg"
+						>Customize</span
+					>
 				</button>
 			</div>
 			<!-- Icon 2 -->
@@ -185,10 +347,12 @@
 					type="button"
 					class="w-full justify-start items-center flex flex-row gap-7 cursor-pointer active:border-1 active:border-white active:rounded-md p-2"
 					aria-label="Orders"
-					onclick={() => (selectedTab = 'orders')}
+					onclick={() => selectTab('orders')}
 				>
 					<img src="/admin/orders.svg" alt="Users Icon" class="w-10 h-10" />
-					<span class="flex flex-col items-center justify-center text-center text-lg"> Orders </span>
+					<span class="flex flex-col items-center justify-center text-center text-lg">
+						Orders
+					</span>
 				</button>
 			</div>
 			<!-- Icon 3 -->
@@ -197,10 +361,25 @@
 					type="button"
 					class="w-full justify-start items-center flex flex-row gap-7 cursor-pointer active:border-1 active:border-white active:rounded-md p-2"
 					aria-label="Products"
-					onclick={() => (selectedTab = 'products')}
+					onclick={() => selectTab('products')}
 				>
 					<img src="/admin/products.svg" alt="Products Icon" class="w-10 h-10" />
-					<span class="flex flex-col items-center justify-center text-center text-lg">Products</span>
+					<span class="flex flex-col items-center justify-center text-center text-lg">Products</span
+					>
+				</button>
+			</div>
+			<!-- Icon 4 - Product Manager -->
+			<div class="flex justify-start items-center pb-2 pt-0 p-10">
+				<button
+					type="button"
+					class="w-full justify-start items-center flex flex-row gap-7 cursor-pointer active:border-1 active:border-white active:rounded-md p-2"
+					aria-label="Product Manager"
+					onclick={() => selectTab('product-manager')}
+				>
+					<img src="/admin/products.svg" alt="Product Manager Icon" class="w-10 h-10" />
+					<span class="flex flex-col items-center justify-center text-center text-lg"
+						>Product Manager</span
+					>
 				</button>
 			</div>
 		</div>
@@ -218,15 +397,41 @@
 		</div>
 	</div>
 	<!-- white bg -->
-	<div class="w-[60%] min-h-screen h-full bg-white">
+	<div class="w-full lg:w-[60%] min-h-screen h-full bg-white">
 		{#if selectedTab === 'customize'}
 			<!-- Customize Content -->
-			<div class="ml-20 flex gap-0 flex-col justify-center items-center p-10 w-full min-h-[400px]">
+			<div
+				class="px-4 sm:px-8 lg:ml-20 flex gap-0 flex-col justify-center items-center p-10 w-full min-h-[400px]"
+			>
 				<div class="w-full min-h-[400px] justify-center items-center rounded-2xl shadow-lg mt-10">
-					<!-- Black Header -->
-					<div class="w-full bg-black rounded-t-2xl">
+					<!-- Black Header with Hamburger -->
+					<div class="w-full bg-black rounded-t-2xl flex justify-between items-center">
 						<!-- Title -->
 						<h1 class="text-white text-2xl p-5 text-start">Customize Website</h1>
+						<!-- Mobile Hamburger Button -->
+						<button
+							type="button"
+							onclick={toggleMobileMenu}
+							class="lg:hidden text-white p-5"
+							aria-label="Toggle menu"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="2"
+								stroke="currentColor"
+								class="w-6 h-6"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d={mobileMenuOpen
+										? 'M6 18L18 6M6 6l12 12'
+										: 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'}
+								/>
+							</svg>
+						</button>
 					</div>
 					<!-- White Content with border -->
 					<div class="w-full rounded-b-2xl">
@@ -241,14 +446,13 @@
 											type="file"
 											accept="image/*"
 											class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-											onchange={handleImageChange}
-											required
+											onchange={(e) => handleHeroImageChange(e, 1)}
 										/>
-										{#if imagePreview}
+										{#if hero1Preview}
 											<div class="mt-2">
 												<img
-													src={imagePreview}
-													alt="Preview"
+													src={hero1Preview}
+													alt="Hero 1 Preview"
 													class="w-full max-h-52 object-cover rounded-lg"
 												/>
 											</div>
@@ -262,14 +466,13 @@
 											type="file"
 											accept="image/*"
 											class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-											onchange={handleImageChange}
-											required
+											onchange={(e) => handleHeroImageChange(e, 2)}
 										/>
-										{#if imagePreview}
+										{#if hero2Preview}
 											<div class="mt-2">
 												<img
-													src={imagePreview}
-													alt="Preview"
+													src={hero2Preview}
+													alt="Hero 2 Preview"
 													class="w-full max-h-52 object-cover rounded-lg"
 												/>
 											</div>
@@ -283,20 +486,27 @@
 											type="file"
 											accept="image/*"
 											class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-											onchange={handleImageChange}
-											required
+											onchange={(e) => handleHeroImageChange(e, 3)}
 										/>
-										{#if imagePreview}
+										{#if hero3Preview}
 											<div class="mt-2">
 												<img
-													src={imagePreview}
-													alt="Preview"
+													src={hero3Preview}
+													alt="Hero 3 Preview"
 													class="w-full max-h-52 object-cover rounded-lg"
 												/>
 											</div>
 										{/if}
 									</label>
 								</div>
+								<!-- Commented out until backend is ready -->
+								<!-- <button
+									type="submit"
+									class="bg-mabini-yellow text-white px-4 py-2 rounded-lg mt-4 cursor-pointer w-full hover:bg-yellow-600"
+									onclick={handleHeroImagesSubmit}
+								>
+									Update Hero Images
+								</button> -->
 							</form>
 						</div>
 
@@ -306,7 +516,9 @@
 				</div>
 			</div>
 		{:else if selectedTab === 'orders'}
-			<div class="ml-20 flex gap-0 flex-col justify-center items-center p-10 w-full h-full">
+			<div
+				class="px-4 sm:px-8 lg:ml-20 flex gap-0 flex-col justify-center items-center p-4 sm:p-10 w-full h-full"
+			>
 				<!-- Orders Content -->
 				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
 					<!-- Black Header -->
@@ -343,7 +555,7 @@
 
 						<!-- make a for each for orders -->
 						<div class="w-full flex flex-col">
-							{#each ordersList as order (order.id)}
+							{#each paginatedOrders as order (order.id)}
 								<div
 									class="m-5 mt-0 flex items-center text-center justify-between border-b border-gray-200"
 								>
@@ -370,20 +582,18 @@
 									<div class="w-1/6 flex items-center justify-center">
 										<span class="p-3 text-sm">
 											<select
-												name="status"
-												id="status-{order.id}"
-												class="border border-gray-300 rounded-lg px-2 py-1"
-												value={order.status}
-												onchange={(e) => {
-													const target = e.target as HTMLSelectElement;
-													handleStatusChange(order.id, target.value);
-												}}
+												onchange={(e) =>
+													handleStatusChange(order.id, (e.target as HTMLSelectElement).value)}
+												class="border border-gray-300 rounded-lg px-2 py-1 capitalize"
 											>
-												<option value="pending">Pending</option>
-												<option value="preparing">Preparing</option>
-												<option value="delivering">Delivering</option>
-												<option value="completed">Completed</option>
-												<option value="cancelled">Cancelled</option>
+												{#if !['pending','preparing','delivering','completed','cancelled'].includes(order.status?.toLowerCase()) && order.status}
+													<option value={order.status} selected disabled>{order.status}</option>
+												{/if}
+												<option value="pending" selected={order.status?.toLowerCase() === 'pending'}>Pending</option>
+												<option value="preparing" selected={order.status?.toLowerCase() === 'preparing'}>Preparing</option>
+												<option value="delivering" selected={order.status?.toLowerCase() === 'delivering'}>Delivering</option>
+												<option value="completed" selected={order.status?.toLowerCase() === 'completed'}>Completed</option>
+												<option value="cancelled" selected={order.status?.toLowerCase() === 'cancelled'}>Cancelled</option>
 											</select>
 										</span>
 									</div>
@@ -391,10 +601,7 @@
 										<div class="p-3 text-sm">
 											<button
 												class="bg-mabini-yellow text-white px-4 py-2 rounded-lg cursor-pointer"
-												onclick={() => {
-													// TODO: Implement view order details
-													console.log('View order', order.id);
-												}}
+												onclick={() => viewOrderDetails(order)}
 											>
 												View
 											</button>
@@ -407,11 +614,53 @@
 								</div>
 							{/each}
 						</div>
+
+						<!-- Pagination Controls -->
+						{#if totalOrdersPages > 1}
+							<div class="flex items-center justify-center gap-2 p-5 border-t">
+								<button
+									onclick={() => (ordersPage = Math.max(1, ordersPage - 1))}
+									disabled={ordersPage === 1}
+									class="px-3 py-1 rounded-lg border {ordersPage === 1
+										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+										: 'bg-white text-gray-700 hover:bg-gray-50'}"
+								>
+									Previous
+								</button>
+
+								{#each getPageNumbers(ordersPage, totalOrdersPages) as pageNum}
+									{#if pageNum === '...'}
+										<span class="px-2 text-gray-400">...</span>
+									{:else}
+										<button
+											onclick={() => (ordersPage = pageNum as number)}
+											class="px-3 py-1 rounded-lg border {ordersPage === pageNum
+												? 'bg-mabini-yellow text-white'
+												: 'bg-white text-gray-700 hover:bg-gray-50'}"
+										>
+											{pageNum}
+										</button>
+									{/if}
+								{/each}
+
+								<button
+									onclick={() => (ordersPage = Math.min(totalOrdersPages, ordersPage + 1))}
+									disabled={ordersPage === totalOrdersPages}
+									class="px-3 py-1 rounded-lg border {ordersPage === totalOrdersPages
+										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+										: 'bg-white text-gray-700 hover:bg-gray-50'}"
+								>
+									Next
+								</button>
+							</div>
+						{/if}
 					</div>
 				</div>
 			</div>
 		{:else if selectedTab === 'products'}
-			<div class="ml-20 flex gap-0 flex-col justify-center items-center p-10 w-full h</div>-full">
+			<div
+				class="px-4 sm:px-8 lg:ml-20 flex gap-0 flex-col justify-center items-center p-4 sm:p-10 w-full h-full"
+			>
 				<!-- Products Content -->
 				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
 					<!-- Black Header -->
@@ -516,7 +765,122 @@
 					</div>
 				</div>
 			</div>
+		{:else if selectedTab === 'product-manager'}
+			<div
+				class="px-4 sm:px-8 lg:ml-20 flex gap-0 flex-col justify-center items-center p-4 sm:p-10 w-full h-full"
+			>
+				<!-- Product Manager Content -->
+				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
+					<!-- Black Header -->
+					<div class="w-full min-h-[10%] bg-black rounded-t-2xl">
+						<!-- Title -->
+						<h1 class="text-white text-2xl p-5 text-start">Product Manager</h1>
+					</div>
+					<!-- White Content with border -->
+					<div class="w-full rounded-b-2xl p-5">
+						<p class="text-gray-600 mb-4">Manage product availability and view all menu items.</p>
+
+						<!-- Search Bar -->
+						<div class="mb-5">
+							<input
+								type="text"
+								bind:value={searchQuery}
+								placeholder="Search products..."
+								class="w-full border border-gray-300 rounded-lg px-4 py-2"
+							/>
+						</div>
+
+						<!-- Product List -->
+						<div class="space-y-3 pb-5">
+							{#each paginatedProducts as product (product.id)}
+								<div
+									class="flex items-center justify-between border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
+								>
+									<div class="flex items-center gap-4 flex-1">
+										{#if product.image_url}
+											<img
+												src={`http://localhost/mabini-cafe/phpbackend/${product.image_url}`}
+												alt={product.name}
+												class="w-16 h-16 object-cover rounded-lg"
+											/>
+										{/if}
+										<div class="flex-1">
+											<h3 class="font-bold text-lg">{product.name}</h3>
+											<p class="text-sm text-gray-600">₱{product.price}</p>
+											<p class="text-xs text-gray-500">{product.description || 'No category'}</p>
+										</div>
+									</div>
+									<div class="flex items-center gap-3">
+										<!-- TODO: Backend not ready - Uncomment when is_available field is added to menu table -->
+										<!-- <label class="flex items-center gap-2 cursor-pointer">
+											<input
+												type="checkbox"
+												checked={product.is_available ?? true}
+												onchange={() => toggleProductAvailability(product.id, product.is_available)}
+												class="w-5 h-5 cursor-pointer"
+											/>
+											<span class="text-sm font-medium">
+												{product.is_available ? 'Available' : 'Unavailable'}
+											</span>
+										</label> -->
+										<span class="text-sm font-medium text-green-600">Available</span>
+									</div>
+								</div>
+							{:else}
+								<div class="text-center p-10">
+									<p class="text-gray-500">No products found</p>
+								</div>
+							{/each}
+						</div>
+
+						<!-- Pagination Controls -->
+						{#if totalProductsPages > 1}
+							<div class="flex items-center justify-center gap-2 p-5 border-t">
+								<button
+									onclick={() => (productsPage = Math.max(1, productsPage - 1))}
+									disabled={productsPage === 1}
+									class="px-3 py-1 rounded-lg border {productsPage === 1
+										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+										: 'bg-white text-gray-700 hover:bg-gray-50'}"
+								>
+									Previous
+								</button>
+
+								{#each getPageNumbers(productsPage, totalProductsPages) as pageNum}
+									{#if pageNum === '...'}
+										<span class="px-2 text-gray-400">...</span>
+									{:else}
+										<button
+											onclick={() => (productsPage = pageNum as number)}
+											class="px-3 py-1 rounded-lg border {productsPage === pageNum
+												? 'bg-mabini-yellow text-white'
+												: 'bg-white text-gray-700 hover:bg-gray-50'}"
+										>
+											{pageNum}
+										</button>
+									{/if}
+								{/each}
+
+								<button
+									onclick={() => (productsPage = Math.min(totalProductsPages, productsPage + 1))}
+									disabled={productsPage === totalProductsPages}
+									class="px-3 py-1 rounded-lg border {productsPage === totalProductsPages
+										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+										: 'bg-white text-gray-700 hover:bg-gray-50'}"
+								>
+									Next
+								</button>
+							</div>
+						{/if}
+					</div>
+				</div>
+			</div>
 		{/if}
 		<!-- </div> -->
 	</div>
 </div>
+
+<!-- Order Details Modal -->
+{#if showOrderModal && selectedOrder}
+	<ViewItemModal order={selectedOrder} onClose={closeOrderModal} />
+{/if}
