@@ -2,10 +2,14 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { showSuccess, showError } from '$lib/utils/sweetalert';
-	import { otpStore, otpLoading, otpError, otpToken } from '$lib/stores';
+	import { otpStore, otpLoading, otpError } from '$lib/stores';
+	import { otpToken } from '$lib/stores/otp';
+
 	import { onMount } from 'svelte';
 
 	let email = '';
+	$: email = $page.url.searchParams.get('email') ?? '';
+
 	let otpCode = '';
 	let newPassword = '';
 	let confirmPassword = '';
@@ -75,10 +79,7 @@
 				goto('/login');
 			}, 2000);
 		} catch (err: any) {
-			await showError(
-				err.message || 'Password reset failed. Please try again.',
-				'Reset Failed'
-			);
+			await showError(err.message || 'Password reset failed. Please try again.', 'Reset Failed');
 		}
 	}
 
@@ -146,7 +147,7 @@
 			</form>
 
 			<div class="action-links">
-				<button type="button" class="link-btn" on:click={handleResendCode} disabled={resendLoading}>
+				<button type="button" class="login-btn !mt-0" on:click={handleResendCode} disabled={resendLoading}>
 					{resendLoading ? 'Resending...' : 'Resend Code'}
 				</button>
 			</div>
@@ -280,14 +281,14 @@
 		gap: 5px;
 	}
 	.link-btn {
-        text-align: left;
+		text-align: left;
 		background: none;
 		border: none;
 		color: #666;
 		cursor: pointer;
 		font-size: 0.9rem;
 		padding: 0.5rem;
-        padding-bottom: 0;
+		padding-bottom: 0;
 		transition: color 0.2s;
 		text-decoration: underline;
 	}

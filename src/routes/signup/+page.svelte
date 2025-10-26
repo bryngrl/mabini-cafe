@@ -32,7 +32,7 @@
 			
 			// Redirect to OTP verification with signup data
 			setTimeout(() => {
-				goto(`/verify-signup?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`);
+				goto(`/verify-signup?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`);
 			}, 2000);
 		} catch (err: any) {
 			await showError(err.message || 'Failed to send verification code. Please try again.', 'Error');

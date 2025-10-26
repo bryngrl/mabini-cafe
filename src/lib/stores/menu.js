@@ -6,6 +6,7 @@ import {
 	getMenuItemsByDescription,
 	createMenuItem,
 	updateMenuItem,
+	updateMenuItemAvailability,
 	deleteMenuItem
 } from '$lib/utils/fetcher';
 
@@ -74,36 +75,53 @@ function createMenuStore() {
 		},
 
 		
-		create: async (itemData, imageFile) => {
-			update(state => ({ ...state, loading: true, error: null }));
-			try {
-				const result = await createMenuItem(itemData, imageFile);
-				
-				const items = await getAllMenuItems();
-				update(state => ({ ...state, items, loading: false }));
-				return result;
-			} catch (error) {
-				update(state => ({ ...state, loading: false, error: error.message }));
-				throw error;
-			}
-		},
-
-		
-		update: async (itemId, itemData, imageFile) => {
-			update(state => ({ ...state, loading: true, error: null }));
-			try {
-				const result = await updateMenuItem(itemId, itemData, imageFile);
+	
+	// Create a new menu item (supports name, price, description, category_id, isAvailable, and optional image)
+	create: async (itemData, imageFile) => {
+		update(state => ({ ...state, loading: true, error: null }));
+		try {
+			const result = await createMenuItem(itemData, imageFile);
 			
-				const items = await getAllMenuItems();
-				update(state => ({ ...state, items, loading: false }));
-				return result;
-			} catch (error) {
-				update(state => ({ ...state, loading: false, error: error.message }));
-				throw error;
-			}
-		},
+			const items = await getAllMenuItems();
+			update(state => ({ ...state, items, loading: false }));
+			return result;
+		} catch (error) {
+			update(state => ({ ...state, loading: false, error: error.message }));
+			throw error;
+		}
+	},		
+	
+	// Update a menu item (supports name, price, description, category_id, isAvailable, and optional image)
+	update: async (itemId, itemData, imageFile) => {
+		update(state => ({ ...state, loading: true, error: null }));
+		try {
+			const result = await updateMenuItem(itemId, itemData, imageFile);
+		
+			const items = await getAllMenuItems();
+			update(state => ({ ...state, items, loading: false }));
+			return result;
+		} catch (error) {
+			update(state => ({ ...state, loading: false, error: error.message }));
+			throw error;
+		}
+	},
 
-		delete: async (itemId) => {
+	// Toggle menu item availability (quick update for admin)
+	toggleAvailability: async (itemId, isAvailable) => {
+		update(state => ({ ...state, loading: true, error: null }));
+		try {
+			const result = await updateMenuItemAvailability(itemId, isAvailable);
+		
+			const items = await getAllMenuItems();
+			update(state => ({ ...state, items, loading: false }));
+			return result;
+		} catch (error) {
+			update(state => ({ ...state, loading: false, error: error.message }));
+			throw error;
+		}
+	},
+
+	delete: async (itemId) => {
 			update(state => ({ ...state, loading: true, error: null }));
 			try {
 				await deleteMenuItem(itemId);
