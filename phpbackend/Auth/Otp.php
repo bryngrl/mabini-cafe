@@ -8,7 +8,7 @@ class Otp {
 
     public function generate_otp($email){
         $issuedAt = time();
-        $expire = $issuedAt + 500; // 500 seconds
+        $expire = $issuedAt + (12 * 60); 
         $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $otp_hash = password_hash($otp, PASSWORD_DEFAULT);
         $payload = [
