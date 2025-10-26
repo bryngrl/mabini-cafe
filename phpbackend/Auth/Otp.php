@@ -10,6 +10,8 @@ class Otp {
         $issuedAt = time();
         $expire = $issuedAt + (12 * 60); 
         $otp = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        // gawin ko lang string otp domskie
+        $otp = (string)$otp;
         $otp_hash = password_hash($otp, PASSWORD_DEFAULT);
         $payload = [
             'sub' => $email,
@@ -29,6 +31,9 @@ class Otp {
             if ($payload['exp'] < time()) {
                 return ["ok" => false, "error" => "OTP expired"];
             }
+
+            // Trim ko lang otp domkskrt 
+            $otp_input = trim((string)$otp_input);
 
             // Verify OTP
             if (!password_verify($otp_input, $payload['otp_hash'])) {

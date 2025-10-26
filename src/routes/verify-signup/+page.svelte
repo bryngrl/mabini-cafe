@@ -42,9 +42,18 @@
 			return;
 		}
 
+		// Validate that all required fields are present
+		if (!name || !email || !password) {
+			await showError('Missing signup information. Please start over from the signup page.', 'Error');
+			goto('/signup');
+			return;
+		}
+
 		try {
 			await otpStore.verifyOtp(token, otpCode);
 
+			console.log('Signup data:', { name, email, password: '***' }); // Debug log
+			
 			const result = await usersStore.signup({
 				username: name,
 				email: email,

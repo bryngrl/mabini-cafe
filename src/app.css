@@ -9,16 +9,23 @@
 	font-weight: 400;
 	font-style: normal;
 }
+@font-face {
+	font-family: 'Perandory';
+	src: url('/fonts/Perandory-Semi-Condensed.otf') format('opentype');
+	font-weight: 400;
+	font-style: normal;
+}
 
 /* Bold */
 @font-face {
-	font-family: 'Creato';
+	font-family: 'Creato Bold';
 	src: url('/fonts/CreatoDisplay-Bold.otf') format('opentype');
 	font-weight: 700;
 	font-style: normal;
 }
 @theme {
 	--font-sans: 'Creato', sans-serif;
+	--font-cond: 'Perandory', sans-serif;
 	/* Brand Colors */
 	--color-mabini-black: #000000;
 	--color-mabini-dark-brown: #2a1c0f;

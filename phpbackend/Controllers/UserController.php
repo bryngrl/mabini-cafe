@@ -516,6 +516,9 @@ public function verify_otp(){
     $otp = $data['otp'] ?? null;
 
     if(!empty($token) && !empty($otp)){
+        // Trim lang ulit domskrt, di kasi nababasa sa front kapag endi e, parang nagiinvalid ganon 
+        $otp = trim($otp);
+        
         $verify_otp = $this->otp->verify_otp($token, $otp);
 
         if($verify_otp['ok'] === true){

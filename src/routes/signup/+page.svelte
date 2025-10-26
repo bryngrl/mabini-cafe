@@ -30,9 +30,9 @@
 				'Verify Your Email'
 			);
 			
-			// Redirect to OTP verification with signup data
+			// Redirect to OTP verification with signup data (including password)
 			setTimeout(() => {
-				goto(`/verify-signup?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`);
+				goto(`/verify-signup?email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`);
 			}, 2000);
 		} catch (err: any) {
 			await showError(err.message || 'Failed to send verification code. Please try again.', 'Error');
