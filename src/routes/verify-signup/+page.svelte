@@ -2,7 +2,8 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { showSuccess, showError } from '$lib/utils/sweetalert';
-	import { otpStore, usersStore, otpLoading, otpError, otpToken } from '$lib/stores';
+	import { otpStore, usersStore, otpLoading, otpError } from '$lib/stores';
+	import { otpToken } from '$lib/stores/otp';
 	import { onMount } from 'svelte';
 
 	let email = '';
@@ -10,7 +11,6 @@
 	let password = '';
 	let otpCode = '';
 	let resendLoading = false;
-
 
 	$: loading = $otpLoading;
 	$: token = $otpToken;
@@ -25,10 +25,10 @@
 		name = $page.url.searchParams.get('name') || '';
 		password = $page.url.searchParams.get('password') || '';
 
-		if (!email || !name || !password) {
-			showError('Invalid signup session. Please try again.', 'Error');
-			goto('/signup');
-		}
+		// if (!email || !name || !password) {
+		// 	showError('Invalid signup session. Please try again.', 'Error');
+		// 	goto('/signup');
+		// }
 	});
 
 	async function handleVerifyOtp() {
@@ -126,21 +126,32 @@
 				/>
 			</div>
 
-			<button type="submit" class="login-btn" disabled={loading || otpCode.length !== 6}>
+			<div class="text-right pb-4">
+				<button type="button" class="link-btn" on:click={handleSignupWithDifferentEmail}>
+					Sign up with different email
+				</button>
+			</div>
+			<button type="submit" class="login-btn !mb-0" disabled={loading || otpCode.length !== 6}>
 				{loading ? 'Verifying...' : 'Verify & Create Account'}
 			</button>
 		</form>
 
 		<div class="action-links">
-			<button type="button" class="link-btn" on:click={handleResendCode} disabled={resendLoading}>
+			<button
+				type="button"
+				class="login-btn !mt-0"
+				on:click={handleResendCode}
+				disabled={resendLoading}
+			>
 				{resendLoading ? 'Resending...' : 'Resend Code'}
-			</button>
-			<button type="button" class="link-btn" on:click={handleSignupWithDifferentEmail}>
-				Sign up with different email
 			</button>
 		</div>
 	</div>
-	<button type="button" class="text-gray-600 underline hover:text-white p-5 cursor-pointer" on:click={handleGoToLogin}>
+	<button
+		type="button"
+		class="text-gray-600 underline hover:text-white p-5 cursor-pointer"
+		on:click={handleGoToLogin}
+	>
 		Already have an account? Log in
 	</button>
 </div>
@@ -230,14 +241,14 @@
 		gap: 5px;
 	}
 	.link-btn {
-        text-align: left;
+		text-align: left;
 		background: none;
 		border: none;
 		color: #666;
 		cursor: pointer;
 		font-size: 0.9rem;
 		padding: 0.5rem;
-        padding-bottom: 0;
+		padding-bottom: 0;
 		transition: color 0.2s;
 		text-decoration: underline;
 	}

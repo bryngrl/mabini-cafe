@@ -60,10 +60,24 @@
 	}
 
 	function checkout() {
+		// Check if any items are unavailable
+		const hasUnavailableItems = $cartItems.some(
+			(item) => item.menu_item_isAvailable === 0 || item.menu_item_isAvailable === false
+		);
+
 		if ($cartItems.length === 0) {
 			showError('Your cart is empty', 'Cannot Checkout');
 			return;
 		}
+
+		if (hasUnavailableItems) {
+			showError(
+				'Some items in your cart are no longer available. Please remove them before checking out.',
+				'Cannot Checkout'
+			);
+			return;
+		}
+
 		goto('/checkout');
 	}
 </script>
@@ -93,40 +107,57 @@
 						<p>Your cart is empty.</p>
 					{:else}
 						{#each $cartItems as item}
-							<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-10 mb-4 pb-4 border-b sm:border-b-0">
+							{@const isAvailable = item.menu_item_isAvailable === 1 || item.menu_item_isAvailable === true}
+							<div 
+								class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-10 mb-4 pb-4 border-b sm:border-b-0"
+								class:unavailable-item={!isAvailable}
+							>
 								<img
 									src={item.menu_item_image
 										? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
 										: '/images/placeholder.png'}
 									alt={item.menu_item_name}
 									class="w-20 h-20 sm:w-24 sm:h-24 object-cover self-center sm:self-start"
+									class:grayscale-img={!isAvailable}
 								/>
 
 								<div class="flex-1 flex flex-col sm:flex-row justify-between items-start w-full gap-2">
 									<div class="flex items-start justify-between w-full sm:w-auto">
 										<div class="flex-1 flex flex-col justify-between items-start">
-											<h3 class="text-base sm:text-lg font-bold min-h-[2rem] sm:min-h-[2.5rem] flex items-start self-start">
+											<h3 
+												class="text-base sm:text-lg font-bold min-h-[2rem] sm:min-h-[2.5rem] flex items-start self-start"
+												class:line-through-text={!isAvailable}
+											>
 												{item.menu_item_name}
 											</h3>
+											{#if !isAvailable}
+												<span class="text-xs text-red-600 font-semibold bg-red-100 px-2 py-1 rounded mb-2">
+													Currently Unavailable
+												</span>
+											{/if}
 											<div class="box flex items-center gap-2 sm:gap-4 my-2 sm:my-4 bg-gray-50 min-w-[100px] sm:min-w-[120px]">
 												<button
 													class="minus bg-white px-2 sm:px-3 py-1 text-gray-700 font-bold text-sm"
 													on:click={() =>
 														updateQuantity(item.id, item.quantity - 1, item.menu_item_price)}
-													disabled={item.quantity <= 1}>-</button
+													disabled={item.quantity <= 1 || !isAvailable}>-</button
 												>
 												<span class="text-base sm:text-lg font-bold w-6 sm:w-8 text-center">{item.quantity}</span>
 												<button
 													class="plus px-2 sm:px-3 py-1 bg-white text-gray-700 font-bold text-sm"
 													on:click={() =>
 														updateQuantity(item.id, item.quantity + 1, item.menu_item_price)}
+													disabled={!isAvailable}
 													>+</button
 												>
 											</div>
 										</div>
 									</div>
 									<div class="flex sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto gap-4 sm:gap-0 sm:h-24 sm:ml-3 sm:mt-6 sm:mb-8">
-										<p class="text-base sm:text-lg font-bold sm:min-h-[2.5rem] flex items-start">
+										<p 
+											class="text-base sm:text-lg font-bold sm:min-h-[2.5rem] flex items-start"
+											class:line-through-text={!isAvailable}
+										>
 											₱{(typeof item.subtotal === 'number' && !isNaN(item.subtotal)
 												? item.subtotal
 												: item.menu_item_price * (item.quantity || 1) || 0
@@ -205,5 +236,26 @@
 	.remove-btn:hover {
 		background-color: #fee;
 		transform: scale(1.1);
+	}
+
+	.unavailable-item {
+		opacity: 0.6;
+		background-color: #f9f9f9;
+		padding: 1rem;
+		border-radius: 0.5rem;
+	}
+
+	.grayscale-img {
+		filter: grayscale(70%);
+	}
+
+	.line-through-text {
+		text-decoration: line-through;
+		color: #999;
+	}
+
+	button:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
 	}
 </style>

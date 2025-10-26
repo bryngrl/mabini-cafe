@@ -60,12 +60,21 @@
 		if (searchTerm.trim() === '') {
 			filteredItems = [];
 		} else {
-			filteredItems = menuItems.filter(
+			const filtered = menuItems.filter(
 				(item) =>
 					item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
 					item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
 					item.category_name?.toLowerCase().includes(searchTerm.toLowerCase())
 			);
+
+			// Sort: available items first, unavailable items last
+			filteredItems = filtered.sort((a, b) => {
+				const aAvailable = a.isAvailable === 1 || a.isAvailable === true;
+				const bAvailable = b.isAvailable === 1 || b.isAvailable === true;
+				if (aAvailable && !bAvailable) return -1;
+				if (!aAvailable && bAvailable) return 1;
+				return 0;
+			});
 		}
 	}
 
@@ -124,11 +133,9 @@
 				</button>
 			</div>
 
-
 			<!-- Search Bar Section -->
 			<div class="search-section">
 				<div class="search-input-container">
-					
 					<input
 						type="text"
 						placeholder="Search for coffee, pastries, meals..."
@@ -152,23 +159,35 @@
 						</p>
 						<div class="menu-items">
 							{#each filteredItems as item}
-								<div class="menu-item">
+								{@const isAvailable = item.isAvailable === 1 || item.isAvailable === true}
+								<div class="menu-item" class:unavailable-search-item={!isAvailable}>
 									<img
-										src={item.image_path
-											? `http://localhost/mabini-cafe/phpbackend/${item.image_path.replace(/^\/?/, '')}`
-											: '/items/icon.svg'}
+										src={`http://localhost/mabini-cafe/phpbackend/${item.image_path.replace(/^\/?/, '')}`}
 										alt={item.name}
 										class="item-image"
+										class:grayscale-search-img={!isAvailable}
 									/>
 									<div class="item-details">
-										<h3 class="item-name">{item.name}</h3>
-										<p class="item-description">{item.description || ''}</p>
+										<h3 class="item-name" class:line-through-search={!isAvailable}>{item.name}</h3>
+										<p class="item-description" class:line-through-search={!isAvailable}>
+											{item.description || ''}
+										</p>
 										<p class="item-category">{item.category_name}</p>
-										<p class="item-price">₱{parseFloat(item.price).toFixed(2)}</p>
+										<p class="item-price" class:line-through-search={!isAvailable}>
+											₱{parseFloat(item.price).toFixed(2)}
+										</p>
+										{#if !isAvailable}
+											<span class="unavailable-badge">Currently Unavailable</span>
+										{/if}
 									</div>
 									<div class="item-actions">
-										<button class="add-btn" on:click={() => handleAddToCart(item)}>
-											Add to Cart
+										<button
+											class="add-btn"
+											on:click={() => handleAddToCart(item)}
+											disabled={!isAvailable}
+											class:disabled-btn={!isAvailable}
+										>
+											{isAvailable ? 'Add to Cart' : 'Unavailable'}
 										</button>
 									</div>
 								</div>
@@ -225,7 +244,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 1.5rem 2rem;
-        padding-bottom: 0;
+		padding-bottom: 0;
 		position: relative;
 	}
 
@@ -269,7 +288,6 @@
 		align-items: center;
 	}
 
-	
 	.search-input {
 		width: 100%;
 		padding: 1rem;
@@ -296,8 +314,6 @@
 		text-align: center;
 		padding: 3rem 1rem;
 	}
-
-	
 
 	.search-prompt-title {
 		font-size: 1.5rem;
@@ -330,15 +346,14 @@
 		gap: 1rem;
 		align-items: center;
 		padding: 1rem;
-		
+
 		transition: box-shadow 0.3s;
 	}
 
-    .menu-item:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        background-color: #ECECEC;
-
-    }
+	.menu-item:hover {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		background-color: #ececec;
+	}
 
 	.item-image {
 		width: 80px;
@@ -423,6 +438,45 @@
 	.add-btn:hover {
 		background-color: var(--color-mabini-yellow);
 		color: var(--color-mabini-dark-brown);
+	}
+
+	.add-btn.disabled-btn,
+	.add-btn:disabled {
+		background-color: #e0e0e0;
+		color: #999;
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	.add-btn.disabled-btn:hover,
+	.add-btn:disabled:hover {
+		background-color: #e0e0e0;
+		color: #999;
+	}
+
+	.unavailable-search-item {
+		opacity: 0.65;
+		background-color: #f9f9f9;
+	}
+
+	.grayscale-search-img {
+		filter: grayscale(70%);
+	}
+
+	.line-through-search {
+		text-decoration: line-through;
+		color: #999;
+	}
+
+	.unavailable-badge {
+		display: inline-block;
+		font-size: 0.7rem;
+		color: #dc2626;
+		background-color: #fee;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		font-weight: 600;
+		margin-top: 0.5rem;
 	}
 
 	.no-results {

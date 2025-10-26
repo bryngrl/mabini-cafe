@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Bugs in reposniveness
-	
+
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
 	import { onMount } from 'svelte';
@@ -68,7 +68,7 @@
 	function selectCategory(category: string) {
 		selectedCategory = category;
 		selectedSubcategory = null;
-		mobileMenuOpen = false; 
+		mobileMenuOpen = false;
 	}
 
 	async function handleAddToCart(item) {
@@ -104,13 +104,14 @@
 	<meta name="description" content="Browse our delicious menu of coffee, pastries, and more" />
 </svelte:head>
 <div class="page-header">
-	<h2 class="font-bold text-white text-center m-auto text-4xl sm:text-5xl md:text-6xl lg:text-7xl">Menu</h2>
+	<h2 class="font-bold text-white text-center m-auto text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+		Menu
+	</h2>
 </div>
 
 <div class="menu-page">
 	<div class="container">
-
-		<!-- Category buttons - hidden on mobile, visible on desktop -->
+		<!-- Category buttons -->
 		<div class="category hidden lg:flex">
 			{#each categories as category}
 				<button
@@ -124,37 +125,57 @@
 			{/each}
 		</div>
 
-		<!-- Mobile Dropdown Menu -->
+		<!-- Mobile Dropdown Menu-->
 		{#if mobileMenuOpen}
-			<div class="mobile-menu lg:hidden">
-				<div class="mobile-categories">
-					<h3 class="text-lg font-bold mb-3">Categories</h3>
-					{#each categories as category}
-						<button
-							class="mobile-category-btn"
-							class:selected-category={selectedCategory === category}
-							on:click={() => selectCategory(category)}
+			<div class="mobile-menu">
+				<div class="mobile-menu-header">
+					<h3 class="text-xl font-bold">Menu Navigation</h3>
+					<button class="close-menu-btn" on:click={toggleMobileMenu} aria-label="Close menu">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="2"
+							stroke="currentColor"
+							class="w-6 h-6"
 						>
-							{category.charAt(0).toUpperCase() + category.slice(1)}
-						</button>
-					{/each}
+							<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+						</svg>
+					</button>
 				</div>
-				
-				{#if subcategories[selectedCategory].length > 0}
-					<div class="mobile-subcategories">
-						<h3 class="text-lg font-bold mb-3">Subcategories</h3>
-						{#each subcategories[selectedCategory] as subcategory}
+
+				<div class="mobile-categories">
+					<h4 class="text-base font-semibold mb-2 text-gray-600">Categories</h4>
+					<div class="category-grid">
+						{#each categories as category}
 							<button
-								class="mobile-subcategory-btn"
-								class:selected-subcategory={selectedSubcategory === subcategory}
-								on:click={() => {
-									selectSubcategory(subcategory);
-									mobileMenuOpen = false;
-								}}
+								class="mobile-category-btn"
+								class:selected-category={selectedCategory === category}
+								on:click={() => selectCategory(category)}
 							>
-								{subcategory}
+								{category.charAt(0).toUpperCase() + category.slice(1)}
 							</button>
 						{/each}
+					</div>
+				</div>
+
+				{#if subcategories[selectedCategory] && subcategories[selectedCategory].length > 0}
+					<div class="mobile-subcategories">
+						<h4 class="text-base font-semibold mb-2 text-gray-600">Subcategories</h4>
+						<div class="subcategory-list">
+							{#each subcategories[selectedCategory] as subcategory}
+								<button
+									class="mobile-subcategory-btn"
+									class:selected-subcategory={selectedSubcategory === subcategory}
+									on:click={() => {
+										selectSubcategory(subcategory);
+										mobileMenuOpen = false;
+									}}
+								>
+									{subcategory}
+								</button>
+							{/each}
+						</div>
 					</div>
 				{/if}
 			</div>
@@ -162,14 +183,14 @@
 
 		<div class="main-menu px-4 sm:px-8 md:ml-[50px] md:mr-[50px]">
 			<div class="menu-layout">
-				<!-- Sidebar - Hidden on mobile, visible on desktop -->
+				<!-- Sidebar -->
 				<aside class="sidebar hidden lg:block">
 					<ul class="">
 						{#each subcategories[selectedCategory] as subcategory, index}
 							<li
 								class="cursor-pointer text-of-sub"
 								class:first-item={index === 0}
-				class:last-item={index === subcategories[selectedCategory].length - 1}
+								class:last-item={index === subcategories[selectedCategory].length - 1}
 								class:selected-subcategory={selectedSubcategory === subcategory}
 								on:click={() => selectSubcategory(subcategory)}
 							>
@@ -179,21 +200,35 @@
 					</ul>
 				</aside>
 
-			<div class="items-container">
-				<!-- Our Menu header with hamburger button -->
-				<div class="menu-text-container">
-					<h1 class="menu-text">Our Menu</h1>
-					<!-- Mobile Hamburger Button beside "Our Menu" -->
-					<button 
-						class="hamburger-btn-inline lg:hidden"
-						on:click={toggleMobileMenu}
-						aria-label="Toggle menu"
-					>
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-							<path stroke-linecap="round" stroke-linejoin="round" d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"} />
-						</svg>
-					</button>
-				</div>					{#if loading}
+				<div class="items-container">
+					<!-- Our Menu header with hamburger button -->
+					<div class="menu-text-container">
+						<h1 class="menu-text">Our Menu</h1>
+						<!-- Mobile Hamburger Button beside "Our Menu" -->
+						<button
+							class="hamburger-btn-inline lg:hidden"
+							on:click={toggleMobileMenu}
+							aria-label="Toggle menu"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="2"
+								stroke="currentColor"
+								class="w-6 h-6"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d={mobileMenuOpen
+										? 'M6 18L18 6M6 6l12 12'
+										: 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'}
+								/>
+							</svg>
+						</button>
+					</div>
+					{#if loading}
 						<div class="loading-state">
 							<p>Loading menu items...</p>
 						</div>
@@ -215,6 +250,14 @@
 												.trim() === selectedSubcategory.toLowerCase().trim());
 
 									return matchesCategory && matchesSubcategory;
+								})
+								.sort((a, b) => {
+									// Sort available items first, unavailable items last
+									const aAvailable = a.isAvailable === 1 || a.isAvailable === true;
+									const bAvailable = b.isAvailable === 1 || b.isAvailable === true;
+									if (aAvailable && !bAvailable) return -1;
+									if (!aAvailable && bAvailable) return 1;
+									return 0;
 								})
 								.slice(0, 50) as item}
 								<div>
@@ -246,10 +289,17 @@
 		height: 40vh;
 		width: 100%;
 		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		position: relative;
+		z-index: 0;
+	}
+	.page-header h2 {
+		position: relative;
+		z-index: 0;
 	}
 	@media (min-width: 768px) {
 		.page-header {
@@ -430,33 +480,94 @@
 		font-size: 1.1rem;
 	}
 
-	/* Hamburger Menu Styles */
+	/* Hamburger Menu Styles - Only visible on mobile/tablet (below lg breakpoint) */
 	.mobile-menu {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
 		background-color: white;
-		border: 1px solid #e5e5e5;
-		border-radius: 0.5rem;
-		padding: 1rem;
-		margin-bottom: 1rem;
-		max-height: 70vh;
+		z-index: 1000;
 		overflow-y: auto;
+		padding: 1.5rem;
+		animation: slideIn 0.3s ease-out;
+	}
+
+	@keyframes slideIn {
+		from {
+			transform: translateX(-100%);
+		}
+		to {
+			transform: translateX(0);
+		}
+	}
+
+	/* Hide mobile menu on large screens */
+	@media (min-width: 1024px) {
+		.mobile-menu {
+			display: none;
+		}
+	}
+
+	.mobile-menu-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 2rem;
+		padding-bottom: 1rem;
+		border-bottom: 2px solid #e5e5e5;
+	}
+
+	.close-menu-btn {
+		background-color: #f5f5f5;
+		border: none;
+		border-radius: 0.5rem;
+		padding: 0.5rem;
+		cursor: pointer;
+		transition: background-color 0.3s ease;
+	}
+
+	.close-menu-btn:hover {
+		background-color: #e5e5e5;
 	}
 
 	.mobile-categories,
 	.mobile-subcategories {
-		margin-bottom: 1.5rem;
+		margin-bottom: 2rem;
+	}
+
+	.category-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.75rem;
+	}
+
+	@media (min-width: 640px) {
+		.category-grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}@media (min-width: 1024px) {
+		.hamburger-btn-inline {
+			display: none !important;
+		}
+	}
+
+	.subcategory-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
 	}
 
 	.mobile-category-btn,
 	.mobile-subcategory-btn {
-		display: block;
-		width: 100%;
-		text-align: left;
-		padding: 0.75rem 1rem;
-		margin-bottom: 0.5rem;
+		text-align: center;
+		padding: 1rem;
 		background-color: #f5f5f5;
 		border: 2px solid transparent;
 		border-radius: 0.5rem;
-		font-size: 1rem;
+		font-size: 0.95rem;
+		font-weight: 500;
 		cursor: pointer;
 		transition: all 0.3s ease;
 	}
@@ -464,12 +575,20 @@
 	.mobile-category-btn:hover,
 	.mobile-subcategory-btn:hover {
 		background-color: #e5e5e5;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	}
 
 	.mobile-category-btn.selected-category {
-		background-color: black;
+		background-color: var(--color-mabini-black);
 		color: white;
 		font-weight: 600;
+		border-color: var(--color-mabini-black);
+	}
+
+	.mobile-subcategory-btn {
+		text-align: left;
+		padding: 0.875rem 1rem;
 	}
 
 	.mobile-subcategory-btn.selected-subcategory {

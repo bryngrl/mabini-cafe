@@ -14,41 +14,45 @@
 		loading = true;
 
 		try {
-			
 			try {
 				const adminResult = await authStore.loginAdmin(email, password);
 				if (adminResult && adminResult.info) {
-					
 					const token = adminResult.token || localStorage.getItem('token');
 					if (token) {
 						localStorage.setItem('token', token);
 					}
-					localStorage.setItem('user', JSON.stringify({
-						...adminResult.info,
-						role: 'admin'
-					}));
-					
-					await showSuccess('Admin login successful! Redirecting to dashboard...', 'Welcome Back Admin!');
+					localStorage.setItem(
+						'user',
+						JSON.stringify({
+							...adminResult.info,
+							role: 'admin'
+						})
+					);
+
+					await showSuccess(
+						'Admin login successful! Redirecting to dashboard...',
+						'Welcome Back Admin!'
+					);
 					setTimeout(() => {
 						goto('/admin');
 					}, 1500);
 					return;
 				}
 			} catch (adminErr) {
-				
 				console.log('Not an admin, trying user login...');
 			}
 
-		
 			const userResult = await authStore.loginUser(email, password);
 			if (userResult && userResult.token && userResult.info) {
-			
 				localStorage.setItem('token', userResult.token);
-				localStorage.setItem('user', JSON.stringify({
-					...userResult.info,
-					role: 'user' 
-				}));
-				
+				localStorage.setItem(
+					'user',
+					JSON.stringify({
+						...userResult.info,
+						role: 'user'
+					})
+				);
+
 				await showSuccess('Login successful! Redirecting...', 'Welcome Back!');
 				setTimeout(() => {
 					goto('/');
@@ -57,7 +61,10 @@
 				throw new Error('Invalid login response from server');
 			}
 		} catch (err: any) {
-			await showError(err.message || 'Login failed. Please check your credentials.', 'Login Failed');
+			await showError(
+				err.message || 'Login failed. Please check your credentials.',
+				'Login Failed'
+			);
 			loading = false;
 		}
 	}
@@ -71,14 +78,15 @@
 			inputValue: email,
 			showCancelButton: true,
 			confirmButtonText: 'Send Code',
-			confirmButtonColor: '#000',
-			inputValidator: (value) => {
-				if (!value) {
-					return 'Please enter your email address';
-				}
-				if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-					return 'Please enter a valid email address';
-				}
+			confirmButtonColor: '#000', // Black button
+			cancelButtonColor: '#6b7280', // Gray button
+			background: '#fff', // White background
+			color: '#000', // Black text
+			customClass: {
+				popup: 'swal-popup-mabini',
+				confirmButton: 'swal-confirm-mabini',
+				cancelButton: 'swal-cancel-mabini',
+				input: 'swal-input-mabini'
 			}
 		});
 
@@ -87,6 +95,7 @@
 				await otpStore.sendOtpForgotPassword(resetEmail);
 				await showSuccess('Verification code sent! Check your email.', 'Code Sent');
 				goto(`/forgot-password?email=${encodeURIComponent(resetEmail)}`);
+				// add a page to redirect for inputting an otp
 			} catch (err: any) {
 				await showError(err.message || 'Failed to send code. Please try again.', 'Error');
 			}
@@ -135,12 +144,14 @@
 					{showPassword ? 'Hide' : 'Show'}
 				</button>
 			</div>
+			<div class="links">
+				<button type="button" on:click={handleForgotPassword} class="forgot-link"
+					>Forgot Password</button
+				>
+			</div>
 			<button type="submit" class="login-btn" disabled={loading}>
 				{loading ? 'Signing in...' : 'Sign In'}
 			</button>
-			<div class="links">
-				<button type="button" on:click={handleForgotPassword} class="forgot-link">Forgot Password</button>
-			</div>
 		</form>
 	</div>
 	<div class="login-footer">
@@ -215,10 +226,11 @@
 		color: #374151;
 	}
 	.links {
-		margin-top: 0.7rem;
-		text-align: left;
+		margin-top: 0.5rem;
+		text-align: right;
 	}
 	.forgot-link {
+		text-align: left;
 		background: none;
 		border: none;
 		color: #6b7280;
@@ -253,4 +265,5 @@
 		color: white;
 		width: 100%;
 	}
+	
 </style>

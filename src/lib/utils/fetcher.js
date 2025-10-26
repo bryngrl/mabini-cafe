@@ -248,22 +248,44 @@ export async function createMenuItem(itemData, imageFile = null) {
 	formData.append('price', itemData.price);
 	if (itemData.description) formData.append('description', itemData.description);
 	if (itemData.category_id) formData.append('category_id', itemData.category_id);
+	if (itemData.hasOwnProperty('isAvailable')) formData.append('isAvailable', itemData.isAvailable);
 	if (imageFile) formData.append('image', imageFile);
 
 	return apiFormData('/menu', formData, 'POST');
 }
 
 /**
- * Update menu item (with optional image upload)
+ * Update menu item (info only - no image upload support for now)
  */
 export async function updateMenuItem(itemId, itemData, imageFile = null) {
-	const formData = new FormData();
-	formData.append('name', itemData.name);
-	formData.append('price', itemData.price);
-	if (itemData.description) formData.append('description', itemData.description);
-	if (itemData.category_id) formData.append('category_id', itemData.category_id);
-	if (imageFile) formData.append('image', imageFile);
+	// Use PUT with JSON to update info (backend updateInfo method)
+	const updatePayload = {
+		name: itemData.name,
+		price: itemData.price,
+		description: itemData.description || '',
+		category_id: itemData.category_id,
+		isAvailable: itemData.isAvailable
+	};
 
+	// If there's an image, we need to update it separately
+	if (imageFile) {
+		const imageFormData = new FormData();
+		imageFormData.append('image', imageFile);
+		await apiFormData(`/menu/image?menu_id=${itemId}`, imageFormData, 'POST');
+	}
+
+	return apiFetch(`/menu/${itemId}`, {
+		method: 'PUT',
+		body: JSON.stringify(updatePayload)
+	});
+}
+
+/**
+ * Toggle menu item availability (quick update)
+ */
+export async function updateMenuItemAvailability(itemId, isAvailable) {
+	const formData = new FormData();
+	formData.append('isAvailable', isAvailable ? '1' : '0');
 	return apiFormData(`/menu/${itemId}`, formData, 'PUT');
 }
 

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { form } from '$app/server';
 	import { ordersStore, orders, menuStore, menuItems } from '$lib/stores';
 	import { authStore } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { showError, showSuccess } from '$lib/utils/sweetalert';
 	import ViewItemModal from '$lib/components/ui/ViewItemModal.svelte';
+	import AdminItemModal from '$lib/components/ui/AdminItemModal.svelte';
 
 	interface Order {
 		id: number;
@@ -23,11 +23,54 @@
 		shipping_fee?: number;
 		shipping_fee_id?: number;
 	}
+	//Function for updating the availability
+	//Disabling the item if the isAvailability is 0
+	async function isAvailableUpdate(product: any) {
+		try {
+			// Toggle the availability: if currently available (true/1), make unavailable (false/0), and vice versa
+			const currentAvailability = product.isAvailable ?? true;
+			const newAvailability = !currentAvailability;
+
+			// Ensure name and price are properly formatted
+			if (!product.name || !product.price) {
+				console.error('Missing name or price:', { name: product.name, price: product.price });
+				await showError('Product data is incomplete. Please refresh the page and try again.');
+				return;
+			}
+
+			// Update with all required fields (backend needs name, price, etc.)
+			const updateData: any = {
+				name: String(product.name),
+				price: Number(product.price),
+				description: product.description || '',
+				isAvailable: newAvailability ? 1 : 0 // Convert boolean to 0 or 1 for backend
+			};
+
+			// Only include category_id if it exists in the product object
+			if (product.category_id) {
+				updateData.category_id = Number(product.category_id);
+			}
+
+			console.log('Sending update data:', updateData);
+
+			await menuStore.update(product.id, updateData);
+
+			await showSuccess(
+				`${product.name} is now ${newAvailability ? 'Available' : 'Unavailable'}`,
+				'Success'
+			);
+		} catch (err) {
+			console.error('Error updating availability:', err);
+			await showError('Failed to update product availability. Please try again.');
+		}
+	}
 
 	let selectedTab = $state('customize');
 	let currentDate = $state(new Date());
 	let selectedOrder: Order | null = $state(null);
 	let showOrderModal = $state(false);
+	let selectedProduct: any = $state(null);
+	let showProductModal = $state(false);
 	let searchQuery = $state('');
 	let mobileMenuOpen = $state(false);
 
@@ -76,7 +119,16 @@
 
 	// Filtered products for Product Manager
 	let filteredProducts = $derived(
-		$menuItems.filter((item: any) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+		$menuItems
+			.filter((item: any) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+			.sort((a: any, b: any) => {
+				// Sort: available items first, unavailable items last
+				const aAvailable = a.isAvailable ?? a.is_available ?? true;
+				const bAvailable = b.isAvailable ?? b.is_available ?? true;
+
+				if (aAvailable === bAvailable) return 0;
+				return aAvailable ? -1 : 1;
+			})
 	);
 
 	// Paginated orders
@@ -122,7 +174,6 @@
 			console.error(err);
 			showError('Failed to fetch data');
 		}
-		
 	});
 
 	// Reset to page 1 when search query changes
@@ -291,6 +342,16 @@
 		selectedOrder = null;
 	}
 
+	function openProductModal(product: any) {
+		selectedProduct = product;
+		showProductModal = true;
+	}
+
+	function closeProductModal() {
+		showProductModal = false;
+		selectedProduct = null;
+	}
+
 	// TODO: Backend not ready yet
 	// async function toggleProductAvailability(productId: number, currentStatus: boolean) {
 	// 	try {
@@ -364,7 +425,7 @@
 					onclick={() => selectTab('products')}
 				>
 					<img src="/admin/products.svg" alt="Products Icon" class="w-10 h-10" />
-					<span class="flex flex-col items-center justify-center text-center text-lg">Products</span
+					<span class="flex flex-col items-center justify-center text-center text-lg">Add a Product</span
 					>
 				</button>
 			</div>
@@ -586,14 +647,28 @@
 													handleStatusChange(order.id, (e.target as HTMLSelectElement).value)}
 												class="border border-gray-300 rounded-lg px-2 py-1 capitalize"
 											>
-												{#if !['pending','preparing','delivering','completed','cancelled'].includes(order.status?.toLowerCase()) && order.status}
+												{#if !['pending', 'preparing', 'delivering', 'completed', 'cancelled'].includes(order.status?.toLowerCase()) && order.status}
 													<option value={order.status} selected disabled>{order.status}</option>
 												{/if}
-												<option value="pending" selected={order.status?.toLowerCase() === 'pending'}>Pending</option>
-												<option value="preparing" selected={order.status?.toLowerCase() === 'preparing'}>Preparing</option>
-												<option value="delivering" selected={order.status?.toLowerCase() === 'delivering'}>Delivering</option>
-												<option value="completed" selected={order.status?.toLowerCase() === 'completed'}>Completed</option>
-												<option value="cancelled" selected={order.status?.toLowerCase() === 'cancelled'}>Cancelled</option>
+												<option value="pending" selected={order.status?.toLowerCase() === 'pending'}
+													>Pending</option
+												>
+												<option
+													value="preparing"
+													selected={order.status?.toLowerCase() === 'preparing'}>Preparing</option
+												>
+												<option
+													value="delivering"
+													selected={order.status?.toLowerCase() === 'delivering'}>Delivering</option
+												>
+												<option
+													value="completed"
+													selected={order.status?.toLowerCase() === 'completed'}>Completed</option
+												>
+												<option
+													value="cancelled"
+													selected={order.status?.toLowerCase() === 'cancelled'}>Cancelled</option
+												>
 											</select>
 										</span>
 									</div>
@@ -793,37 +868,62 @@
 						<!-- Product List -->
 						<div class="space-y-3 pb-5">
 							{#each paginatedProducts as product (product.id)}
+								{@const isUnavailable = product.isAvailable === false || product.isAvailable === 0}
 								<div
-									class="flex items-center justify-between border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
+									class="flex items-center justify-between border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-all cursor-pointer"
+									class:unavailable-product={isUnavailable}
+									onclick={() => openProductModal(product)}
 								>
 									<div class="flex items-center gap-4 flex-1">
-										{#if product.image_url}
+										{#if product.image_path || product.image_url}
 											<img
-												src={`http://localhost/mabini-cafe/phpbackend/${product.image_url}`}
+												src={`http://localhost/mabini-cafe/phpbackend/${product.image_path || product.image_url}`}
 												alt={product.name}
-												class="w-16 h-16 object-cover rounded-lg"
+												class:unavailable-image={isUnavailable}
+												class="w-16 h-16 object-cover rounded-lg transition-all"
 											/>
 										{/if}
 										<div class="flex-1">
-											<h3 class="font-bold text-lg">{product.name}</h3>
-											<p class="text-sm text-gray-600">₱{product.price}</p>
+											<h3 class="font-bold text-lg" class:strikethrough-text={isUnavailable}>
+												{product.name}
+											</h3>
+											<p class="text-sm text-gray-600" class:strikethrough-text={isUnavailable}>
+												₱{product.price}
+											</p>
+
 											<p class="text-xs text-gray-500">{product.description || 'No category'}</p>
+
+											{#if isUnavailable}
+												<span class="text-xs text-red-600 font-semibold mt-1 inline-block"
+													>Currently Unavailable</span
+												>
+											{/if}
 										</div>
 									</div>
 									<div class="flex items-center gap-3">
-										<!-- TODO: Backend not ready - Uncomment when is_available field is added to menu table -->
-										<!-- <label class="flex items-center gap-2 cursor-pointer">
-											<input
-												type="checkbox"
-												checked={product.is_available ?? true}
-												onchange={() => toggleProductAvailability(product.id, product.is_available)}
-												class="w-5 h-5 cursor-pointer"
-											/>
-											<span class="text-sm font-medium">
-												{product.is_available ? 'Available' : 'Unavailable'}
+										<div class="flex items-center gap-2">
+											<span
+												class="text-sm font-medium {isUnavailable
+													? 'text-red-600'
+													: 'text-green-600'}"
+											>
+												{isUnavailable ? 'Unavailable' : 'Available'}
 											</span>
-										</label> -->
-										<span class="text-sm font-medium text-green-600">Available</span>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												class="h-5 w-5 text-gray-400"
+												fill="none"
+												viewBox="0 0 24 24"
+												stroke="currentColor"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													stroke-width="2"
+													d="M9 5l7 7-7 7"
+												/>
+											</svg>
+										</div>
 									</div>
 								</div>
 							{:else}
@@ -883,4 +983,9 @@
 <!-- Order Details Modal -->
 {#if showOrderModal && selectedOrder}
 	<ViewItemModal order={selectedOrder} onClose={closeOrderModal} />
+{/if}
+
+<!-- Product Edit Modal -->
+{#if showProductModal && selectedProduct}
+	<AdminItemModal product={selectedProduct} onClose={closeProductModal} />
 {/if}

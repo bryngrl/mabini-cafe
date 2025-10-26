@@ -52,7 +52,7 @@
 </script>
 
 <nav
-	class="flex items-center justify-between p-4 bg-black text-white font-medium uppercase drop-shadow-2xl w-full"
+	class="flex items-center justify-between p-4 bg-black text-white font-medium uppercase drop-shadow-2xl w-full relative z-[100]"
 >
 	<!-- Left links (desktop) -->
 	<div class="hidden md:flex flex-1 justify-start ml-[50px]">

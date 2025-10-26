@@ -90,6 +90,21 @@
 			if ($cartItems.length === 0) {
 				await showError('Your cart is empty', 'Cannot Checkout');
 				goto('/menu');
+				return;
+			}
+
+			// Check if any items are unavailable
+			const hasUnavailableItems = $cartItems.some(
+				(item) => item.menu_item_isAvailable === 0 || item.menu_item_isAvailable === false
+			);
+
+			if (hasUnavailableItems) {
+				await showError(
+					'Some items in your cart are no longer available. Please remove them before checking out.',
+					'Cannot Checkout'
+				);
+				goto('/cart');
+				return;
 			}
 		} catch (err: any) {
 			console.error('Error loading cart:', err);
