@@ -63,6 +63,9 @@ switch($resource){
      case 'payments':
          require_once "PaymentRoute.php";
         break;
+      case 'customize':
+        require_once "CustomizeRoute.php";
+        break;
     default:
         http_response_code(404);
         echo json_encode(["error"=>"Endpoint not found"]);
