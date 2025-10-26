@@ -18,8 +18,6 @@ switch ($method) {
         break;
 
     case 'POST':
-
-        $menu_id = $_GET['menu_id'] ?? null;
              $menu_id = $_GET['menu_id'] ?? $_POST['menu_id'] ?? null;
      if ($menu_id) 
         $controller->updateImage($menu_id);
