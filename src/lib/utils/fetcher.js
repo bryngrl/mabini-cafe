@@ -73,16 +73,20 @@ async function apiFormData(endpoint, formData, method = 'POST') {
  * @param {string} userData.contact_number - Contact number
  */
 export async function signup(userData) {
+	const payload = {
+		username: userData.username || userData.name,
+		email: userData.email,
+		password: userData.password,
+		address: userData.address || '',
+		contact_number: userData.contact_number || ''
+	};
+	
+	console.log('Signup payload being sent:', { ...payload, password: '***' }); // Debug log
+	
 	return apiFetch('/users', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-			username: userData.username || userData.name,
-			email: userData.email,
-			password: userData.password,
-			address: userData.address || '',
-			contact_number: userData.contact_number || ''
-		})
+		body: JSON.stringify(payload)
 	});
 }
 
