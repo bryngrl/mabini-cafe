@@ -16,6 +16,11 @@
 	let showDots = false;
 	let isProductScrollAtStart = true;
 	let isProductScrollAtEnd = false;
+	
+	
+	
+	
+	
 	const reviews = [
 		{ img: '/reviews/review-1.svg', name: 'Review 1' },
 		{ img: '/reviews/review-2.svg', name: 'Review 2' },
