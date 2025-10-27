@@ -1,5 +1,5 @@
 <?php
-require_once "../controllers/PaymentController.php";
+require_once __DIR__ . "/../Controllers/PaymentController.php";
 
 $controller = new PaymentController($db);
 

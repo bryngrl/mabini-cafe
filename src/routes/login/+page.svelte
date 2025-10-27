@@ -10,8 +10,21 @@
 	let password = '';
 	let showPassword = false;
 
+	// Email validation - only accept @gmail.com
+	function validateEmail(email: string): boolean {
+		const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+		return emailRegex.test(email);
+	}
+
 	async function handleLogin() {
 		loading = true;
+
+		// Validate email format
+		if (!validateEmail(email)) {
+			await showError('Please use a valid @gmail.com email address.', 'Invalid Email');
+			loading = false;
+			return;
+		}
 
 		try {
 			try {
@@ -73,8 +86,8 @@
 		const { value: resetEmail } = await Swal.fire({
 			title: 'Reset Password',
 			input: 'email',
-			inputLabel: 'Enter your email address',
-			inputPlaceholder: 'your@email.com',
+			inputLabel: 'Enter your @gmail.com email address',
+			inputPlaceholder: 'your@gmail.com',
 			inputValue: email,
 			showCancelButton: true,
 			confirmButtonText: 'Send Code',
@@ -87,6 +100,15 @@
 				confirmButton: 'swal-confirm-mabini',
 				cancelButton: 'swal-cancel-mabini',
 				input: 'swal-input-mabini'
+			},
+			inputValidator: (value) => {
+				if (!value) {
+					return 'Email is required';
+				}
+				const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+				if (!emailRegex.test(value)) {
+					return 'Please use a valid @gmail.com email address';
+				}
 			}
 		});
 

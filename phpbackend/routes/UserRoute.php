@@ -1,5 +1,5 @@
 <?php
-require_once "../controllers/UserController.php";
+require_once "../Controllers/UserController.php"; // Cinapital q lang uli
 
 $controller = new UserController($db);
 

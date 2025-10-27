@@ -9,6 +9,7 @@
 	import { shippingStore, shippingInfo, shippingLoading, shippingError } from '$lib/stores';
 	import { selectedAddressId } from '$lib/stores/checkout';
 	import { form } from '$app/server';
+	import { orderNoteStore } from '$lib/stores/orderNote';
 
 	// Store for selected address ID
 	function redirectToCart() {
@@ -607,6 +608,16 @@
 					</div>
 				{/each}
 				<hr class="my-4 border-gray-300" />
+				
+				<!-- Order Note Section -->
+				{#if $orderNoteStore}
+					<div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+						<h3 class="text-sm font-semibold text-gray-700 mb-2">Note:</h3>
+						<p class="text-sm text-gray-600 whitespace-pre-wrap">{$orderNoteStore}</p>
+					</div>
+					<hr class="my-4 border-gray-300" />
+				{/if}
+				
 				<div class="flex justify-between items-center mb-2">
 					<div class="flex flex-1 justify-between items-center">
 						<span class="text-gray-600"

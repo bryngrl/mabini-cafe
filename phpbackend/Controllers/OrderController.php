@@ -5,8 +5,10 @@ require_once(__DIR__ . '/../Models/Order.php');
 require_once(__DIR__ . '/../Models/Shippingfee.php');
 class OrderController {
     private $model;
+    private $conn;
 
     public function __construct($db) {
+        $this->conn = $db;
         $this->model = new Order($db);
         $this->shippingmodel = new Shippingfee($db);
         header('Content-Type: application/json');
@@ -147,10 +149,15 @@ class OrderController {
         $this->model->user_id = $data['user_id'];
         $this->model->total_amount = $data['total_amount'] + $shipping_fee;
         $this->model->shipping_fee_id = $data['shipping_fee_id'];
+        $this->model->message = $data['message'] ?? '';
 
         if ($this->model->create()) {
+            $order_id = $this->conn->lastInsertId();
             http_response_code(201);
-            echo json_encode(["message" => "Order created successfully"]);
+            echo json_encode([
+                "message" => "Order created successfully",
+                "order_id" => (int)$order_id
+            ]);
         } else {
             http_response_code(500);
             echo json_encode(["error" => "Failed to create order"]);

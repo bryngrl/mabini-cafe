@@ -7,6 +7,12 @@
 	import { showConfirm, showSuccess, showError, showLoginRequired } from '$lib/utils/sweetalert';
 
 	let isLoading = true;
+	let hasUnavailableItems = false;
+
+	// Reactive statement to check for unavailable items
+	$: hasUnavailableItems = $cartItems.some(
+		(item) => item.menu_item_isAvailable === 0 || item.menu_item_isAvailable === '0' || item.menu_item_isAvailable === false
+	);
 
 	onMount(async () => {
 		authStore.init();
@@ -60,11 +66,6 @@
 	}
 
 	function checkout() {
-		// Check if any items are unavailable
-		const hasUnavailableItems = $cartItems.some(
-			(item) => item.menu_item_isAvailable === 0 || item.menu_item_isAvailable === false
-		);
-
 		if ($cartItems.length === 0) {
 			showError('Your cart is empty', 'Cannot Checkout');
 			return;
@@ -107,7 +108,7 @@
 						<p>Your cart is empty.</p>
 					{:else}
 						{#each $cartItems as item}
-							{@const isAvailable = item.menu_item_isAvailable === 1 || item.menu_item_isAvailable === true}
+							{@const isAvailable = item.menu_item_isAvailable === 1 || item.menu_item_isAvailable === '1' || item.menu_item_isAvailable === true}
 							<div 
 								class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-10 mb-4 pb-4 border-b sm:border-b-0"
 								class:unavailable-item={!isAvailable}
@@ -192,9 +193,16 @@
 					<p class="text-base sm:text-lg font-[900] pl-4 sm:pl-20">₱{$cartTotal.toFixed(2)}</p>
 				</div>
 				<p class="text-sm sm:text-normal pt-3 sm:pt-5 pb-3 sm:pb-5">* shipping calculated at checkout.</p>
+				{#if hasUnavailableItems}
+					<p class="text-sm text-red-400 pb-3">
+						⚠️ Please remove unavailable items to proceed with checkout
+					</p>
+				{/if}
 				<button
 					class="cursor-pointer w-full bg-mabini-dark-brown font-bold rounded-full py-2 px-6 sm:px-10 text-sm sm:text-base tracking-wide text-center"
-					disabled={$cartItems.length === 0}
+					class:opacity-50={$cartItems.length === 0 || hasUnavailableItems}
+					class:cursor-not-allowed={$cartItems.length === 0 || hasUnavailableItems}
+					disabled={$cartItems.length === 0 || hasUnavailableItems}
 					on:click={checkout}
 				>
 					{#if $cartItems.length === 0}

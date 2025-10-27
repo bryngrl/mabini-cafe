@@ -524,7 +524,8 @@ export async function createOrderItem(orderItemData) {
 			order_id: orderItemData.order_id,
 			menu_item_id: orderItemData.menu_item_id,
 			quantity: orderItemData.quantity,
-			subtotal: orderItemData.subtotal
+			price: orderItemData.price,
+			subtotal: orderItemData.subtotal || (orderItemData.price * orderItemData.quantity)
 		})
 	});
 }
@@ -743,5 +744,99 @@ export async function resetPassword(email, password) {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({ email, password })
+	});
+}
+
+// ======
+// CUSTOMIZE WEBSITE
+// ======
+
+/**
+ * Get all customization records
+ */
+export async function getAllCustomizations() {
+	return apiFetch('/customize');
+}
+
+/**
+ * Get a customization record by ID
+ * @param {number} customId
+ */
+export async function getCustomizationById(customId) {
+	return apiFetch(`/customize/${customId}`);
+}
+
+/**
+ * Create a new customization record
+ * @param {object} customData
+ * @param {File} imageFile
+ */
+export async function createCustomization(customData, imageFile = null) {
+	const formData = new FormData();
+	if (customData.image_custom_name) {
+		formData.append('image_custom_name', customData.image_custom_name);
+	}
+	if (imageFile) {
+		formData.append('image', imageFile);
+	}
+	return apiFormData('/customize', formData, 'POST');
+}
+
+/**
+ * Update customization name
+ * @param {number} customId
+ * @param {object} customData
+ */
+export async function updateCustomizationName(customId, customData) {
+	return apiFetch(`/customize/${customId}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			image_custom_name: customData.image_custom_name
+		})
+	});
+}
+
+/**
+ * Update customization image
+ * @param {number} customId
+ * @param {File} imageFile
+ */
+export async function updateCustomizationImage(customId, imageFile) {
+	const formData = new FormData();
+	formData.append('image', imageFile);
+	return apiFormData(`/customize?custom_id=${customId}`, formData, 'POST');
+}
+
+/**
+ * Delete customization record
+ * @param {number} customId
+ */
+export async function deleteCustomization(customId) {
+	return apiFetch(`/customize/${customId}`, {
+		method: 'DELETE'
+	});
+}
+
+// ======
+// PAYMENT - PAYMONGO
+// ======
+
+/**
+ * Create a PayMongo checkout session
+ * @param {object} paymentData
+ * @param {number} paymentData.user_id - User ID
+ * @param {number} paymentData.order_id - Order ID
+ * @param {string} paymentData.payment_method - Payment method (gcash, paymaya, card, etc.)
+ */
+export async function createPaymongoCheckout(paymentData) {
+	return apiFetch('/payments', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			user_id: paymentData.user_id,
+			order_id: paymentData.order_id,
+			payment_method: paymentData.payment_method
+		})
 	});
 }

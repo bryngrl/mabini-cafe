@@ -76,6 +76,7 @@ class Cart{
           c.description AS menu_item_description,
           c.price AS menu_item_price,
           c.image_path AS menu_item_image,
+          c.isAvailable AS menu_item_isAvailable,
           a.quantity,
           a.subtotal
           FROM ".$this->table." a 

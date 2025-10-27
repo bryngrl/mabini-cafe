@@ -1,14 +1,13 @@
-<!-- Home Page -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { menuStore } from '$lib/stores';
-	import { redirect } from '@sveltejs/kit';
+	import { menuStore, customizeStore } from '$lib/stores';
 	import { onMount } from 'svelte';
 
 	let heroImage = '/images/cover-photo-1.png';
-	let heroImage2 = '/images/sofa.png';
+	let heroImage2 = '/home/sofa.svg';
 	let heroImage3 = '/images/cover-photo-2.svg';
-	let products: { name: string; price: string; temp: string; img: string }[] = [];
+	let drinks = 'home/drink.svg';
+	let products: { name: string; price: string; temp: string; img: string; isAvailable: boolean }[] = [];
 	let scrollRef: HTMLDivElement;
 	let scrollRef2: HTMLDivElement;
 	let loading = true;
@@ -16,11 +15,7 @@
 	let showDots = false;
 	let isProductScrollAtStart = true;
 	let isProductScrollAtEnd = false;
-	
-	
-	
-	
-	
+
 	const reviews = [
 		{ img: '/reviews/review-1.svg', name: 'Review 1' },
 		{ img: '/reviews/review-2.svg', name: 'Review 2' },
@@ -33,24 +28,38 @@
 
 	onMount(async () => {
 		try {
+			const heroImages = await customizeStore.fetchAll();
+			if (heroImages && heroImages.length > 0) {
+				if (heroImages[0]?.image_path) {
+					heroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
+				}
+				if (heroImages[1]?.image_path) {
+					heroImage2 = `http://localhost/mabini-cafe/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
+				}
+				if (heroImages[2]?.image_path) {
+					heroImage3 = `http://localhost/mabini-cafe/phpbackend/${heroImages[2].image_path.replace(/^\/?/, '')}`;
+				}
+			}
+
 			const items = await menuStore.fetchAll();
-			products = items.map((item: any) => ({
+			const filteredItems = items.filter(
+				(item: any) => item.isAvailable === 1 || item.isAvailable === '1' || item.isAvailable === true
+			);
+			products = filteredItems.map((item: any) => ({
 				name: item.name,
 				price: `₱${parseFloat(item.price).toFixed(2)}`,
 				temp: item.category,
 				img: item.image_path
 					? `http://localhost/mabini-cafe/phpbackend/${item.image_path.replace(/^\/?/, '')}`
-					: ''
+					: '',
+				isAvailable: item.isAvailable
 			}));
 		} catch (error) {
-			console.error('Failed to load menu items:', error);
+			console.error('Failed to load data:', error);
 		} finally {
 			loading = false;
-			// Ensure scroll button state is correct after products load
 			setTimeout(() => handleProductScroll(), 0);
 		}
-		// Also check on mount
-		setTimeout(() => handleProductScroll(), 0);
 	});
 
 	function showDotRow() {
@@ -71,6 +80,7 @@
 			showDotRow();
 		}
 	}
+
 	function scrollRight2() {
 		if (scrollRef) {
 			scrollRef.scrollBy({ left: 300, behavior: 'smooth' });
@@ -97,67 +107,94 @@
 	<meta name="description" content="Welcome to Mabini Cafe" />
 </svelte:head>
 
-<section class="hero" style="background-image: url('{heroImage}')">
-	<!-- The three circles here -->
-</section>
+<section
+	class="hero h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] w-full flex justify-center items-center bg-cover bg-center text-white text-center"
+	style="background-image: url('{heroImage}')"
+></section>
 
-<section class="hero-2" style="background-image: url('{heroImage2}')">
-	<div class="hero-content">
-		<h1 class="text-[30px] !text-mabini-black uppercase font-bold leading-tight pt-[10px]">
+<section
+	class="hero-2 mt-10 sm:mt-16 md:mt-20 lg:mt-24 h-auto min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full flex justify-center items-start bg-cover bg-center text-center px-4 sm:px-6 md:px-8 lg:px-4 relative overflow-hidden"
+>
+	<div class="hero-content px-4 sm:px-8 md:px-16 lg:px-20 pt-2 sm:pt-4 md:pt-8 lg:pt-12 z-10">
+		<h1
+			class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-mabini-black uppercase font-sans-boldie font-extrabold leading-tight"
+		>
 			Choose Your
-			<span class="!text-mabini-yellow"> Refresher </span>
+			<span class="text-mabini-yellow">Refresher</span>
 			<br />
-			<span class="!text-[60px] !text-mabini-dark-brown leading-none">
-				Cucumber <br />
-				Lemonade
+			<span
+				class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-mabini-dark-brown leading-none mt-2 font-black"
+			>
+				Cucumber<br />Lemonade
 			</span>
 		</h1>
 	</div>
+	<img
+		src={heroImage2}
+		alt="Hero 2"
+		class="absolute right-0 bottom-6 sm:bottom-8 md:bottom-10 lg:bottom-10 pointer-events-none select-none w-[350px] sm:w-[450px] md:w-[550px] lg:w-[700px]"
+		style="z-index:1; max-width:none; transform:scale(1.2) sm:scale(1.3) md:scale(1.4) lg:scale(1.5);"
+	/>
+	<img
+		src={drinks}
+		alt="Hero 2"
+		class="absolute left-0 right-0 bottom-0 m-auto pointer-events-none select-none w-[200px] sm:w-[250px] md:w-[320px] lg:w-[400px]"
+		style="z-index:1; max-width:none; transform:scale(1.2) sm:scale(1.3) md:scale(1.4) lg:scale(1.5);"
+	/>
 </section>
 
-<section class="hero-3" style="background-image: url('{heroImage3}')">
-	<div class="p-30">
-		<div class="flex flex-col justify-start items-start p-0 gap-0 m-0">
-			<h1 class="text-left font-[1000] uppercase font-sans text-[2rem] m-0 p-0 leading-none">
+<section
+	class="hero-3 mt-6 sm:mt-8 md:mt-12 lg:mt-16 w-full min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] flex items-center justify-start bg-cover bg-center text-white"
+	style="background-image: url('{heroImage3}')"
+>
+	<div class="p-6 sm:p-8 md:p-12 lg:p-16 xl:p-20 w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl">
+		<div class="flex flex-col justify-start items-start">
+			<h1
+				class="text-left font-black uppercase text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight"
+			>
 				Discover Your <br />
-				<span class="text-left font-[1000] uppercase font-sans text-[2rem] m-0 p-0 leading-none"
-					>Favorite</span
-				>
+				<span class="text-mabini-yellow">Favorite</span>
 			</h1>
-			<div class="m-0 p-0">
-				<h1 class="text-left text-[10rem] font-cond text-mabini-yellow m-0 p-0 leading-none">
-					Croffle
-				</h1>
-				<p class="font-sans text-lg pt-20 font-semibold pb-10">
-					CRISPY, BUTTERY, AND TOPPED <br /> WITH GOODNESS — EXPLORE OUR WIDE VARIETY <br /> OF CROFFLES
-					MADE FRESH DAILY
-				</p>
-
-				<button
-					class="uppercase font-bold text-md cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-white border-1 hover:bg-mabini-dark-brown hover:border-transparent"
-				>
-					Explore Menu
-				</button>
-			</div>
+			<h1
+				class="text-left text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[10rem] font-cond text-mabini-yellow leading-none mt-2 font-black"
+			>
+				Croffle
+			</h1>
+			<p
+				class="text-xs sm:text-sm md:text-base lg:text-lg pt-4 sm:pt-6 font-light text-white max-w-full sm:max-w-md md:max-w-lg lg:max-w-2xl"
+			>
+				Crispy, buttery, and topped with goodness.<br />
+				Explore our wide variety of croffles made fresh daily.
+			</p>
+			<button
+				on:click={() => goto('/menu?category=Croffle')}
+				class="uppercase mt-6 sm:mt-6 font-semibold text-xs sm:text-sm md:text-base cursor-pointer w-full sm:w-auto min-w-[160px] sm:min-w-[180px] md:min-w-[200px] p-3 sm:p-3.5 md:p-4 rounded-full border-2 border-white hover:bg-mabini-dark-brown hover:border-transparent transition-all duration-300"
+			>
+				Explore Menu
+			</button>
 		</div>
 	</div>
 </section>
 
-<section class="paper">
-	<div class="content justify-center">
-		<h1 class="h1-heading !text-mabini-white pt-[50px] pb-[50px] text-center uppercase">
-			Receipt of
-			<span class="!text-mabini-yellow"> Gratitude </span>
-		</h1>
-		<div class="flex items-center gap-30 justify-center">
-			<!-- Button for Left -->
+<section class="paper relative">
+	<h1 class="h1-heading !text-mabini-white pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-4 sm:pb-6 md:pb-8 text-center uppercase text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl relative z-10">
+		Receipt of <span class="!text-mabini-yellow"> Gratitude </span>
+	</h1>
+	<div class="absolute inset-0 flex items-center justify-center">
+		<div class="flex items-center gap-4 sm:gap-6 md:gap-8 lg:gap-12 justify-center px-4 sm:px-6 md:px-8 relative z-10">
 			<button
-				on:click={() => { reviewIndex = Math.max(0, reviewIndex - 1); showDotRow(); }}
-				class="p-2 mr-10 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors {reviewIndex === 0 ? 'cursor-not-allowed opacity-50' : ''}"
+				on:click={() => {
+					reviewIndex = Math.max(0, reviewIndex - 1);
+					showDotRow();
+				}}
+				class="p-1.5 sm:p-2 md:p-2.5 lg:p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors flex-shrink-0 {reviewIndex ===
+				0
+					? 'cursor-not-allowed opacity-50'
+					: ''}"
 				aria-label="Scroll left"
 				disabled={reviewIndex === 0}
 			>
-				<svg width="24" height="24" fill="none">
+				<svg width="18" height="18" class="sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none">
 					<path
 						d="M15 6l-6 6 6 6"
 						stroke="#333"
@@ -167,44 +204,49 @@
 					/>
 				</svg>
 			</button>
-			<div class="flex overflow-x-auto gap-6 py-6 px-2 scrollbar-hide justify-center">
-				<!-- Show only one review at a time -->
+			<div class="flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 px-2 scrollbar-hide justify-center">
 				{#if reviews.length > 0}
 					{#key reviewIndex}
 						<div
-							class="bg-transparent rounded-2xl p-6 flex flex-col items-center justify-between transition-transform relative"
+							class="bg-transparent rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center transition-transform relative"
 						>
 							<img
 								src={reviews[reviewIndex].img}
 								alt={reviews[reviewIndex].name}
-								class="w-[300px] h-[300px] object-contain mb-2 mt-2 drop-shadow-md"
+								class="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] md:w-[260px] md:h-[260px] lg:w-[300px] lg:h-[300px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
 								style="max-width:400px; max-height:400px;"
 							/>
-							<!-- Dot pagination row, only show when showDots is true -->
-							<div class="flex justify-center items-center gap-3 mt-4" style="height: 24px;">
+							<div class="flex justify-center items-center gap-2 sm:gap-3 mt-3 sm:mt-4 h-5 sm:h-6">
 								{#if showDots}
 									{#each reviews as _, i}
 										<div
 											class="rounded-full border transition-all duration-300"
-											style="width: {i === reviewIndex ? '36px' : '12px'}; height: 12px; background: {i === reviewIndex ? 'var(--color-mabini-dark-brown)' : '#fff'}; border-color: transparent; margin: 0 2px;"
+											style="width: {i === reviewIndex
+												? '24px'
+												: '8px'}; height: 8px; background: {i === reviewIndex
+												? 'var(--color-mabini-dark-brown)'
+												: '#fff'}; border-color: transparent; margin: 0 2px;"
 										></div>
 									{/each}
-								{:else}
-									<!-- Empty space to reserve height -->
 								{/if}
 							</div>
 						</div>
 					{/key}
 				{/if}
 			</div>
-			<!-- Button for Right -->
 			<button
-				on:click={() => { reviewIndex = Math.min(reviews.length - 1, reviewIndex + 1); showDotRow(); }}
-				class="p-2 ml-10 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors {reviewIndex === reviews.length - 1 ? 'cursor-not-allowed opacity-50' : ''}"
+				on:click={() => {
+					reviewIndex = Math.min(reviews.length - 1, reviewIndex + 1);
+					showDotRow();
+				}}
+				class="p-1.5 sm:p-2 md:p-2.5 lg:p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors flex-shrink-0 {reviewIndex ===
+				reviews.length - 1
+					? 'cursor-not-allowed opacity-50'
+					: ''}"
 				aria-label="Scroll right"
 				disabled={reviewIndex === reviews.length - 1}
 			>
-				<svg width="24" height="24" fill="none">
+				<svg width="18" height="18" class="sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none">
 					<path
 						d="M9 6l6 6-6 6"
 						stroke="#333"
@@ -217,88 +259,91 @@
 		</div>
 	</div>
 </section>
-<section class="featured-products">
-	<div class="content">
-		<h1 class="h1-heading pt-[70px] text-center uppercase mb-30">
-			Featured
-			<span class="!text-mabini-yellow"> Products </span>
-		</h1>
 
-		<!-- Featured Products -->
-		{#if loading}
-			<div class="flex justify-center py-12">
-				<p class="text-gray-500 text-lg">Loading products...</p>
-			</div>
-		{:else if products.length === 0}
-			<div class="flex justify-center py-12">
-				<p class="text-gray-500 text-lg">No products available</p>
-			</div>
-		{:else}
-			<div class="flex items-center gap-4 justify-center">
-				<button
-					on:click={scrollLeft2}
-					class="p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors {isProductScrollAtStart ? 'cursor-not-allowed opacity-50' : ''}"
-					aria-label="Scroll left"
-					disabled={isProductScrollAtStart}
-				>
-					<svg width="24" height="24" fill="none">
-						<path
-							d="M15 6l-6 6 6 6"
-							stroke="#333"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
+<section
+	class="featured-products bg-white min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] w-full py-8 sm:py-10 md:py-12 lg:py-16 px-4"
+>
+	<h1
+		class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-black text-center uppercase mb-6 sm:mb-8 md:mb-10 lg:mb-12"
+	>
+		Featured <span class="text-mabini-yellow">Products</span>
+	</h1>
+
+	{#if loading}
+		<p class="text-center text-gray-500 text-base sm:text-lg md:text-xl lg:text-2xl py-6 sm:py-8 md:py-10 lg:py-12">
+			Loading products...
+		</p>
+	{:else if products.length === 0}
+		<p class="text-center text-gray-500 text-base sm:text-lg md:text-xl lg:text-2xl py-6 sm:py-8 md:py-10 lg:py-12">
+			No products available
+		</p>
+	{:else}
+		<div class="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 max-w-7xl mx-auto">
+			<button
+				on:click={scrollLeft2}
+				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
+				disabled={isProductScrollAtStart}
+				aria-label="Scroll left"
+			>
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
+					<path
+						d="M15 6l-6 6 6 6"
+						stroke="#333"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
+			</button>
+
+			<div
+				bind:this={scrollRef}
+				on:scroll={handleProductScroll}
+				class="flex overflow-x-auto gap-3 sm:gap-4 md:gap-5 lg:gap-6 py-4 sm:py-5 md:py-6 lg:py-8 px-2 scrollbar-hide flex-1"
+			>
+				{#each products.slice(0, 10) as product}
+					<div
+						class="min-w-[160px] sm:min-w-[180px] md:min-w-[200px] lg:min-w-[220px] xl:min-w-[240px] bg-white rounded-2xl shadow-xl p-4 sm:p-5 md:p-5 lg:p-6 flex flex-col items-center justify-between hover:scale-105 transition flex-shrink-0"
+					>
+						<img
+							src={product.img}
+							alt={product.name}
+							class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 object-contain mb-2 sm:mb-3 md:mb-3 lg:mb-4 drop-shadow-md"
 						/>
-					</svg>
-				</button>
-				<div bind:this={scrollRef} class="flex overflow-x-auto gap-6 py-6 px-2 scrollbar-hide" on:scroll={handleProductScroll}>
-					{#each products.slice(0, 10) as product}
-						<div
-							class="min-w-[260px] max-w-[260px] min-h-[370px] bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center justify-between transition-transform hover:scale-105 relative"
-						>
-							<img
-								src={product.img}
-								alt={product.name}
-								class="w-40 h-40 object-contain mb-2 mt-2 drop-shadow-md"
-							/>
-							<div class="flex flex-col justify-end w-full flex-1">
-								<div
-									class="font-extrabold text-lg text-left mb-2 mt-4 w-full"
-									style="letter-spacing:0.5px"
-								>
-									{product.name}
-								</div>
-								<div class="flex items-center justify-between w-full mt-2">
-									<span class="text-gray-400 font-semibold">{product.price}</span>
-									<span class="text-gray-500 text-base font-medium">{product.temp}</span>
-								</div>
-							</div>
+						<div class="text-center w-full">
+							<h2 class="font-extrabold text-xs sm:text-sm md:text-base lg:text-lg mb-1 line-clamp-2">
+								{product.name}
+							</h2>
+							<p class="text-gray-400 font-bold text-xs sm:text-sm md:text-base lg:text-lg">{product.price}</p>
+							<p class="text-gray-500 font-medium text-[10px] sm:text-xs md:text-sm lg:text-base">
+								{product.temp}
+							</p>
 						</div>
-					{/each}
-				</div>
-				<button
-					on:click={scrollRight2}
-					class="p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors {isProductScrollAtEnd ? 'cursor-not-allowed opacity-50' : ''}"
-					aria-label="Scroll right"
-					disabled={isProductScrollAtEnd}
-				>
-					<svg width="24" height="24" fill="none">
-						<path
-							d="M9 6l6 6-6 6"
-							stroke="#333"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-						/>
-					</svg>
-				</button>
+					</div>
+				{/each}
 			</div>
-		{/if}
-	</div>
+
+			<button
+				on:click={scrollRight2}
+				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
+				disabled={isProductScrollAtEnd}
+				aria-label="Scroll right"
+			>
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
+					<path
+						d="M9 6l6 6-6 6"
+						stroke="#333"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
+			</button>
+		</div>
+	{/if}
 </section>
 
 <style>
-	/* Hide scrollbar for Chrome*/
 	.scrollbar-hide::-webkit-scrollbar {
 		display: none;
 	}
@@ -306,50 +351,47 @@
 		-ms-overflow-style: none;
 		scrollbar-width: none;
 	}
-	.hero {
-		height: 70vh;
-		width: 100%;
-		background-size: cover;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		color: white;
-		text-align: center;
-	}
-	.hero-2 {
-		margin-top: 100px;
-		height: 100vh;
-		width: 100%;
-		background-size: cover;
-		display: flex;
-		justify-content: center;
-		align-items: flex-start;
-		color: white;
-		text-align: center;
-		background-position: center 15%;
-	}
 
-	.hero-3 {
-		margin-top: 20px;
-		height: 753px;
-		width: 100%;
-		background-size: cover;
-		display: flex;
-		align-items: top;
-		color: white;
-	}
 	.paper {
 		background-color: black;
-		height: 100vh;
+		height: 70vh;
 		width: 100%;
-		background-image: url('/images/Paper-1.png');
+		background-image: url('/images/Paper-1.svg');
 		background-repeat: no-repeat;
 		background-position: center;
-		background-size: 80vh;
+		background-size: 50%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+		padding: 0;
+		position: relative;
 	}
-	.featured-products {
-		background-color: white;
-		height: 100vh;
-		width: 100%;
+
+	@media (min-width: 640px) {
+		.paper {
+			height: 80vh;
+			background-size: 45%;
+		}
+	}
+
+	@media (min-width: 768px) {
+		.paper {
+			height: 90vh;
+			background-size: 40%;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.paper {
+			height: 100vh;
+			background-size: 35%;
+		}
+	}
+
+	@media (min-width: 1280px) {
+		.paper {
+			background-size: 30%;
+		}
 	}
 </style>

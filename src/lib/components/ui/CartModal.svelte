@@ -5,10 +5,27 @@
 	import { authStore } from '$lib/stores/auth';
 	import { showConfirm, showSuccess, showError, showLoginRequired } from '$lib/utils/sweetalert';
 	import { browser } from '$app/environment';
+	import { orderNoteStore } from '$lib/stores/orderNote';
 
 	export let isOpen = false;
 	export let onClose: () => void;
 	let orderNote = '';
+	let hasUnavailableItems = false;
+
+	// Subscribe to order note store
+	orderNoteStore.subscribe((note) => {
+		orderNote = note;
+	});
+
+	// Save note to store when it changes
+	$: if (browser) {
+		orderNoteStore.setNote(orderNote);
+	}
+
+	// Reactive statement to check for unavailable items
+	$: hasUnavailableItems = $cartItems.some(
+		(item) => item.menu_item_isAvailable === 0 || item.menu_item_isAvailable === '0' || item.menu_item_isAvailable === false
+	);
 
 	$: {
 		if (browser && isOpen) {
@@ -65,6 +82,15 @@
 			showError('Your cart is empty', 'Cannot Checkout');
 			return;
 		}
+
+		if (hasUnavailableItems) {
+			showError(
+				'Some items in your cart are no longer available. Please remove them before checking out.',
+				'Cannot Checkout'
+			);
+			return;
+		}
+
 		onClose();
 		goto('/checkout');
 	}
@@ -101,23 +127,28 @@
 				{:else if $cartItems.length > 0}
 					<div class="cart-items">
 						{#each $cartItems as item}
-							<div class="cart-item">
+							{@const isAvailable = item.menu_item_isAvailable === 1 || item.menu_item_isAvailable === '1' || item.menu_item_isAvailable === true}
+							<div class="cart-item" class:unavailable-item={!isAvailable}>
 								<img
 									src={item.menu_item_image
 										? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
 										: '/images/placeholder.png'}
 									alt={item.menu_item_name}
 									class="item-image"
+									class:grayscale-img={!isAvailable}
 								/>
 								<div class="item-details">
-									<h3 class="item-name">{item.menu_item_name}</h3>
+									<h3 class="item-name" class:line-through-text={!isAvailable}>{item.menu_item_name}</h3>
+									{#if !isAvailable}
+										<span class="unavailable-badge">Currently Unavailable</span>
+									{/if}
 								</div>
 								<div class="box item-quantity">
 									<button
 										class="minus qty-btn"
 										on:click={() =>
 											updateQuantity(item.id, item.quantity - 1, item.menu_item_price)}
-										disabled={item.quantity <= 1}
+										disabled={item.quantity <= 1 || !isAvailable}
 									>
 										−
 									</button>
@@ -126,13 +157,14 @@
 										class="plus qty-btn"
 										on:click={() =>
 											updateQuantity(item.id, item.quantity + 1, item.menu_item_price)}
+										disabled={!isAvailable}
 									>
 										+
 									</button>
 								</div>
 								<div class="item-subtotal">
 									<p class="subtotal-label">Subtotal:</p>
-									<p class="subtotal-value">₱{parseFloat(item.subtotal).toFixed(2)}</p>
+									<p class="subtotal-value" class:line-through-text={!isAvailable}>₱{parseFloat(item.subtotal).toFixed(2)}</p>
 								</div>
 								<button
 									class="remove-btn"
@@ -155,7 +187,17 @@
 					</div>
 					<div class="cart-footer">
 						<p class="taxes-shipping">TAXES AND SHIPPING CALCULATED AT CHECKOUT</p>
-						<button class="checkout-btn" on:click={checkout}>
+						{#if hasUnavailableItems}
+							<p class="unavailable-warning">
+								⚠️ Please remove unavailable items to proceed with checkout
+							</p>
+						{/if}
+						<button 
+							class="checkout-btn" 
+							on:click={checkout}
+							disabled={hasUnavailableItems}
+							class:disabled-btn={hasUnavailableItems}
+						>
 							Checkout - ₱{$cartTotal.toFixed(2)}
 						</button>
 					</div>
@@ -456,6 +498,65 @@
 		box-shadow: 0 4px 12px rgba(255, 174, 0, 0.3);
 	}
 
+	.checkout-btn:disabled,
+	.disabled-btn {
+		background-color: #999;
+		border-color: #999;
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	.checkout-btn:disabled:hover,
+	.disabled-btn:hover {
+		background-color: #999;
+		border-color: #999;
+		color: white;
+		transform: none;
+		box-shadow: none;
+	}
+
+	.unavailable-item {
+		opacity: 0.7;
+		background-color: #f9f9f9;
+		border-left: 4px solid #f44336;
+	}
+
+	.grayscale-img {
+		filter: grayscale(70%);
+	}
+
+	.line-through-text {
+		text-decoration: line-through;
+		color: #999;
+	}
+
+	.unavailable-badge {
+		display: inline-block;
+		font-size: 0.75rem;
+		color: #d32f2f;
+		font-weight: 600;
+		background-color: #ffebee;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.25rem;
+		margin-top: 0.25rem;
+	}
+
+	.unavailable-warning {
+		font-size: 0.875rem;
+		color: #d32f2f;
+		background-color: #ffebee;
+		padding: 0.5rem;
+		border-radius: 0.5rem;
+		margin: 0.5rem 0;
+		text-align: center;
+	}
+
+	.qty-btn:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+		background-color: #f0f0f0;
+	}
+
 	.loading-state,
 	.empty-cart {
 		text-align: center;
@@ -488,9 +589,30 @@
 
 	/* Mobile Responsive */
 	@media (max-width: 768px) {
+		.cart-modal {
+			width: 100vw !important;
+			max-width: 100vw !important;
+			height: 100vh !important;
+			border-radius: 0 !important;
+			margin: 0 !important;
+		}
+
+		.cart-header {
+			padding: 1rem !important;
+		}
+
+		.cart-header h2 {
+			font-size: 1.25rem !important;
+		}
+
+		.cart-content {
+			padding: 1rem !important;
+		}
+
 		.cart-item {
 			grid-template-columns: 60px 1fr;
 			gap: 0.75rem;
+			position: relative;
 		}
 
 		.item-image {
@@ -514,8 +636,41 @@
 			right: 0.5rem;
 		}
 
+		.quantity-controls button {
+			width: 30px !important;
+			height: 30px !important;
+			font-size: 0.875rem !important;
+		}
+
+		.cart-footer {
+			padding: 1rem !important;
+		}
+
+		.checkout-btn {
+			padding: 0.75rem !important;
+			font-size: 0.875rem !important;
+		}
+
+		/* Order note textarea */
+		.cart-content textarea {
+			font-size: 0.875rem !important;
+			padding: 0.75rem !important;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.cart-header h2 {
+			font-size: 1.125rem !important;
+		}
+
+		.item-image {
+			width: 50px;
+			height: 50px;
+		}
+
 		.cart-item {
-			position: relative;
+			grid-template-columns: 50px 1fr;
+			gap: 0.5rem;
 		}
 	}
 </style>
