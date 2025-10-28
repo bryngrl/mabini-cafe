@@ -11,19 +11,85 @@
 	import { showError, showSuccess } from '$lib/utils/sweetalert';
 	import { shippingStore, shippingInfo, shippingLoading, shippingError } from '$lib/stores';
 	import { selectedShippingMethod, shippingCost, checkoutTotal } from '$lib/stores/checkout';
-	import { form } from '$app/server';
+	import { ordersStore } from '$lib/stores/orders';
+	import { orderItemsStore } from '$lib/stores/orderItems';
+	import { createPaymongoCheckout } from '$lib/utils/fetcher';
+	import { orderNoteStore } from '$lib/stores/orderNote';
 
 	function redirectToShipping() {
 		goto('/checkout/shipping');
 	}
-	function redirectToPayMogo() {
+	
+	let isProcessingPayment = false;
+
+	async function redirectToPayMongo() {
 		// Check if shipping method is selected
 		if (!$selectedShippingMethod) {
 			showError('Please select a shipping method', 'Shipping Method Required');
 			goto('/checkout/shipping');
 			return;
 		}
-		goto('/paymogo');
+
+		if (isProcessingPayment) return;
+		isProcessingPayment = true;
+
+		try {
+			// Determine shipping_fee_id based on selected method
+			// Standard = 1 (₱79), Priority = 2 (₱109)
+			const shippingFeeId = $selectedShippingMethod === 'standard' ? 1 : 2;
+
+			// First, create the order with the note from orderNoteStore
+			const orderData = {
+				user_id: $authStore.user?.id,
+				total_amount: $cartTotal,
+				shipping_fee_id: shippingFeeId,
+				message: $orderNoteStore || ''
+			};
+
+			const orderResult = await ordersStore.create(orderData);
+			const orderId = orderResult.order_id;
+
+			if (!orderId) {
+				throw new Error('Failed to create order');
+			}
+
+			// Second, create order items from cart
+			for (const cartItem of $cartItems) {
+				await orderItemsStore.create({
+					order_id: orderId,
+					menu_item_id: cartItem.menu_item_id,
+					quantity: cartItem.quantity,
+					price: cartItem.menu_item_price
+				});
+			}
+
+			// Third, create PayMongo checkout session
+			const paymentData = {
+				user_id: $authStore.user?.id,
+				order_id: orderId,
+				payment_method: 'gcash'
+			};
+
+			const checkoutResult = await createPaymongoCheckout(paymentData);
+
+			if (checkoutResult.checkout_url) {
+				// DO NOT clear cart here - it will be cleared by webhook when payment is successful
+				// Store order_id in localStorage so we can clear cart after successful payment
+				localStorage.setItem('pending_order_id', orderId.toString());
+				
+				// Redirect to PayMongo checkout page
+				window.location.href = checkoutResult.checkout_url;
+			} else {
+				throw new Error('No checkout URL received');
+			}
+		} catch (error) {
+			console.error('Error creating checkout:', error);
+			await showError(
+				error.message || 'Failed to create checkout session. Please try again.',
+				'Payment Error'
+			);
+			isProcessingPayment = false;
+		}
 	}
 
 	let userAddresses = [];
@@ -298,14 +364,16 @@
 				<button
 					on:click={redirectToShipping}
 					class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 hover:border-white"
+					disabled={isProcessingPayment}
 				>
 					<span><i class="fa-classic fa-chevron-left mr-2"></i></span> Return to Shipping
 				</button>
 				<button
-					on:click={redirectToPayMogo}
-					class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent"
+					on:click={redirectToPayMongo}
+					class="text-sm cursor-pointer w-full sm:w-[200px] p-5 pt-2 pb-2 rounded-full border-transparent border-1 bg-mabini-dark-brown hover:border-white hover:bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+					disabled={isProcessingPayment}
 				>
-					Pay Now
+					{isProcessingPayment ? 'Processing...' : 'Pay Now'}
 				</button>
 			</div>
 		{:else if isShippingMethod}
@@ -571,6 +639,16 @@
 					</div>
 				{/each}
 				<hr class="my-4 border-gray-300" />
+				
+				<!-- Order Note Section -->
+				{#if $orderNoteStore}
+					<div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+						<h3 class="text-sm font-semibold text-gray-700 mb-2">Note:</h3>
+						<p class="text-sm text-gray-600 whitespace-pre-wrap">{$orderNoteStore}</p>
+					</div>
+					<hr class="my-4 border-gray-300" />
+				{/if}
+				
 				<div class="flex justify-between items-center mb-2">
 					<div class="flex flex-1 justify-between items-center">
 						<span class="text-gray-600"
@@ -610,6 +688,151 @@
 	<div class="w-full h-[50px]">1</div>
 	<div class="w-full">2</div>
 </div> -->
+
+<style lang="postcss">
+	/* Mobile Responsiveness */
+	@media (max-width: 1024px) {
+		/* Stack layout vertically on tablets and mobile */
+		.flex-col.lg\:flex-row {
+			flex-direction: column !important;
+		}
+		
+		/* Make both sides full width on mobile */
+		.grow.w-2\/4,
+		.w-full.lg\:w-2\/4 {
+			width: 100% !important;
+		}
+	}
+
+	@media (max-width: 768px) {
+		/* Reduce padding on mobile */
+		.p-4.sm\:p-6.lg\:p-10 {
+			padding: 1rem !important;
+		}
+
+		/* Logo sizing */
+		img[alt="Logo"] {
+			width: 160px !important;
+			height: 46px !important;
+			margin-bottom: 1rem;
+		}
+
+		/* Navigation adjustments */
+		nav.flex {
+			flex-wrap: wrap;
+			gap: 0.5rem !important;
+			font-size: 0.75rem !important;
+		}
+
+		nav a {
+			padding: 0.25rem 0.5rem !important;
+		}
+
+		/* Form sections */
+		.flex-1.flex-col {
+			padding: 1rem !important;
+		}
+
+		.p-6.pb-0.pt-2.pl-10,
+		.p-6.pt-0.pl-10.pb-2 {
+			padding: 1rem !important;
+		}
+
+		/* Input fields - stack vertically on mobile */
+		.w-full.p-6.pb-0.pt-2.pl-10.flex.items-center.justify-between.space-x-4 {
+			flex-direction: column;
+			padding: 0.5rem !important;
+			space-x: 0 !important;
+		}
+
+		.w-full.p-6.pb-0.pt-2.pl-10.flex.items-center.justify-between.space-x-4 input {
+			margin-bottom: 0.75rem;
+		}
+
+		/* Buttons - full width on mobile */
+		.gap-53,
+		.gap-30 {
+			gap: 0.75rem !important;
+		}
+
+		button.w-full.sm\:w-\[200px\] {
+			width: 100% !important;
+			padding: 0.75rem !important;
+		}
+
+		/* Cart items on right side */
+		.flex.items-center.gap-4.sm\:p-6.lg\:p-10 {
+			padding: 1rem 0 !important;
+		}
+
+		.flex.items-center.gap-4.sm\:p-6.lg\:p-10 img {
+			width: 60px !important;
+			height: 60px !important;
+		}
+
+		/* Price alignment - remove large padding */
+		.text-lg.text-gray-500.font-semibold.pl-\[250px\] {
+			padding-left: 0 !important;
+		}
+
+		/* Headings */
+		h2.text-2xl {
+			font-size: 1.5rem !important;
+		}
+
+		h2.text-xl {
+			font-size: 1.25rem !important;
+		}
+
+		/* Address selector */
+		.space-y-3 button {
+			padding: 0.75rem !important;
+			font-size: 0.875rem;
+		}
+
+		/* Order note section */
+		.mb-4.p-4.bg-gray-50 {
+			padding: 0.75rem !important;
+		}
+
+		/* Payment method cards */
+		.rounded-lg.border {
+			padding: 0.75rem !important;
+		}
+	}
+
+	@media (max-width: 480px) {
+		/* Extra small devices */
+		nav.flex {
+			font-size: 0.7rem !important;
+			gap: 0.25rem !important;
+		}
+
+		nav a {
+			padding: 0.25rem !important;
+		}
+
+		.text-\[25px\] {
+			font-size: 1.25rem !important;
+		}
+
+		/* Further reduce image sizes */
+		.flex.items-center.gap-4.sm\:p-6.lg\:p-10 img {
+			width: 50px !important;
+			height: 50px !important;
+		}
+
+		/* Cart item layout adjustments */
+		.flex.items-center.gap-4 {
+			gap: 0.5rem !important;
+		}
+
+		.flex-1.flex.justify-between.items-center {
+			flex-direction: column;
+			align-items: flex-start !important;
+		}
+	}
+</style>
 
 
 

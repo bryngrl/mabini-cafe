@@ -1,5 +1,5 @@
 <?php
-require_once "../controllers/CustomizeWebsiteController.php";
+require_once "../Controllers/CustomizeWebsiteController.php"; //Nicapital ko lang yung letter C :D
 
 $controller = new CustomizeWebsiteController($db);
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ordersStore, orders, menuStore, menuItems } from '$lib/stores';
+	import { ordersStore, orders, menuStore, menuItems, customizeStore, customizations } from '$lib/stores';
 	import { authStore } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -23,8 +23,6 @@
 		shipping_fee?: number;
 		shipping_fee_id?: number;
 	}
-	//Function for updating the availability
-	//Disabling the item if the isAvailability is 0
 	async function isAvailableUpdate(product: any) {
 		try {
 			// Toggle the availability: if currently available (true/1), make unavailable (false/0), and vice versa
@@ -51,7 +49,6 @@
 				updateData.category_id = Number(product.category_id);
 			}
 
-			console.log('Sending update data:', updateData);
 
 			await menuStore.update(product.id, updateData);
 
@@ -169,7 +166,7 @@
 	onMount(async () => {
 		currentDate = new Date();
 		try {
-			await Promise.all([ordersStore.fetchAll(), menuStore.fetchAll()]);
+			await Promise.all([ordersStore.fetchAll(), menuStore.fetchAll(), customizeStore.fetchAll()]);
 		} catch (err) {
 			console.error(err);
 			showError('Failed to fetch data');
@@ -239,36 +236,48 @@
 		}
 	}
 
-	// TODO: Backend not ready yet
-	// async function handleHeroImagesSubmit(e: Event) {
-	// 	e.preventDefault();
-	// 	try {
-	// 		// Backend endpoint needed: POST /routes/HeroRoute.php
-	// 		// Should accept: hero1, hero2, hero3 as file uploads
-	// 		// API structure:
-	// 		// const formData = new FormData();
-	// 		// if (hero1Image) formData.append('hero1', hero1Image);
-	// 		// if (hero2Image) formData.append('hero2', hero2Image);
-	// 		// if (hero3Image) formData.append('hero3', hero3Image);
-	// 		//
-	// 		// const response = await fetch('http://localhost/mabini-cafe/phpbackend/routes/HeroRoute.php', {
-	// 		//   method: 'POST',
-	// 		//   body: formData
-	// 		// });
-	// 		//
-	// 		// Backend should return: { success: true, message: 'Hero images updated' }
-	// 		await showSuccess('Hero images updated successfully!');
-	// 		hero1Image = null;
-	// 		hero2Image = null;
-	// 		hero3Image = null;
-	// 		hero1Preview = '';
-	// 		hero2Preview = '';
-	// 		hero3Preview = '';
-	// 	} catch (err) {
-	// 		console.error('Error updating hero images:', err);
-	// 		await showError('Failed to update hero images. Please try again.');
-	// 	}
-	// }
+	async function handleHeroImagesSubmit(e: Event) {
+		e.preventDefault();
+		try {
+			const heroImages = [
+				{ name: 'hero1', file: hero1Image },
+				{ name: 'hero2', file: hero2Image },
+				{ name: 'hero3', file: hero3Image }
+			];
+
+			for (const { name, file } of heroImages) {
+				if (file) {
+					// Check if this hero image already exists
+					const existingHero = $customizations.find((c: any) => c.image_custom_name === name);
+					
+					if (existingHero) {
+						// Update existing hero image
+						await customizeStore.updateImage(existingHero.id, file);
+					} else {
+						// Create new hero image
+						await customizeStore.create({ image_custom_name: name }, file);
+					}
+				}
+			}
+
+			await showSuccess('Hero images updated successfully!');
+			hero1Image = null;
+			hero2Image = null;
+			hero3Image = null;
+			hero1Preview = '';
+			hero2Preview = '';
+			hero3Preview = '';
+
+			// Clear file inputs
+			const fileInputs = document.querySelectorAll('input[type="file"]');
+			fileInputs.forEach((input: any) => {
+				if (input.accept === 'image/*') input.value = '';
+			});
+		} catch (err) {
+			console.error('Error updating hero images:', err);
+			await showError('Failed to update hero images. Please try again.');
+		}
+	}
 
 	async function handleProductSubmit(e: Event) {
 		e.preventDefault();
@@ -351,41 +360,48 @@
 		showProductModal = false;
 		selectedProduct = null;
 	}
-
-	// TODO: Backend not ready yet
-	// async function toggleProductAvailability(productId: number, currentStatus: boolean) {
-	// 	try {
-	// 		// Backend endpoint needed: PUT /routes/MenuRoute.php
-	// 		// Should accept: { id: number, is_available: boolean }
-	// 		// API call:
-	// 		// const response = await fetch(`http://localhost/mabini-cafe/phpbackend/routes/MenuRoute.php?id=${productId}`, {
-	// 		//   method: 'PUT',
-	// 		//   headers: { 'Content-Type': 'application/json' },
-	// 		//   body: JSON.stringify({ is_available: !currentStatus })
-	// 		// });
-	// 		//
-	// 		// Backend should return: { success: true, message: 'Product availability updated' }
-	// 		await menuStore.fetchAll(); // Refresh the list
-	// 		await showSuccess('Product availability updated!');
-	// 	} catch (err) {
-	// 		console.error('Error toggling product availability:', err);
-	// 		await showError('Failed to update product availability.');
-	// 	}
-	// }
 </script>
 
 <div class="flex flex-col lg:flex-row min-h-screen items-stretch">
-	<!-- Sidebar - Desktop always visible, Mobile dropdown -->
+	<!-- Mobile Overlay -->
+	{#if mobileMenuOpen}
+		<div
+			class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+			onclick={toggleMobileMenu}
+		></div>
+	{/if}
+
+	<!-- Sidebar - Desktop always visible, Mobile slide-in from left -->
 	<div
-		class="w-full lg:w-[30%] min-h-full bg-black text-white flex flex-col justify-between text-center {mobileMenuOpen
-			? 'block'
-			: 'hidden lg:flex'}"
+		class="fixed lg:static top-0 left-0 w-full sm:w-[80%] lg:w-[30%] h-screen lg:h-auto lg:min-h-screen bg-black text-white flex flex-col justify-between text-center z-50 transform transition-transform duration-300 ease-in-out {mobileMenuOpen
+			? 'translate-x-0'
+			: '-translate-x-full lg:translate-x-0'}"
 	>
 		<!-- Top: Logo and navigation -->
 		<div>
-			<!-- Logo - Hidden on mobile (shown in mobile header) -->
-			<div class="hidden lg:flex justify-center p-10 pt-20">
-				<img src="/admin/logo.svg" alt="Logo" class="max-w-full max-h-full" />
+			<!-- Mobile Exit Button inside sidebar -->
+			<div class="lg:hidden flex justify-end p-4">
+				<button
+					type="button"
+					onclick={toggleMobileMenu}
+					class="text-white p-2 hover:bg-gray-800 rounded-full transition-colors"
+					aria-label="Close menu"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="2"
+						stroke="currentColor"
+						class="w-6 h-6"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+			<!-- Logo - Now visible on all screens -->
+			<div class="flex justify-center p-6 lg:p-10 pt-2 lg:pt-20">
+				<img src="/admin/logo.svg" alt="Logo" class="max-w-full max-h-full w-32 lg:w-auto" />
 			</div>
 			<!-- Icons -->
 			<!-- Icon 1 -->
@@ -466,9 +482,7 @@
 			>
 				<div class="w-full min-h-[400px] justify-center items-center rounded-2xl shadow-lg mt-10">
 					<!-- Black Header with Hamburger -->
-					<div class="w-full bg-black rounded-t-2xl flex justify-between items-center">
-						<!-- Title -->
-						<h1 class="text-white text-2xl p-5 text-start">Customize Website</h1>
+					<div class="w-full bg-black rounded-t-2xl flex justify-between items-center relative z-30">
 						<!-- Mobile Hamburger Button -->
 						<button
 							type="button"
@@ -493,13 +507,15 @@
 								/>
 							</svg>
 						</button>
+						<!-- Title - Hidden when sidebar is open on mobile -->
+						<h1 class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen ? 'lg:block hidden' : ''}">Customize Website</h1>
 					</div>
 					<!-- White Content with border -->
 					<div class="w-full rounded-b-2xl">
 						<p class="p-3 text-end text-gray-500">Date: {formattedDate.format(currentDate)}</p>
 						<div class="p-10 pt-0">
 							<!-- svelte-ignore component_name_lowercase -->
-							<form action="">
+							<form onsubmit={handleHeroImagesSubmit}>
 								<div class="pb-5">
 									<label class="flex flex-col">
 										<span class="font-bold">Hero 1</span>
@@ -560,19 +576,16 @@
 										{/if}
 									</label>
 								</div>
-								<!-- Commented out until backend is ready -->
-								<!-- <button
+								<button
 									type="submit"
 									class="bg-mabini-yellow text-white px-4 py-2 rounded-lg mt-4 cursor-pointer w-full hover:bg-yellow-600"
-									onclick={handleHeroImagesSubmit}
 								>
 									Update Hero Images
-								</button> -->
+								</button>
 							</form>
 						</div>
 
-						<!-- Pick a theme color -->
-						<!-- Circle with Gray thingy -->
+						
 					</div>
 				</div>
 			</div>
@@ -582,70 +595,76 @@
 			>
 				<!-- Orders Content -->
 				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
-					<!-- Black Header -->
-					<div class="w-full h-[10%] bg-black rounded-t-2xl">
-						<!-- Title -->
-						<h1 class="text-white text-2xl p-5 text-start">Orders Section</h1>
+					<!-- Black Header with Hamburger -->
+					<div class="w-full h-[10%] bg-black rounded-t-2xl flex justify-between items-center relative z-30">
+						<!-- Mobile Hamburger Button -->
+						<button
+							type="button"
+							onclick={toggleMobileMenu}
+							class="lg:hidden text-white p-5"
+							aria-label="Toggle menu"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="2"
+								stroke="currentColor"
+								class="w-6 h-6"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d={mobileMenuOpen
+										? 'M6 18L18 6M6 6l12 12'
+										: 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'}
+								/>
+							</svg>
+						</button>
+						<!-- Title - Hidden when sidebar is open on mobile -->
+						<h1 class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen ? 'lg:block hidden' : ''}">Orders Section</h1>
 					</div>
 					<!-- White Content with border -->
-					<div class="w-full h-[90%] rounded-b-2xl">
+					<div class="w-full h-[90%] rounded-b-2xl overflow-x-auto">
 						<p class="p-3 text-end text-gray-500">Date: {formattedDate.format(currentDate)}</p>
 
 						<!-- Table Header -->
 
 						<div
-							class="m-5 mb-0 mt-0 rounded-lg bg-gray-300 flex items-stretch text-center justify-between"
+							class="m-5 mb-0 mt-0 rounded-lg bg-gray-300 flex items-stretch text-center justify-between min-w-[600px]"
 						>
-							<div class="w-1/6 flex items-center justify-center">
+							<div class="w-1/4 flex items-center justify-center">
 								<h1 class="font-bold uppercase p-3 text-sm whitespace-nowrap">Order ID</h1>
 							</div>
-							<div class="w-1/6 flex items-center justify-center">
+							<div class="w-1/4 flex items-center justify-center">
 								<h1 class="font-bold uppercase p-3 text-sm whitespace-nowrap">Customer Name</h1>
 							</div>
-							<div class="w-1/6 flex items-center justify-center">
-								<h1 class="font-bold uppercase p-3 text-sm whitespace-nowrap">Total</h1>
-							</div>
-							<div class="w-1/6 flex items-center justify-center">
-								<h1 class="font-bold uppercase p-3 text-sm whitespace-nowrap">Time Ordered</h1>
-							</div>
-							<div class="w-1/6 flex items-center justify-center">
+							<div class="w-1/4 flex items-center justify-center">
 								<h1 class="font-bold uppercase p-3 text-sm whitespace-nowrap">Status</h1>
 							</div>
-							<div class="w-1/6 flex items-center justify-center"></div>
+							<div class="w-1/4 flex items-center justify-center">
+								<h1 class="font-bold uppercase p-3 text-sm whitespace-nowrap">Action</h1>
+							</div>
 						</div>
 
 						<!-- make a for each for orders -->
-						<div class="w-full flex flex-col">
+						<div class="w-full flex flex-col min-w-[600px]">
 							{#each paginatedOrders as order (order.id)}
 								<div
 									class="m-5 mt-0 flex items-center text-center justify-between border-b border-gray-200"
 								>
-									<div class="w-1/6 flex items-center justify-center">
+									<div class="w-1/4 flex items-center justify-center">
 										<span class="p-3 text-sm text-black">{order.id}</span>
 									</div>
-									<div class="w-1/6 flex items-center justify-center">
+									<div class="w-1/4 flex items-center justify-center">
 										<span class="p-3 text-sm">{order.customer_name || 'N/A'}</span>
 									</div>
-									<div class="w-1/6 flex items-center justify-center">
-										<span class="p-3 text-sm">₱{order.total_amount}</span>
-									</div>
-									<div class="w-1/6 flex items-center justify-center">
-										<span class="p-3 text-sm">
-											{order.order_time
-												? new Date(order.order_time.replace(' ', 'T')).toLocaleDateString('en-US', {
-														month: 'short',
-														day: 'numeric',
-														year: 'numeric'
-													})
-												: 'N/A'}
-										</span>
-									</div>
-									<div class="w-1/6 flex items-center justify-center">
+									<div class="w-1/4 flex items-center justify-center">
 										<span class="p-3 text-sm">
 											<select
 												onchange={(e) =>
 													handleStatusChange(order.id, (e.target as HTMLSelectElement).value)}
-												class="border border-gray-300 rounded-lg px-2 py-1 capitalize"
+												class="border border-gray-300 rounded-lg px-2 py-1 capitalize text-xs sm:text-sm"
 											>
 												{#if !['pending', 'preparing', 'delivering', 'completed', 'cancelled'].includes(order.status?.toLowerCase()) && order.status}
 													<option value={order.status} selected disabled>{order.status}</option>
@@ -672,10 +691,10 @@
 											</select>
 										</span>
 									</div>
-									<div class="w-1/6 flex items-center justify-center">
+									<div class="w-1/4 flex items-center justify-center">
 										<div class="p-3 text-sm">
 											<button
-												class="bg-mabini-yellow text-white px-4 py-2 rounded-lg cursor-pointer"
+												class="bg-mabini-yellow text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg cursor-pointer text-xs sm:text-sm"
 												onclick={() => viewOrderDetails(order)}
 											>
 												View
@@ -738,51 +757,75 @@
 			>
 				<!-- Products Content -->
 				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
-					<!-- Black Header -->
-					<div class="w-full min-h-[10%] bg-black rounded-t-2xl">
-						<!-- Title -->
-						<h1 class="text-white text-2xl p-5 text-start">Products Section</h1>
+					<!-- Black Header with Hamburger -->
+					<div class="w-full min-h-[10%] bg-black rounded-t-2xl flex justify-between items-center relative z-30">
+						<!-- Mobile Hamburger Button -->
+						<button
+							type="button"
+							onclick={toggleMobileMenu}
+							class="lg:hidden text-white p-5"
+							aria-label="Toggle menu"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="2"
+								stroke="currentColor"
+								class="w-6 h-6"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d={mobileMenuOpen
+										? 'M6 18L18 6M6 6l12 12'
+										: 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'}
+								/>
+							</svg>
+						</button>
+						<!-- Title - Hidden when sidebar is open on mobile -->
+						<h1 class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen ? 'lg:block hidden' : ''}">Products Section</h1>
 					</div>
 					<!-- White Content with border -->
-					<div class="w-full rounded-b-2xl flex items-center justify">
-						<div class="p-5 m-5">
-							<h2 class="text-lg font-bold">
+					<div class="w-full rounded-b-2xl flex items-center justify-center p-3 sm:p-5">
+						<div class="w-full max-w-3xl">
+							<h2 class="text-base sm:text-lg font-bold">
 								Fill out the details to create a new product entry for your menu.
 							</h2>
-							<p class="text-red-600">* indicates required fields</p>
-							<p class="text-gray-600 mt-2 text-sm">
+							<p class="text-red-600 text-sm sm:text-base">* indicates required fields</p>
+							<p class="text-gray-600 mt-2 text-xs sm:text-sm">
 								<strong>Note:</strong> Adding a product here will automatically shows up in your Menu
 								page so make sure that all the details are correct and accurate.
 							</p>
 							<!-- Form -->
-							<form class="flex flex-col gap-4 mt-4 pb-20" onsubmit={handleProductSubmit}>
+							<form class="flex flex-col gap-3 sm:gap-4 mt-4 pb-10 sm:pb-20" onsubmit={handleProductSubmit}>
 								<label class="flex flex-col">
-									<span class="font-bold">Product Name *</span>
+									<span class="font-bold text-sm sm:text-base">Product Name *</span>
 									<input
 										type="text"
-										class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+										class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
 										placeholder="e.g., Caramel Macchiato"
 										bind:value={productName}
 										required
 									/>
 								</label>
 								<label class="flex flex-col">
-									<span class="font-bold">Price (₱) *</span>
+									<span class="font-bold text-sm sm:text-base">Price (₱) *</span>
 									<input
 										type="number"
 										step="0.01"
 										min="0"
-										class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+										class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
 										placeholder="e.g., 150.00"
 										bind:value={productPrice}
 										required
 									/>
 								</label>
 								<label class="flex flex-col">
-									<span class="font-bold">Main Category *</span>
+									<span class="font-bold text-sm sm:text-base">Main Category *</span>
 									<div class="flex gap-2 mt-1">
 										<select
-											class="border border-gray-300 rounded-lg px-4 py-2 w-full"
+											class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base"
 											bind:value={productCategory}
 											required
 										>
@@ -794,10 +837,10 @@
 									</div>
 								</label>
 								<label class="flex flex-col">
-									<span class="font-bold">Subcategory </span>
+									<span class="font-bold text-sm sm:text-base">Subcategory </span>
 									<div class="flex gap-2 mt-1">
 										<select
-											class="border border-gray-300 rounded-lg px-4 py-2 w-full"
+											class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base"
 											bind:value={productDescription}
 										>
 											<option value="">None (optional)</option>
@@ -806,16 +849,16 @@
 											{/each}
 										</select>
 									</div>
-									<p class="text-sm text-gray-500 mt-1">
+									<p class="text-xs sm:text-sm text-gray-500 mt-1">
 										Optional: Adds a filter option in the sidebar (e.g., Savory Waffle, Hot, Iced)
 									</p>
 								</label>
 								<label class="flex flex-col">
-									<span class="font-bold">Product Photo *</span>
+									<span class="font-bold text-sm sm:text-base">Product Photo *</span>
 									<input
 										type="file"
 										accept="image/*"
-										class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+										class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
 										onchange={handleImageChange}
 										required
 									/>
@@ -824,14 +867,14 @@
 											<img
 												src={imagePreview}
 												alt="Preview"
-												class="w-32 h-32 object-cover rounded-lg"
+												class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg"
 											/>
 										</div>
 									{/if}
 								</label>
 								<button
 									type="submit"
-									class="bg-mabini-yellow text-white px-4 py-2 rounded-lg mt-4 cursor-pointer w-full hover:bg-yellow-600"
+									class="bg-mabini-yellow text-white px-4 py-2 sm:py-3 rounded-lg mt-4 cursor-pointer w-full hover:bg-yellow-600 text-sm sm:text-base font-semibold"
 								>
 									Add Product
 								</button>
@@ -846,10 +889,34 @@
 			>
 				<!-- Product Manager Content -->
 				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
-					<!-- Black Header -->
-					<div class="w-full min-h-[10%] bg-black rounded-t-2xl">
-						<!-- Title -->
-						<h1 class="text-white text-2xl p-5 text-start">Product Manager</h1>
+					<!-- Black Header with Hamburger -->
+					<div class="w-full min-h-[10%] bg-black rounded-t-2xl flex justify-between items-center relative z-30">
+						<!-- Mobile Hamburger Button -->
+						<button
+							type="button"
+							onclick={toggleMobileMenu}
+							class="lg:hidden text-white p-5"
+							aria-label="Toggle menu"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="2"
+								stroke="currentColor"
+								class="w-6 h-6"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d={mobileMenuOpen
+										? 'M6 18L18 6M6 6l12 12'
+										: 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'}
+								/>
+							</svg>
+						</button>
+						<!-- Title - Hidden when sidebar is open on mobile -->
+						<h1 class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen ? 'lg:block hidden' : ''}">Product Manager</h1>
 					</div>
 					<!-- White Content with border -->
 					<div class="w-full rounded-b-2xl p-5">
@@ -935,11 +1002,11 @@
 
 						<!-- Pagination Controls -->
 						{#if totalProductsPages > 1}
-							<div class="flex items-center justify-center gap-2 p-5 border-t">
+							<div class="flex flex-wrap items-center justify-center gap-2 p-3 sm:p-5 border-t">
 								<button
 									onclick={() => (productsPage = Math.max(1, productsPage - 1))}
 									disabled={productsPage === 1}
-									class="px-3 py-1 rounded-lg border {productsPage === 1
+									class="px-2 sm:px-3 py-1 rounded-lg border text-xs sm:text-sm {productsPage === 1
 										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
 										: 'bg-white text-gray-700 hover:bg-gray-50'}"
 								>
@@ -948,11 +1015,11 @@
 
 								{#each getPageNumbers(productsPage, totalProductsPages) as pageNum}
 									{#if pageNum === '...'}
-										<span class="px-2 text-gray-400">...</span>
+										<span class="px-1 sm:px-2 text-gray-400 text-xs sm:text-sm">...</span>
 									{:else}
 										<button
 											onclick={() => (productsPage = pageNum as number)}
-											class="px-3 py-1 rounded-lg border {productsPage === pageNum
+											class="px-2 sm:px-3 py-1 rounded-lg border text-xs sm:text-sm {productsPage === pageNum
 												? 'bg-mabini-yellow text-white'
 												: 'bg-white text-gray-700 hover:bg-gray-50'}"
 										>
@@ -964,7 +1031,7 @@
 								<button
 									onclick={() => (productsPage = Math.min(totalProductsPages, productsPage + 1))}
 									disabled={productsPage === totalProductsPages}
-									class="px-3 py-1 rounded-lg border {productsPage === totalProductsPages
+									class="px-2 sm:px-3 py-1 rounded-lg border text-xs sm:text-sm {productsPage === totalProductsPages
 										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
 										: 'bg-white text-gray-700 hover:bg-gray-50'}"
 								>

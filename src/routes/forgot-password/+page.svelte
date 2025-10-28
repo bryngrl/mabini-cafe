@@ -57,8 +57,8 @@
 	}
 
 	async function handleResetPassword() {
-		if (newPassword.length < 6) {
-			await showError('Password must be at least 6 characters long.', 'Invalid Password');
+		if (newPassword.length < 8) {
+			await showError('Password must be at least 8 characters long.', 'Invalid Password');
 			return;
 		}
 

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/Controller.php'; 
 require_once __DIR__ . '/../Models/Payment.php';
 require_once __DIR__ . '/../Services/PaymongoService.php';
 
@@ -71,7 +72,8 @@ class PaymentController
 
             $order_id = trim($data['order_id']);
             $payment_method = strtolower(trim($data['payment_method']));
-            $user_id = trim($data['user_id']) ?? null;
+            $user_id = isset($data['user_id']) ? trim($data['user_id']) : null;
+            
             // ⚡ Call PayMongo service
             $result = $this->paymongoService->createCheckout($order_id, $payment_method);
 

@@ -18,6 +18,12 @@
 	let error = '';
 	let loading = false;
 
+	// Email validation - only accept @gmail.com
+	function validateEmail(email) {
+		const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+		return emailRegex.test(email);
+	}
+
 	async function handleSubmit() {
 		message = '';
 		error = '';
@@ -26,6 +32,13 @@
 		// Validation
 		if (!title || !name || !email || !contactReason || !description) {
 			error = 'Please fill in all required fields';
+			loading = false;
+			return;
+		}
+
+		// Validate email
+		if (!validateEmail(email)) {
+			error = 'Please use a valid @gmail.com email address';
 			loading = false;
 			return;
 		}
@@ -108,9 +121,12 @@
 			type="email"
 			name="email"
 			id="email"
-			placeholder="Email *"
+			placeholder="Email (@gmail.com only) *"
 			class="w-full px-4 py-3 border border-gray-300 rounded-lg text-base"
 			bind:value={email}
+			pattern="[a-zA-Z0-9._-]+@gmail\.com"
+			title="Please use a valid @gmail.com email address"
+			required
 		/>
 		<select
 			name="contact-reason"

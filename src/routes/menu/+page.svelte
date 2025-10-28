@@ -3,17 +3,39 @@
 
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
+	import CartModal from '$lib/components/ui/CartModal.svelte';
 	import { onMount } from 'svelte';
 	import { menuStore, cartStore, authStore, menuItems } from '$lib/stores';
 	import { currentUser } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { showSuccess, showError, showLoginRequired } from '$lib/utils/sweetalert';
+	import { page } from '$app/stores';
 
 	// Export the data from the server load
 	export let data: { items: any[]; error?: string };
 
 	onMount(() => {
 		authStore.init();
+		
+		// Check for category parameter in URL
+		const categoryParam = $page.url.searchParams.get('category');
+		if (categoryParam) {
+			// Find matching category (case-insensitive)
+			const matchingCategory = uniqueCategories.find(
+				cat => cat.toLowerCase() === categoryParam.toLowerCase()
+			);
+			if (matchingCategory) {
+				selectedCategory = matchingCategory;
+				// If it's a subcategory, also set selectedSubcategory
+				const allSubcats = [...new Set(items.map((item) => item.description))].filter(Boolean);
+				const matchingSubcat = allSubcats.find(
+					sub => sub.toLowerCase() === categoryParam.toLowerCase()
+				);
+				if (matchingSubcat) {
+					selectedSubcategory = matchingSubcat;
+				}
+			}
+		}
 	});
 
 	let items = data.items || [];
@@ -46,6 +68,7 @@
 	let selectedItem = null;
 	let modalOpen = false;
 	let mobileMenuOpen = false;
+	let cartModalOpen = false;
 
 	function toggleMobileMenu() {
 		mobileMenuOpen = !mobileMenuOpen;
@@ -61,6 +84,10 @@
 		selectedItem = null;
 	}
 
+	function closeCartModal() {
+		cartModalOpen = false;
+	}
+
 	function selectSubcategory(subcategory: string) {
 		selectedSubcategory = subcategory;
 	}
@@ -73,6 +100,12 @@
 
 	async function handleAddToCart(item) {
 		try {
+			// Check if product is available
+			if (!item.isAvailable || item.isAvailable === 0 || item.isAvailable === '0') {
+				await showError('This item is currently unavailable.', 'Item Unavailable');
+				return;
+			}
+
 			const quantity = 1;
 			const subtotal = parseFloat(item.price) * quantity;
 
@@ -83,7 +116,9 @@
 				subtotal: subtotal
 			});
 
+			// Show success message first, then open cart modal
 			await showSuccess(`${item.name} has been added to your cart!`, 'Added to Cart');
+			cartModalOpen = true;
 		} catch (err: any) {
 			if (err.type === 'LOGIN_REQUIRED') {
 				const result = await showLoginRequired();
@@ -277,6 +312,11 @@
 						on:close={closeModal}
 						on:addToCart={() => selectedItem && handleAddToCart(selectedItem)}
 					/>
+
+					<CartModal
+						isOpen={cartModalOpen}
+						onClose={closeCartModal}
+					/>
 				</div>
 			</div>
 		</div>
@@ -355,6 +395,11 @@
 		justify-content: center;
 		margin: 2rem 0;
 	}
+	@media (min-width:1024){
+		.category{
+
+		}
+	}
 	.selected-category {
 		background-color: var(--color-mabini-black);
 		color: var(--color-mabini-white);
@@ -399,6 +444,7 @@
 		border-radius: 0 0 1rem 1rem;
 		border: solid 1px gray;
 		padding: 1rem;
+		justify-items: center; /* Center items on mobile */
 	}
 	@media (min-width: 640px) {
 		.items-grid {
@@ -414,6 +460,14 @@
 	@media (min-width: 1280px) {
 		.items-grid {
 			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+	
+	/* Mobile specific item adjustments */
+	@media (max-width: 640px) {
+		.items-grid > div {
+			width: 100%;
+			max-width: 400px; /* Prevent items from being too wide on mobile */
 		}
 	}
 	.menu-text-container {
@@ -506,6 +560,11 @@
 	/* Hide mobile menu on large screens */
 	@media (min-width: 1024px) {
 		.mobile-menu {
+			display: none;
+		}
+	}
+	@media (max-width: 1024px) {
+		.category {
 			display: none;
 		}
 	}

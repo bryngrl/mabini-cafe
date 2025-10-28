@@ -105,7 +105,7 @@ class CustomizeWebsiteController {
     }
 
     // DELETE
-    public function delete($id) {
+    public function destroy($id) { //pinalitan ko lang ng 'destroy' yung 'delete'
         $this->model->id = $id;
         if ($this->model->delete()) {
             echo json_encode(["message" => "Record deleted successfully"]);

@@ -12,8 +12,33 @@
 	let showPassword = false;
 	let showConfirmPassword = false;
 
+	// Email validation - only accept @gmail.com
+	function validateEmail(email: string): boolean {
+		const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+		return emailRegex.test(email);
+	}
+
+	// Password validation - minimum 8 characters
+	function validatePassword(password: string): boolean {
+		return password.length >= 8;
+	}
+
 	async function handleSignup() {
 		loading = true;
+
+		// Validate email
+		if (!validateEmail(email)) {
+			await showError('Please use a valid @gmail.com email address.', 'Invalid Email');
+			loading = false;
+			return;
+		}
+
+		// Validate password length
+		if (!validatePassword(password)) {
+			await showError('Password must be at least 8 characters long.', 'Invalid Password');
+			loading = false;
+			return;
+		}
 
 		if (password !== confirmPassword) {
 			await showError('Passwords do not match.', 'Error');
@@ -72,9 +97,11 @@
 					id="email"
 					bind:value={email}
 					class="form-input"
-					placeholder="Enter your email"
+					placeholder="Enter your email (@gmail.com only)"
 					required
 					disabled={loading}
+					pattern="[a-zA-Z0-9._-]+@gmail\.com"
+					title="Please use a valid @gmail.com email address"
 				/>
 			</div>
 			<div class="inputBox password-field">
@@ -83,9 +110,10 @@
 					id="password"
 					bind:value={password}
 					class="form-input"
-					placeholder="Enter your password"
+					placeholder="Enter your password (min. 8 characters)"
 					required
 					disabled={loading}
+					minlength="8"
 				/>
 				<button
 					type="button"
