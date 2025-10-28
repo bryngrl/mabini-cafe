@@ -186,6 +186,21 @@
 		Receipt of <span class="!text-mabini-yellow"> Gratitude </span>
 	</h1>
 	<div class="paper relative"></div>
+	{#if reviews.length > 0}
+		<div class="w-full flex justify-center items-center pb-[3rem]">
+			<div class="flex justify-center items-center gap-2 h-5">
+				{#each reviews as _, i}
+					<div
+						class="rounded-full border transition-all duration-300"
+						style="width: {i === reviewIndex ? '24px' : '8px'}; height: 8px; background: {i ===
+						reviewIndex
+							? 'var(--color-mabini-dark-brown)'
+							: '#fff'}; border-color: transparent; margin: 0 2px;"
+					></div>
+				{/each}
+			</div>
+		</div>
+	{/if}
 
 	<div class="absolute inset-0 flex items-center justify-center pt-16 sm:pt-20 md:pt-24 lg:pt-0">
 		<div
@@ -211,7 +226,7 @@
 				</svg>
 			</button>
 			<div
-				class="mt-40 flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 md:py-8 px-2 scrollbar-hide justify-center flex-1"
+				class="mt-0 flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 md:py-8 px-2 scrollbar-hide justify-center flex-1"
 			>
 				{#if reviews.length > 0}
 					{#key reviewIndex}
@@ -221,26 +236,9 @@
 							<img
 								src={reviews[reviewIndex].img}
 								alt={reviews[reviewIndex].name}
-								class="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] md:w-[240px] md:h-[240px] lg:w-[280px] lg:h-[280px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
+								class="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] md:w-[240px] md:h-[240px] lg:w-[350px] lg:h-[350px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
 								style="max-width:100%; max-height:400px;"
 							/>
-
-							<div
-								class="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-2.5 mt-2 sm:mt-3 md:mt-4 h-4 sm:h-5 md:h-6"
-							>
-								{#if showDots}
-									{#each reviews as _, i}
-										<div
-											class="rounded-full border transition-all duration-300"
-											style="width: {i === reviewIndex
-												? '20px'
-												: '6px'}; height: 6px; background: {i === reviewIndex
-												? 'var(--color-mabini-dark-brown)'
-												: '#fff'}; border-color: transparent; margin: 0 1px;"
-										></div>
-									{/each}
-								{/if}
-							</div>
 						</div>
 					{/key}
 				{/if}
@@ -387,10 +385,10 @@
 		position: relative;
 	}
 
-	@media (min-width: 640px) {
+	@media (max-width: 640px) {
 		.paper {
 			height: 80vh;
-			background-size: 45%;
+			background-size: 65%;
 		}
 	}
 
