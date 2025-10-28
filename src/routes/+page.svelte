@@ -4,10 +4,11 @@
 	import { onMount } from 'svelte';
 
 	let heroImage = '/images/cover-photo-1.png';
-	let heroImage2 = '/home/sofa.svg';
+	let sofaHeroImage = '/home/sofa.svg';
 	let heroImage3 = '/images/cover-photo-2.svg';
-	let drinks = 'home/drink.svg';
-	let products: { name: string; price: string; temp: string; img: string; isAvailable: boolean }[] = [];
+	let table = 'home/table.svg';
+	let products: { name: string; price: string; temp: string; img: string; isAvailable: boolean }[] =
+		[];
 	let scrollRef: HTMLDivElement;
 	let scrollRef2: HTMLDivElement;
 	let loading = true;
@@ -34,7 +35,7 @@
 					heroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
 				}
 				if (heroImages[1]?.image_path) {
-					heroImage2 = `http://localhost/mabini-cafe/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
+					sofaHeroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
 				}
 				if (heroImages[2]?.image_path) {
 					heroImage3 = `http://localhost/mabini-cafe/phpbackend/${heroImages[2].image_path.replace(/^\/?/, '')}`;
@@ -43,7 +44,8 @@
 
 			const items = await menuStore.fetchAll();
 			const filteredItems = items.filter(
-				(item: any) => item.isAvailable === 1 || item.isAvailable === '1' || item.isAvailable === true
+				(item: any) =>
+					item.isAvailable === 1 || item.isAvailable === '1' || item.isAvailable === true
 			);
 			products = filteredItems.map((item: any) => ({
 				name: item.name,
@@ -115,48 +117,49 @@
 <section
 	class="hero-2 mt-10 sm:mt-16 md:mt-20 lg:mt-24 h-auto min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full flex justify-center items-start bg-cover bg-center text-center px-4 sm:px-6 md:px-8 lg:px-4 relative overflow-hidden"
 >
-	<div class="hero-content px-4 sm:px-8 md:px-16 lg:px-20 pt-2 sm:pt-4 md:pt-8 lg:pt-12 z-10">
+	<div class="hero-content px-4 sm:px-8 md:px-16 lg:px-20 z-10">
 		<h1
 			class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-mabini-black uppercase font-sans-boldie font-extrabold leading-tight"
 		>
 			Choose Your
 			<span class="text-mabini-yellow">Refresher</span>
-			<br />
-			<span
-				class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-mabini-dark-brown leading-none mt-2 font-black"
-			>
-				Cucumber<br />Lemonade
-			</span>
+		</h1>
+		<h1
+			class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-mabini-dark-brown leading-none mt-0 font-black uppercase"
+		>
+			Cucumber Lemonade
 		</h1>
 	</div>
 	<img
-		src={heroImage2}
+		src={sofaHeroImage}
 		alt="Hero 2"
-		class="absolute right-0 bottom-6 sm:bottom-8 md:bottom-10 lg:bottom-10 pointer-events-none select-none w-[350px] sm:w-[450px] md:w-[550px] lg:w-[700px]"
+		class="absolute right-0 bottom-6 sm:bottom-8 md:bottom-10 lg:bottom-10 pointer-events-none select-none w-[350px] sm:w-[450px] md:w-[550px] lg:w-[800px]"
 		style="z-index:1; max-width:none; transform:scale(1.2) sm:scale(1.3) md:scale(1.4) lg:scale(1.5);"
 	/>
 	<img
-		src={drinks}
+		src={table}
 		alt="Hero 2"
-		class="absolute left-0 right-0 bottom-0 m-auto pointer-events-none select-none w-[200px] sm:w-[250px] md:w-[320px] lg:w-[400px]"
+		class="absolute left-0 right-0 bottom-0 m-auto pointer-events-none select-none w-[300px] sm:w-[350px] md:w-[420px] lg:w-[500px]"
 		style="z-index:1; max-width:none; transform:scale(1.2) sm:scale(1.3) md:scale(1.4) lg:scale(1.5);"
 	/>
 </section>
 
 <section
-	class="hero-3 mt-6 sm:mt-8 md:mt-12 lg:mt-16 w-full min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] flex items-center justify-start bg-cover bg-center text-white"
+	class="hero-3 w-full min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] flex items-center justify-start bg-cover bg-center text-white"
 	style="background-image: url('{heroImage3}')"
 >
-	<div class="p-6 sm:p-8 md:p-12 lg:p-16 xl:p-20 w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl">
+	<div
+		class="mr-12 ml-12 sm:mr-16 sm:ml-16 md:mr-20 md:ml-20 lg:mr-24 lg:ml-24 xl:mr-32 xl:ml-32 p-6 sm:p-8 md:p-12 lg:p-16 xl:p-20 w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl"
+	>
 		<div class="flex flex-col justify-start items-start">
 			<h1
 				class="text-left font-black uppercase text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl leading-tight"
 			>
 				Discover Your <br />
-				<span class="text-mabini-yellow">Favorite</span>
+				Favorite
 			</h1>
 			<h1
-				class="text-left text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[10rem] font-cond text-mabini-yellow leading-none mt-2 font-black"
+				class="tracking-wider text-left text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[10rem] font-cond text-mabini-yellow leading-none mt-2 font-black"
 			>
 				Croffle
 			</h1>
@@ -176,25 +179,28 @@
 	</div>
 </section>
 
-<section class="paper relative">
-	<h1 class="h1-heading !text-mabini-white pt-6 sm:pt-8 md:pt-10 lg:pt-12 pb-4 sm:pb-6 md:pb-8 text-center uppercase text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl relative z-10">
+<section class="relative bg-black min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] lg:min-h-[100vh]">
+	<h1
+		class="pt-8 sm:pt-10 md:pt-12 lg:pt-16 pb-8 sm:pb-10 md:pb-12 lg:pb-0 text-center uppercase font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl relative z-10 !text-mabini-white"
+	>
 		Receipt of <span class="!text-mabini-yellow"> Gratitude </span>
 	</h1>
-	<div class="absolute inset-0 flex items-center justify-center">
-		<div class="flex items-center gap-4 sm:gap-6 md:gap-8 lg:gap-12 justify-center px-4 sm:px-6 md:px-8 relative z-10">
+	<div class="paper relative"></div>
+
+	<div class="absolute inset-0 flex items-center justify-center pt-16 sm:pt-20 md:pt-24 lg:pt-0">
+		<div
+			class="flex items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-12 justify-center px-2 sm:px-4 md:px-6 lg:px-8 relative z-10 w-full max-w-7xl"
+		>
 			<button
 				on:click={() => {
 					reviewIndex = Math.max(0, reviewIndex - 1);
 					showDotRow();
 				}}
-				class="p-1.5 sm:p-2 md:p-2.5 lg:p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors flex-shrink-0 {reviewIndex ===
-				0
-					? 'cursor-not-allowed opacity-50'
-					: ''}"
+				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
 				aria-label="Scroll left"
 				disabled={reviewIndex === 0}
 			>
-				<svg width="18" height="18" class="sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none">
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
 					<path
 						d="M15 6l-6 6 6 6"
 						stroke="#333"
@@ -204,28 +210,33 @@
 					/>
 				</svg>
 			</button>
-			<div class="flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 px-2 scrollbar-hide justify-center">
+			<div
+				class="mt-40 flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 md:py-8 px-2 scrollbar-hide justify-center flex-1"
+			>
 				{#if reviews.length > 0}
 					{#key reviewIndex}
 						<div
-							class="bg-transparent rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col items-center justify-center transition-transform relative"
+							class="bg-transparent rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 flex flex-col items-center justify-center transition-transform relative"
 						>
 							<img
 								src={reviews[reviewIndex].img}
 								alt={reviews[reviewIndex].name}
-								class="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] md:w-[260px] md:h-[260px] lg:w-[300px] lg:h-[300px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
-								style="max-width:400px; max-height:400px;"
+								class="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] md:w-[240px] md:h-[240px] lg:w-[280px] lg:h-[280px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
+								style="max-width:100%; max-height:400px;"
 							/>
-							<div class="flex justify-center items-center gap-2 sm:gap-3 mt-3 sm:mt-4 h-5 sm:h-6">
+
+							<div
+								class="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-2.5 mt-2 sm:mt-3 md:mt-4 h-4 sm:h-5 md:h-6"
+							>
 								{#if showDots}
 									{#each reviews as _, i}
 										<div
 											class="rounded-full border transition-all duration-300"
 											style="width: {i === reviewIndex
-												? '24px'
-												: '8px'}; height: 8px; background: {i === reviewIndex
+												? '20px'
+												: '6px'}; height: 6px; background: {i === reviewIndex
 												? 'var(--color-mabini-dark-brown)'
-												: '#fff'}; border-color: transparent; margin: 0 2px;"
+												: '#fff'}; border-color: transparent; margin: 0 1px;"
 										></div>
 									{/each}
 								{/if}
@@ -234,19 +245,17 @@
 					{/key}
 				{/if}
 			</div>
+
 			<button
 				on:click={() => {
 					reviewIndex = Math.min(reviews.length - 1, reviewIndex + 1);
 					showDotRow();
 				}}
-				class="p-1.5 sm:p-2 md:p-2.5 lg:p-2 rounded-full bg-gray-200 hover:bg-mabini-yellow transition-colors flex-shrink-0 {reviewIndex ===
-				reviews.length - 1
-					? 'cursor-not-allowed opacity-50'
-					: ''}"
+				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
 				aria-label="Scroll right"
 				disabled={reviewIndex === reviews.length - 1}
 			>
-				<svg width="18" height="18" class="sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none">
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
 					<path
 						d="M9 6l6 6-6 6"
 						stroke="#333"
@@ -264,21 +273,27 @@
 	class="featured-products bg-white min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] w-full py-8 sm:py-10 md:py-12 lg:py-16 px-4"
 >
 	<h1
-		class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-black text-center uppercase mb-6 sm:mb-8 md:mb-10 lg:mb-12"
+		class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-center uppercase mb-6 sm:mb-8 md:mb-10 lg:mb-12"
 	>
 		Featured <span class="text-mabini-yellow">Products</span>
 	</h1>
 
 	{#if loading}
-		<p class="text-center text-gray-500 text-base sm:text-lg md:text-xl lg:text-2xl py-6 sm:py-8 md:py-10 lg:py-12">
+		<p
+			class="text-center text-gray-500 text-base sm:text-lg md:text-xl lg:text-2xl py-6 sm:py-8 md:py-10 lg:py-12"
+		>
 			Loading products...
 		</p>
 	{:else if products.length === 0}
-		<p class="text-center text-gray-500 text-base sm:text-lg md:text-xl lg:text-2xl py-6 sm:py-8 md:py-10 lg:py-12">
+		<p
+			class="text-center text-gray-500 text-base sm:text-lg md:text-xl lg:text-2xl py-6 sm:py-8 md:py-10 lg:py-12"
+		>
 			No products available
 		</p>
 	{:else}
-		<div class="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 max-w-7xl mx-auto">
+		<div
+			class="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 max-w-7xl mx-auto"
+		>
 			<button
 				on:click={scrollLeft2}
 				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
@@ -311,10 +326,14 @@
 							class="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 object-contain mb-2 sm:mb-3 md:mb-3 lg:mb-4 drop-shadow-md"
 						/>
 						<div class="text-center w-full">
-							<h2 class="font-extrabold text-xs sm:text-sm md:text-base lg:text-lg mb-1 line-clamp-2">
+							<h2
+								class="font-extrabold text-xs sm:text-sm md:text-base lg:text-lg mb-1 line-clamp-2"
+							>
 								{product.name}
 							</h2>
-							<p class="text-gray-400 font-bold text-xs sm:text-sm md:text-base lg:text-lg">{product.price}</p>
+							<p class="text-gray-400 font-bold text-xs sm:text-sm md:text-base lg:text-lg">
+								{product.price}
+							</p>
 							<p class="text-gray-500 font-medium text-[10px] sm:text-xs md:text-sm lg:text-base">
 								{product.temp}
 							</p>
