@@ -64,8 +64,8 @@ class PaymongoService {
         }
 
         // ===== 4️⃣ Redirect URLs =====
-        $successUrl = "http://localhost:5173/payment-success";
-        $cancelUrl  = "http://localhost:5173/payment-cancelled";
+        $successUrl = "https://mabini-cafe.bscs3a.com/payment-success";
+        $cancelUrl  = "https://mabini-cafe.bscs3a.com/payment-cancelled";
 
         // ===== 5️⃣ Build payload =====
         $payload = [
