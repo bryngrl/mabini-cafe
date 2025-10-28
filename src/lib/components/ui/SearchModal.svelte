@@ -162,7 +162,7 @@
 								{@const isAvailable = item.isAvailable === 1 || item.isAvailable === true}
 								<div class="menu-item" class:unavailable-search-item={!isAvailable}>
 									<img
-										src={`http://localhost/mabini-cafe/phpbackend/${item.image_path.replace(/^\/?/, '')}`}
+										src={`https://mabini-cafe.bscs3a.com/phpbackend/${item.image_path.replace(/^\/?/, '')}`}
 										alt={item.name}
 										class="item-image"
 										class:grayscale-search-img={!isAvailable}

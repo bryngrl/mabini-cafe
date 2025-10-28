@@ -621,7 +621,7 @@
 					<div class="flex items-center gap-4 sm:p-6 lg:p-10 mb-4">
 						<img
 							src={item.menu_item_image
-								? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
+								? `https://mabini-cafe.bscs3a.com/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
 								: '/images/placeholder.png'}
 							alt={item.menu_item_name}
 							class="w-24 h-24 object-cover rounded-lg border border-gray-300"

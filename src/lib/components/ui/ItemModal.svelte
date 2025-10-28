@@ -123,7 +123,7 @@
 				<div class="flex-shrink-0 flex justify-center items-center h-full ml-0 sm:ml-8 object-contain">
 					<img
 						src={selectedItem.image_path
-							? `http://localhost/mabini-cafe/phpbackend/${selectedItem.image_path.replace(/^\/?/, '')}`
+							? `https://mabini-cafe.bscs3a.com/phpbackend/${selectedItem.image_path.replace(/^\/?/, '')}`
 							: ''}
 						alt={selectedItem.name}
 						class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded mb-0"
