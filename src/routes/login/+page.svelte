@@ -52,7 +52,7 @@
 					return;
 				}
 			} catch (adminErr) {
-				console.log('Not an admin, trying user login...');
+				console.log('User loggin in...');
 			}
 
 			const userResult = await authStore.loginUser(email, password);
