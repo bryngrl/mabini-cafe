@@ -147,7 +147,7 @@ class OrderController {
       $shipping_fee = $shipping_data['fee']; 
 
         $this->model->user_id = $data['user_id'];
-        $this->model->total_amount = $data['total_amount'] + $shipping_fee;
+        $this->model->total_amount = $data['total_amount'];
         $this->model->shipping_fee_id = $data['shipping_fee_id'];
         $this->model->message = $data['message'] ?? '';
 

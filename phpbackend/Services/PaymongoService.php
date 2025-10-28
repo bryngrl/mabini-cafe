@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/Database.php'; 
-require_once __DIR__ .'/../Models/Order.php';
+require_once __DIR__ . '/../Models/Order.php';
+
 class PaymongoService {
     private $conn;
     private $model;
@@ -18,8 +19,9 @@ class PaymongoService {
         if (!$orderQuery) {
             return ['error' => 'Order not found'];
         }
-           $shipping_fee = $orderQuery['shipping_fee'];
-           $order = $orderQuery['total_amount']+$shipping_fee;
+
+        $shipping_fee = $orderQuery['shipping_fee'];
+        $order_total = $orderQuery['total_amount']; // don't add shipping here
 
         // ===== 2️⃣ Get order items =====
         $itemsQuery = "
@@ -51,18 +53,19 @@ class PaymongoService {
             ];
         }
 
-        if (!empty($shipping_fee)) {
-        $lineItems[] = [
-        "name" => "Shipping Fee",
-        "amount" => intval($shipping_fee * 100),
-        "currency" => "PHP",
-        "quantity" => 1
-        ];
+        // Add shipping fee as a single line item
+        if (!empty($shipping_fee) && $shipping_fee > 0) {
+            $lineItems[] = [
+                "name" => "Shipping Fee",
+                "amount" => intval($shipping_fee * 100),
+                "currency" => "PHP",
+                "quantity" => 1
+            ];
         }
 
         // ===== 4️⃣ Redirect URLs =====
-        $successUrl = "http://127.0.0.1:5500/phpbackend/test.html";
-        $cancelUrl  = "http://127.0.0.1:5500/phpbackend/test.html";
+        $successUrl = "http://localhost:5173/payment-success";
+        $cancelUrl  = "http://localhost:5173/payment-cancelled";
 
         // ===== 5️⃣ Build payload =====
         $payload = [
@@ -73,9 +76,9 @@ class PaymongoService {
                     "checkout_option" => "payment",
                     "success_url" => $successUrl,
                     "cancel_url" => $cancelUrl,
-                      "metadata" => [
-                "order_id" => $order_id
-                 ]
+                    "metadata" => [
+                        "order_id" => $order_id
+                    ]
                 ]
             ]
         ];
@@ -95,20 +98,19 @@ class PaymongoService {
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-       // ===== 7️⃣ Handle response =====
-if ($httpcode >= 200 && $httpcode < 300) {
-    $json = json_decode($response, true);
-    $checkoutUrl = $json['data']['attributes']['checkout_url'] ?? null;
-    $checkoutId = $json['data']['id'] ?? null; // <-- dito yung session id
+        // ===== 7️⃣ Handle response =====
+        if ($httpcode >= 200 && $httpcode < 300) {
+            $json = json_decode($response, true);
+            $checkoutUrl = $json['data']['attributes']['checkout_url'] ?? null;
+            $checkoutId = $json['data']['id'] ?? null; // checkout session id
 
-    return [
-        'checkout_url' => $checkoutUrl,
-        'checkout_session_id' => $checkoutId,
-        'total_amount' => $order
-    ];
-} else {
-    return ['error' => "PayMongo API error", 'response' => $response];
-}
-
+            return [
+                'checkout_url' => $checkoutUrl,
+                'checkout_session_id' => $checkoutId,
+                'total_amount' => $order_total + $shipping_fee // now just add once
+            ];
+        } else {
+            return ['error' => "PayMongo API error", 'response' => $response];
+        }
     }
 }

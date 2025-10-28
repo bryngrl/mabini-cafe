@@ -3,7 +3,7 @@ require_once __DIR__ . '/Controller.php';
 require_once __DIR__ . '/../Models/Payment.php';
 require_once __DIR__ . '/../Services/PaymongoService.php';
 
-class PaymentController extends Controller
+class PaymentController 
 {
     private $conn;
     private $model;
@@ -18,7 +18,7 @@ class PaymentController extends Controller
     }
     /**
      * @OA\Post(
-     *     path="/mabini-cafe/phpbackend/routes/checkout",
+     *     path="/mabini-cafe/phpbackend/routes/payments/checkout",
      *     tags={"Payments"},
      *     summary="Create a PayMongo checkout session",
      *     description="Initializes a checkout session for an order using PayMongo API. Returns the checkout URL for payment.",
