@@ -308,12 +308,12 @@ public function login() {
                 "token",
                 $token,
                 [
-                    "expires" => time() + 3600,
-                    "path" => "/",
-                    "domain" => "localhost", // palitan kung deployed
-                    "secure" => false,       // true kung HTTPS
-                    "httponly" => true,      // 🔑 HttpOnly
-                    "samesite" => "Strict"
+                     "expires" => time() + 3600,
+               "path" => "/",
+              "domain" => "mabini-cafe.bscs3a.com",
+              "secure" => true,
+            "httponly" => true,
+            "samesite" => "Strict"
                 ]
             );
 
@@ -353,13 +353,13 @@ public function logout() {
     setcookie("token", "", [
         "expires" => time() - 3600, // expire immediately
         "path" => "/",
-        "domain" => "localhost",
+        "domain" => "mabini-cafe.bscs3a.com", 
+        "secure" => true,                
         "httponly" => true,
         "samesite" => "Strict"
     ]);
 
     echo json_encode(["message" => "Logged out successfully"]);
 }
-
 
 }

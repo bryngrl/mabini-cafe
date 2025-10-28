@@ -339,11 +339,11 @@ public function store() {
                 "token",
                 $token,
                 [
-                    "expires" => time() + 3600,
+                     "expires" => time() - 3600, // expire immediately
                     "path" => "/",
-                    "domain" => "localhost", // palitan kung deployed
-                    "secure" => false,       // true kung HTTPS
-                    "httponly" => true,      // 🔑 HttpOnly
+                    "domain" => "mabini-cafe.bscs3a.com", 
+                    "secure" => true,                
+                    "httponly" => true,
                     "samesite" => "Strict"
                 ]
             );
