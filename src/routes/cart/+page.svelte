@@ -115,7 +115,7 @@
 							>
 								<img
 									src={item.menu_item_image
-										? `https://mabini-cafe.bscs3a.com/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
+										? `https://mabini-cafe.bscs3a.com/api/${item.menu_item_image.replace(/^\/?/, '')}`
 										: '/images/placeholder.png'}
 									alt={item.menu_item_name}
 									class="w-20 h-20 sm:w-24 sm:h-24 object-cover self-center sm:self-start"

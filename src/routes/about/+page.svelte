@@ -94,6 +94,7 @@
 	<p class="pt-3 sm:pt-5 text-sm sm:text-base md:text-lg font-light max-w-xl">
 		Enjoy our artisanal treats in a place made for moments that matter.
 	</p>
+	
 </div>
 
 <!-- CAROUSEL 1 -->
