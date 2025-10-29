@@ -136,7 +136,7 @@
 			<div class="flex flex-col items-center">
 				<label class="text-sm font-semibold text-gray-700 mb-2">Current Image</label>
 				<img
-					src={imagePreview || `http://localhost/mabini-cafe/phpbackend/${product.image_path || product.image_url}`}
+					src={imagePreview || `https://mabini-cafe.bscs3a.com/phpbackend/${product.image_path || product.image_url}`}
 					alt={product.name}
 					class="w-48 h-48 object-cover rounded-lg shadow-md"
 				/>

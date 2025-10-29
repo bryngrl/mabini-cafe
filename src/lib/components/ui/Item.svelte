@@ -33,7 +33,7 @@
 >
 	<div class="w-50 h-100 self-start p-4 text-center flex flex-col gap-1">
 		<img
-			src={`http://localhost/mabini-cafe/phpbackend/${item.image_path.replace(/^\/?/, '')}`}
+			src={`https://mabini-cafe.bscs3a.com/phpbackend/${item.image_path.replace(/^\/?/, '')}`}
 			alt={item.name}
 			class="w-40 h-40 object-contain rounded mb-2 self-center"
 			class:grayscale={!isAvailable}

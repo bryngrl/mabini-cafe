@@ -944,7 +944,7 @@
 									<div class="flex items-center gap-4 flex-1">
 										{#if product.image_path || product.image_url}
 											<img
-												src={`http://localhost/mabini-cafe/phpbackend/${product.image_path || product.image_url}`}
+												src={`https://mabini-cafe.bscs3a.com/phpbackend/${product.image_path || product.image_url}`}
 												alt={product.name}
 												class:unavailable-image={isUnavailable}
 												class="w-16 h-16 object-cover rounded-lg transition-all"

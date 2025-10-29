@@ -131,7 +131,7 @@
 							<div class="cart-item" class:unavailable-item={!isAvailable}>
 								<img
 									src={item.menu_item_image
-										? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
+										? `https://mabini-cafe.bscs3a.com/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
 										: '/images/placeholder.png'}
 									alt={item.menu_item_name}
 									class="item-image"
