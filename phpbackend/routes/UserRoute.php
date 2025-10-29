@@ -1,6 +1,6 @@
 <?php
-require_once "../Controllers/UserController.php"; // Cinapital q lang uli
 
+require_once (__DIR__.'/../Controllers/UserController.php');
 $controller = new UserController($db);
 
 if ($subresource === 'login') {

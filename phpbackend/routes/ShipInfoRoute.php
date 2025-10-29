@@ -1,6 +1,5 @@
 <?php
-require_once "../controllers/ShipInfoController.php";
-
+require_once (__DIR__.'/../Controllers/ShipInfoController.php');
 $controller = new ShipInfoController($db);
 
 

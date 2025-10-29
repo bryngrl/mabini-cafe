@@ -1,6 +1,5 @@
 <?php
-require_once "../controllers/MenuController.php";
-
+require_once (__DIR__.'/../Controllers/MenuController.php');
 $controller = new MenuController($db);
 
 switch ($method) {

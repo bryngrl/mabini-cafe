@@ -1,6 +1,5 @@
 <?php
-require_once "../Controllers/ContactsController.php";
-
+require_once (__DIR__.'/../Controllers/ContactsController.php');
 $controller = new ContactsController($db);
 
 switch ($method) {

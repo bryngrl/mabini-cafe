@@ -1,7 +1,7 @@
 <?php
-require_once(__DIR__ . '/../models/Contacts.php');
+require_once(__DIR__ . '/../Models/Contacts.php');
 require_once(__DIR__ . '/../Auth/Auth.php');
-require_once __DIR__ . '/../auth/jwtMiddleware.php';
+require_once __DIR__ . '/../Auth/jwtMiddleware.php';
 require_once __DIR__ . '/../Services/Mailer/Mail.php';
 require_once 'Controller.php';
 class ContactsController extends Controller{
