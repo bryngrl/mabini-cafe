@@ -26,7 +26,6 @@ function createCartStore() {
 			update((state) => ({ ...state, items: Array.isArray(items) ? items : [], loading: false }));
 			return items;
 		} catch (error) {
-			console.log('No cart items found for customer:', customerId);
 			update((state) => ({ ...state, items: [], loading: false }));
 			return [];
 		}
@@ -57,7 +56,6 @@ function createCartStore() {
 			currentItems = await getCartByCustomerId(cartItem.user_id);
 		} catch (err) {
 			//  If no existing cart, throw empty arr
-			console.log('No existing cart found, creating new cart item');
 			currentItems = [];
 		}
 
