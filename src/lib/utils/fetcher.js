@@ -80,9 +80,7 @@ export async function signup(userData) {
 		address: userData.address || '',
 		contact_number: userData.contact_number || ''
 	};
-	
-	console.log('Signup payload being sent:', { ...payload, password: '***' }); // Debug log
-	
+		
 	return apiFetch('/users', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },

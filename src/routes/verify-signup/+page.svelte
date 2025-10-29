@@ -50,10 +50,7 @@
 		}
 
 		try {
-			await otpStore.verifyOtp(token, otpCode);
-
-			console.log('Signup data:', { name, email, password: '***' }); // Debug log
-			
+			await otpStore.verifyOtp(token, otpCode);			
 			const result = await usersStore.signup({
 				username: name,
 				email: email,
