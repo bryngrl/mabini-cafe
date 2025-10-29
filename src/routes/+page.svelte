@@ -32,13 +32,13 @@
 			const heroImages = await customizeStore.fetchAll();
 			if (heroImages && heroImages.length > 0) {
 				if (heroImages[0]?.image_path) {
-					heroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
+					heroImage = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
 				}
 				if (heroImages[1]?.image_path) {
-					sofaHeroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
+					sofaHeroImage = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
 				}
 				if (heroImages[2]?.image_path) {
-					heroImage3 = `http://localhost/mabini-cafe/phpbackend/${heroImages[2].image_path.replace(/^\/?/, '')}`;
+					heroImage3 = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[2].image_path.replace(/^\/?/, '')}`;
 				}
 			}
 
