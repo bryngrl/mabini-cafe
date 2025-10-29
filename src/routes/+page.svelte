@@ -33,15 +33,15 @@
 			if (heroImages && heroImages.length > 0) {
 				if (heroImages[0]?.image_path) {
 					// Palitan
-					heroImage = `https://mabini-cafe.bscs3a.com/api/${heroImages[0].image_path.replace(/^\/?/, '')}`;
+					heroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
 				}
 				// Palitan
 				if (heroImages[1]?.image_path) {
-					sofaHeroImage = `https://mabini-cafe.bscs3a.com/api/${heroImages[1].image_path.replace(/^\/?/, '')}`;
+					sofaHeroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
 				}
 				// Palitan
 				if (heroImages[2]?.image_path) {
-					heroImage3 = `https://mabini-cafe.bscs3a.com/api/${heroImages[2].image_path.replace(/^\/?/, '')}`;
+					heroImage3 = `http://localhost/mabini-cafe/phpbackend/${heroImages[2].image_path.replace(/^\/?/, '')}`;
 				}
 			}
 
