@@ -1,13 +1,20 @@
-// $lib/utils/fetcher.ts (The file SvelteKit's server is running)
+// src/routes/menu/+page.server.ts
 
-const API_BASE_URL = 'https://mabini-cafe.bscs3a.com/phpbackend/routes';
+import type { PageServerLoad } from './$types';
+import { getAllMenuItems } from '$lib/utils/fetcher';
 
-export async function getAllMenuItems() {
-    // **CRITICAL: Is this 'endpoint' correct for your PHP backend?**
-    const endpoint = '/menu'; // <--- Check this line carefully!
-    
-    const url = `${API_BASE_URL}${endpoint}`; // Should be: https://mabini-cafe.bscs3a.com/phpbackend/api/menu-items
+export const load: PageServerLoad = async ({ fetch }) => {
+    try {
+        const items = await getAllMenuItems();
+        return { items };
+    } catch (error) {
+        console.error('Error loading menu items on server:', error);
+        return {
+            items: [],
+            error: error instanceof Error ? error.message : 'Unknown error during menu data load'
+        };
+    }
+};
 
-    const response = await fetch(url);
-    // ... rest of the code
-}
+// **GUARDRAIL:** Ensure you are NOT exporting any other function (like getAllMenuItems) 
+// from this file, as that was the cause of your previous build error.
