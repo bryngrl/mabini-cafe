@@ -3,7 +3,7 @@
  * All backend API calls are organized here by resource type
  */
 
-const API_BASE_URL = 'https://mabini-cafe.bscs3a.com/phpbackend/routes';
+const API_BASE_URL = 'https://mabini-cafe.bscs3a.com/phpbackend/routes/route.php';
 async function apiFetch(endpoint, options = {}) {
 	try {
 		const response = await fetch(`${API_BASE_URL}${endpoint}`, {

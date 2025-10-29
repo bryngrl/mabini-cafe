@@ -32,16 +32,13 @@
 			const heroImages = await customizeStore.fetchAll();
 			if (heroImages && heroImages.length > 0) {
 				if (heroImages[0]?.image_path) {
-					// Palitan
-					heroImage = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
+					heroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
 				}
-				// Palitan
 				if (heroImages[1]?.image_path) {
-					sofaHeroImage = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
+					sofaHeroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
 				}
-				// Palitan
 				if (heroImages[2]?.image_path) {
-					heroImage3 = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[2].image_path.replace(/^\/?/, '')}`;
+					heroImage3 = `http://localhost/mabini-cafe/phpbackend/${heroImages[2].image_path.replace(/^\/?/, '')}`;
 				}
 			}
 
@@ -55,7 +52,7 @@
 				price: `₱${parseFloat(item.price).toFixed(2)}`,
 				temp: item.category,
 				img: item.image_path
-					? `https://mabini-cafe.bscs3a.com/api/${item.image_path.replace(/^\/?/, '')}`
+					? `http://localhost/mabini-cafe/phpbackend/${item.image_path.replace(/^\/?/, '')}`
 					: '',
 				isAvailable: item.isAvailable
 			}));
@@ -184,54 +181,26 @@
 
 <section class="relative bg-black min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] lg:min-h-[100vh]">
 	<h1
-		class="pt-8 sm:pt-10 md:pt-12 lg:pt-16 pb-8 sm:pb-10 md:pb-12 lg:pb-16 text-center uppercase font-black text-5xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl relative z-10 !text-mabini-white"
+		class="pt-8 sm:pt-10 md:pt-12 lg:pt-16 pb-8 sm:pb-10 md:pb-12 lg:pb-0 text-center uppercase font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl relative z-10 !text-mabini-white"
 	>
 		Receipt of <span class="!text-mabini-yellow"> Gratitude </span>
 	</h1>
-	<div class="paper">
-		<!-- <img src="/images/Paper-1.svg" alt="" class="w-auto h-auto max-w-full max-h-full" /> -->
-	</div>
-	{#if reviews.length > 0}
-		<div
-			class="w-full flex justify-center items-center p-10 sm:p-8 md:p-10 lg:p-12 xl:p-16 pb-0 lg:pb-12"
-		>
-			<div class="flex justify-center items-center gap-2 h-5">
-				{#each reviews as _, i}
-					<div
-						class="rounded-full border transition-all duration-300"
-						style="
-						width: {i === reviewIndex
-							? window.innerWidth < 640
-								? '24px'
-								: '36px'
-							: window.innerWidth < 640
-								? '8px'
-								: '12px'};
-						height: {window.innerWidth < 640 ? '8px' : '12px'};
-						background: {i === reviewIndex ? 'var(--color-mabini-dark-brown)' : '#fff'};
-						border-color: transparent;
-						margin: 0 3px;
-					"
-					></div>
-				{/each}
-			</div>
-		</div>
-	{/if}
+	<div class="paper relative"></div>
 
 	<div class="absolute inset-0 flex items-center justify-center pt-16 sm:pt-20 md:pt-24 lg:pt-0">
 		<div
-			class="w-full flex justify-center items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-12 px-2 sm:px-4 md:px-6 lg:px-8 relative z-10 max-w-7xl mx-auto"
+			class="flex items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-12 justify-center px-2 sm:px-4 md:px-6 lg:px-8 relative z-10 w-full max-w-7xl"
 		>
 			<button
 				on:click={() => {
 					reviewIndex = Math.max(0, reviewIndex - 1);
 					showDotRow();
 				}}
-				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 flex justify-center items-center"
+				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
 				aria-label="Scroll left"
 				disabled={reviewIndex === 0}
 			>
-				<svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24">
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
 					<path
 						d="M15 6l-6 6 6 6"
 						stroke="#333"
@@ -241,9 +210,8 @@
 					/>
 				</svg>
 			</button>
-
 			<div
-				class="mt-0 flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 md:py-8 px-2 scrollbar-hide justify-center flex-1"
+				class="mt-40 flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 md:py-8 px-2 scrollbar-hide justify-center flex-1"
 			>
 				{#if reviews.length > 0}
 					{#key reviewIndex}
@@ -253,9 +221,26 @@
 							<img
 								src={reviews[reviewIndex].img}
 								alt={reviews[reviewIndex].name}
-								class="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] md:w-[240px] md:h-[240px] lg:w-[350px] lg:h-[350px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
+								class="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] md:w-[240px] md:h-[240px] lg:w-[280px] lg:h-[280px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
 								style="max-width:100%; max-height:400px;"
 							/>
+
+							<div
+								class="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-2.5 mt-2 sm:mt-3 md:mt-4 h-4 sm:h-5 md:h-6"
+							>
+								{#if showDots}
+									{#each reviews as _, i}
+										<div
+											class="rounded-full border transition-all duration-300"
+											style="width: {i === reviewIndex
+												? '20px'
+												: '6px'}; height: 6px; background: {i === reviewIndex
+												? 'var(--color-mabini-dark-brown)'
+												: '#fff'}; border-color: transparent; margin: 0 1px;"
+										></div>
+									{/each}
+								{/if}
+							</div>
 						</div>
 					{/key}
 				{/if}
@@ -266,11 +251,11 @@
 					reviewIndex = Math.min(reviews.length - 1, reviewIndex + 1);
 					showDotRow();
 				}}
-				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 flex justify-center items-center"
+				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
 				aria-label="Scroll right"
 				disabled={reviewIndex === reviews.length - 1}
 			>
-				<svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24">
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
 					<path
 						d="M9 6l6 6-6 6"
 						stroke="#333"
@@ -288,7 +273,7 @@
 	class="featured-products bg-white min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] w-full py-8 sm:py-10 md:py-12 lg:py-16 px-4"
 >
 	<h1
-		class=" uppercase font-black text-5xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12"
+		class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-center uppercase mb-6 sm:mb-8 md:mb-10 lg:mb-12"
 	>
 		Featured <span class="text-mabini-yellow">Products</span>
 	</h1>
@@ -311,11 +296,11 @@
 		>
 			<button
 				on:click={scrollLeft2}
-				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 flex justify-center items-center"
+				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
 				disabled={isProductScrollAtStart}
 				aria-label="Scroll left"
 			>
-				<svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24">
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
 					<path
 						d="M15 6l-6 6 6 6"
 						stroke="#333"
@@ -359,11 +344,11 @@
 
 			<button
 				on:click={scrollRight2}
-				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 flex justify-center items-center"
+				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
 				disabled={isProductScrollAtEnd}
 				aria-label="Scroll right"
 			>
-				<svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" fill="none" viewBox="0 0 24 24">
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
 					<path
 						d="M9 6l6 6-6 6"
 						stroke="#333"
@@ -387,35 +372,45 @@
 	}
 
 	.paper {
+		background-color: black;
+		height: 70vh;
+		width: 100%;
 		background-image: url('/images/Paper-1.svg');
 		background-repeat: no-repeat;
 		background-position: center;
-		background-size: contain;
-
-		width: 35vw;
-		aspect-ratio: 1 / 1.414;
-		height: auto;
-		margin: 0 auto;
+		background-size: 50%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-start;
+		padding: 0;
+		position: relative;
 	}
 
-	/* Small screens */
-	@media (max-width: 640px) {
+	@media (min-width: 640px) {
 		.paper {
-			width: 50vw;
+			height: 80vh;
+			background-size: 45%;
 		}
 	}
 
-	/* Medium screens */
-	@media (min-width: 641px) and (max-width: 1024px) {
+	@media (min-width: 768px) {
 		.paper {
-			width: 35vw;
+			height: 90vh;
+			background-size: 40%;
 		}
 	}
 
-	/* Large screens */
-	@media (min-width: 1025px) {
+	@media (min-width: 1024px) {
 		.paper {
-			width: 35vw;
+			height: 100vh;
+			background-size: 35%;
+		}
+	}
+
+	@media (min-width: 1280px) {
+		.paper {
+			background-size: 30%;
 		}
 	}
 </style>
