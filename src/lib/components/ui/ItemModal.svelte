@@ -98,7 +98,9 @@
 	<div
 		class="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(255,255,255,0.2)] backdrop-blur-md"
 	>
-		<div class="bg-white rounded-xl shadow-2xl w-full max-w-[95vw] sm:max-w-[600px] md:max-w-[700px] min-h-[400px] sm:min-h-[500px] p-4 sm:p-6 relative">
+		<div
+			class="bg-white rounded-xl shadow-2xl w-full max-w-[95vw] sm:max-w-[600px] md:max-w-[700px] min-h-[400px] sm:min-h-[500px] p-4 sm:p-6 relative"
+		>
 			<button
 				class="absolute top-2 right-2 sm:top-3 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-transparent text-mabini-black cursor-pointer transition"
 				on:click={close}
@@ -120,19 +122,27 @@
 			</button>
 			<div class="flex flex-col sm:flex-row items-center gap-2 md:gap-4">
 				<!-- Left: Image -->
-				<div class="flex-shrink-0 flex justify-center items-center h-full ml-0 sm:ml-8 object-contain">
+				<div
+					class="flex-shrink-0 flex justify-center items-center h-full ml-0 sm:ml-8 object-contain"
+				>
 					<img
-						src={selectedItem.image_path
-							? `https://mabini-cafe.bscs3a.com/phpbackend/${selectedItem.image_path.replace(/^\/?/, '')}`
-							: ''}
-						alt={selectedItem.name}
+						src={selectedItem?.image_path
+							? selectedItem.image_path
+							: selectedItem?.img
+								? selectedItem.img
+								: ''}
+						alt={selectedItem?.name}
 						class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded mb-0"
 					/>
 				</div>
 				<!-- Right: Details -->
-				<div class="flex flex-col justify-center items-start text-left h-full py-4 sm:py-20 px-2 sm:px-10">
+				<div
+					class="flex flex-col justify-center items-start text-left h-full py-4 sm:py-20 px-2 sm:px-10"
+				>
 					<h2 class="text-xl sm:text-2xl font-[1000] uppercase mb-2">{selectedItem.name}</h2>
-					<p class="text-base sm:text-lg font-[300] text-gray-400 mb-2 sm:mb-4">₱ {selectedItem.price}</p>
+					<p class="text-base sm:text-lg font-[300] text-gray-400 mb-2 sm:mb-4">
+						₱ {selectedItem.price}
+					</p>
 					<p class="text-sm sm:text-base text-black font-[500] mb-2">{selectedItem.description}</p>
 					<!-- Quantity Selector -->
 					<div class="box flex items-center gap-4 my-4">
@@ -142,10 +152,9 @@
 						>
 						<span class="text-l font-bold w-8 text-center">{quantity}</span>
 						<button
-							class="plus bg-white text-mabini-black px-3 py-1  border-black font-bold text-xl cursor-pointer"
+							class="plus bg-white text-mabini-black px-3 py-1 border-black font-bold text-xl cursor-pointer"
 							on:click={increase}>+</button
 						>
-						
 					</div>
 					<div class="flex flex-col sm:flex-row gap-2 mt-4 w-full">
 						<button
@@ -167,7 +176,7 @@
 {/if}
 
 <style>
-	.box{
+	.box {
 		border: 1px solid black;
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 	}
@@ -179,8 +188,8 @@
 		border-right: 1px solid black;
 		border-radius: 4px 0 0 4px;
 	}
-	
-	.add-to-cart{
+
+	.add-to-cart {
 		padding: 0.5rem 1rem;
 		box-shadow: #f5f5dc 0 2px 4px;
 		transition: background-color 0.3s ease;
@@ -190,7 +199,7 @@
 			padding: 0.5rem 1.25rem;
 		}
 	}
-	.buy-now{
+	.buy-now {
 		padding: 0.5rem 1rem;
 		box-shadow: #f5f5dc 0 2px 4px;
 		transition: background-color 0.3s ease;

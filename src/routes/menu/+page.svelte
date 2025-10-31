@@ -1,6 +1,4 @@
 <script lang="ts">
-	// Bugs in reposniveness
-
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
 	import CartModal from '$lib/components/ui/CartModal.svelte';
@@ -16,24 +14,25 @@
 
 	onMount(() => {
 		authStore.init();
-		
+
 		// Check for category parameter in URL
 		const categoryParam = $page.url.searchParams.get('category');
 		if (categoryParam) {
-			// Find matching category (case-insensitive)
+			// Try to find matching main category (case-insensitive)
 			const matchingCategory = uniqueCategories.find(
-				cat => cat.toLowerCase() === categoryParam.toLowerCase()
+				(cat) => cat.toLowerCase() === categoryParam.toLowerCase()
 			);
 			if (matchingCategory) {
 				selectedCategory = matchingCategory;
-				// If it's a subcategory, also set selectedSubcategory
-				const allSubcats = [...new Set(items.map((item) => item.description))].filter(Boolean);
-				const matchingSubcat = allSubcats.find(
-					sub => sub.toLowerCase() === categoryParam.toLowerCase()
-				);
-				if (matchingSubcat) {
-					selectedSubcategory = matchingSubcat;
-				}
+			}
+
+			// Always try to find matching subcategory (case-insensitive)
+			const allSubcats = [...new Set(items.map((item) => item.description))].filter(Boolean);
+			const matchingSubcat = allSubcats.find(
+				(sub) => sub.toLowerCase() === categoryParam.toLowerCase()
+			);
+			if (matchingSubcat) {
+				selectedSubcategory = matchingSubcat;
 			}
 		}
 	});
@@ -75,7 +74,13 @@
 	}
 
 	function handleViewDetails(item) {
-		selectedItem = item;
+		const normalizedItem = {
+			...item,
+			image_path: item.image_path.startsWith('http')
+				? item.image_path
+				: `https://mabini-cafe.bscs3a.com/phpbackend/${item.image_path.replace(/^\/?/, '')}`
+		};
+		selectedItem = normalizedItem;
 		modalOpen = true;
 	}
 
@@ -150,7 +155,7 @@
 		<div class="category hidden lg:flex">
 			{#each categories as category}
 				<button
-					class="btn-primary"
+					class="bg-none text-mabini-black rounded-[50px] w-50 px-4 py-2 font-bold uppercase border cursor-pointer transition"
 					class:active={selectedCategory === category}
 					class:selected-category={selectedCategory === category}
 					on:click={() => selectCategory(category)}
@@ -305,18 +310,19 @@
 							{/each}
 						</div>
 					{/if}
+					{#if selectedItem}
+						<ItemModal
+							selectedItem={{
+								...selectedItem,
+								image_path: selectedItem.image_path || selectedItem.img
+							}}
+							{modalOpen}
+							on:close={closeModal}
+							on:addToCart={() => selectedItem && handleAddToCart(selectedItem)}
+						/>
+					{/if}
 
-					<ItemModal
-						{selectedItem}
-						{modalOpen}
-						on:close={closeModal}
-						on:addToCart={() => selectedItem && handleAddToCart(selectedItem)}
-					/>
-
-					<CartModal
-						isOpen={cartModalOpen}
-						onClose={closeCartModal}
-					/>
+					<CartModal isOpen={cartModalOpen} onClose={closeCartModal} />
 				</div>
 			</div>
 		</div>
@@ -395,9 +401,8 @@
 		justify-content: center;
 		margin: 2rem 0;
 	}
-	@media (min-width:1024){
-		.category{
-
+	@media (min-width: 1024) {
+		.category {
 		}
 	}
 	.selected-category {
@@ -462,7 +467,7 @@
 			grid-template-columns: repeat(4, 1fr);
 		}
 	}
-	
+
 	/* Mobile specific item adjustments */
 	@media (max-width: 640px) {
 		.items-grid > div {
@@ -606,7 +611,8 @@
 		.category-grid {
 			grid-template-columns: repeat(3, 1fr);
 		}
-	}@media (min-width: 1024px) {
+	}
+	@media (min-width: 1024px) {
 		.hamburger-btn-inline {
 			display: none !important;
 		}

@@ -23,3 +23,12 @@ vite.config.ts.timestamp-*
 /phpbackend/Services/PaymongoService.php
 ngrok.exe
 *.md
+phpbackend/vendor/autoload.php
+phpbackend/vendor/composer/autoload_classmap.php
+phpbackend/vendor/composer/autoload_files.php
+phpbackend/vendor/composer/autoload_psr4.php
+phpbackend/vendor/composer/autoload_real.php
+phpbackend/vendor/composer/autoload_static.php
+phpbackend/vendor/composer/platform_check.php
+phpbackend/vendor/composer/autoload_classmap.php
+phpbackend/vendor/composer/autoload_static.php

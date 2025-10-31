@@ -5,7 +5,7 @@
 
 <div class="max-w-3xl mx-auto p-8 mt-30 min-h-screen bg-white rounded-xl">
 	<div class="mb-8 text-left">
-		<h1 class="h1-heading font-black mb-4 text-6xl lg:text-7xl xl:text-8xl">SHIPPING</h1>
+		<h1 class="font-black mb-4 text-6xl lg:text-7xl xl:text-8xl">SHIPPING</h1>
 		<p class="text-lg mb-2 font-bold">WHAT SHIPPING TYPES YOU HAVE?</p>
 
 		<div class="mt-10">

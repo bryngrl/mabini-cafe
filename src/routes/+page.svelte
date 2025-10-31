@@ -2,6 +2,9 @@
 	import { goto } from '$app/navigation';
 	import { menuStore, customizeStore } from '$lib/stores';
 	import { onMount } from 'svelte';
+	import { cartStore } from '$lib/stores';
+	import { authStore } from '$lib/stores';
+	import ItemModal from '$lib/components/ui/ItemModal.svelte';
 
 	let heroImage = '/images/cover-photo-1.png';
 	let sofaHeroImage = '/home/sofa.svg';
@@ -13,9 +16,58 @@
 	let scrollRef2: HTMLDivElement;
 	let loading = true;
 	let reviewIndex = 1;
-	let showDots = false;
+	let showDots = true;
 	let isProductScrollAtStart = true;
 	let isProductScrollAtEnd = false;
+	let selectedItem = null;
+	let modalOpen = false;
+
+	function openModal(product) {
+		selectedItem = {
+			...product,
+			image_path: product.image_path || product.img
+		};
+		modalOpen = true;
+	}
+	function closeModal() {
+		modalOpen = false;
+		selectedItem = null;
+	}
+
+	async function handleAddToCart(product) {
+		try {
+			// Check if product is available
+			if (!product.isAvailable || product.isAvailable === 0 || product.isAvailable === '0') {
+				await showError('This item is currently unavailable.', 'Item Unavailable');
+				return;
+			}
+
+			const quantity = 1;
+			const subtotal = parseFloat(product.price.replace('₱', '')) * quantity;
+
+			await cartStore.add({
+				user_id: $authStore.user?.id,
+				menu_item_id: product.id,
+				quantity: quantity,
+				subtotal: subtotal
+			});
+
+			// Show success message first, then open cart modal
+			await showSuccess(`${product.name} has been added to your cart!`, 'Added to Cart');
+			cartModalOpen = true;
+		} catch (err: any) {
+			if (err.type === 'LOGIN_REQUIRED') {
+				const result = await showLoginRequired();
+				if (result.isConfirmed) {
+					goto('/login');
+				}
+				return;
+			}
+
+			await showError(err.message || 'Failed to add item to cart', 'Error');
+			console.error('Error adding to cart:', err);
+		}
+	}
 
 	const reviews = [
 		{ img: '/reviews/review-1.svg', name: 'Review 1' },
@@ -32,10 +84,10 @@
 			const heroImages = await customizeStore.fetchAll();
 			if (heroImages && heroImages.length > 0) {
 				if (heroImages[0]?.image_path) {
-					heroImage = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
+					heroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[0].image_path.replace(/^\/?/, '')}`;
 				}
 				if (heroImages[1]?.image_path) {
-					sofaHeroImage = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
+					sofaHeroImage = `http://localhost/mabini-cafe/phpbackend/${heroImages[1].image_path.replace(/^\/?/, '')}`;
 				}
 				if (heroImages[2]?.image_path) {
 					heroImage3 = `https://mabini-cafe.bscs3a.com/phpbackend/${heroImages[2].image_path.replace(/^\/?/, '')}`;
@@ -48,13 +100,15 @@
 					item.isAvailable === 1 || item.isAvailable === '1' || item.isAvailable === true
 			);
 			products = filteredItems.map((item: any) => ({
+				id: item.id,
 				name: item.name,
-				price: `₱${parseFloat(item.price).toFixed(2)}`,
+				price: `${parseFloat(item.price).toFixed(2)}`,
 				temp: item.category,
 				img: item.image_path
-					? `http://localhost/mabini-cafe/phpbackend/${item.image_path.replace(/^\/?/, '')}`
+					? `https://mabini-cafe.bscs3a.com/phpbackend/${item.image_path.replace(/^\/?/, '')}`
 					: '',
-				isAvailable: item.isAvailable
+				isAvailable: item.isAvailable,
+				description: item.description // if needed
 			}));
 		} catch (error) {
 			console.error('Failed to load data:', error);
@@ -63,11 +117,6 @@
 			setTimeout(() => handleProductScroll(), 0);
 		}
 	});
-
-	function showDotRow() {
-		showDots = true;
-		setTimeout(() => (showDots = false), 1000);
-	}
 
 	function scrollRight() {
 		if (reviewIndex < reviews.length - 1) {
@@ -102,6 +151,15 @@
 			isProductScrollAtEnd = Math.abs(scrollRef.scrollLeft - maxScroll) < 2;
 		}
 	}
+
+	let drinks = [
+		{ src: '/home/drinks-1.svg', name: 'Cucumber Lemonade' },
+		{ src: '/home/drinks-2.svg', name: 'Blueberry Lemonade Fizz' },
+		{ src: '/home/drinks-3.svg', name: 'Strawberry Passion Fruit Ade' },
+		{ src: '/home/drinks-4.svg', name: 'Dragon Breath Ade' },
+		{ src: '/home/drinks-5.svg', name: 'Peach Strawberry Lemon Tea' }
+	];
+	let drinksIndex = 0;
 </script>
 
 <svelte:head>
@@ -109,47 +167,94 @@
 	<meta name="description" content="Welcome to Mabini Cafe" />
 </svelte:head>
 
+<!-- Cover Image -->
 <section
 	class="hero h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] w-full flex justify-center items-center bg-cover bg-center text-white text-center"
 	style="background-image: url('{heroImage}')"
 ></section>
-
+<!-- Choose your Refresher -->
 <section
 	class="hero-2 mt-10 sm:mt-16 md:mt-20 lg:mt-24 h-auto min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full flex justify-center items-start bg-cover bg-center text-center px-4 sm:px-6 md:px-8 lg:px-4 relative overflow-hidden"
 >
 	<div class="hero-content px-4 sm:px-8 md:px-16 lg:px-20 z-10">
-		<h1
-			class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-mabini-black uppercase font-sans-boldie font-extrabold leading-tight"
-		>
+		<h1 class="header-text leading-tight">
 			Choose Your
 			<span class="text-mabini-yellow">Refresher</span>
 		</h1>
-		<h1
-			class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-mabini-dark-brown leading-none mt-0 font-black uppercase"
-		>
-			Cucumber Lemonade
+		<h1 class="header-text block text-mabini-dark-brown leading-none mt-0">
+			{drinks[drinksIndex].name}
 		</h1>
 	</div>
 	<img
 		src={sofaHeroImage}
 		alt="Hero 2"
 		class="absolute right-0 bottom-6 sm:bottom-8 md:bottom-10 lg:bottom-10 pointer-events-none select-none w-[350px] sm:w-[450px] md:w-[550px] lg:w-[800px]"
-		style="z-index:1; max-width:none; transform:scale(1.2) sm:scale(1.3) md:scale(1.4) lg:scale(1.5);"
+		style="z-index:1; max-width:none; transform:scale(1.2);"
 	/>
 	<img
 		src={table}
 		alt="Hero 2"
 		class="absolute left-0 right-0 bottom-0 m-auto pointer-events-none select-none w-[300px] sm:w-[350px] md:w-[420px] lg:w-[500px]"
-		style="z-index:1; max-width:none; transform:scale(1.2) sm:scale(1.3) md:scale(1.4) lg:scale(1.5);"
+		style="z-index:1; max-width:none; transform:scale(1.2);"
 	/>
-</section>
 
+	{#if drinks.length > 0}
+		<div class="flex items-center justify-center gap-4 mt-6">
+			<!-- Left Arrow Button -->
+			<button
+				class="button-left-arrow"
+				aria-label="Scroll left"
+				on:click={() => (drinksIndex = (drinksIndex - 1 + drinks.length) % drinks.length)}
+			>
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
+					<path
+						d="M15 6l-6 6 6 6"
+						stroke="#333"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
+			</button>
+			{#key drinksIndex}
+				<img
+					src={drinks[drinksIndex].src}
+					alt={drinks[drinksIndex].name}
+					class=" absolute top-1/4 left-1/2 transform -translate-x-1/2 pointer-events-none select-none z-10 w-37 sm:w-37 md:w-45 lg:w-60"
+				/>
+			{/key}
+			<div class="absolute top-[60%] left-1/2 transform -translate-x-1/2 flex gap-2 z-20">
+				{#each drinks as _, i}
+					<div class="indicator {i === drinksIndex ? 'indicator-active' : ''}"></div>
+				{/each}
+			</div>
+
+			<!-- Right Arrow Button -->
+			<button
+				class="button-right-arrow"
+				aria-label="Scroll right"
+				on:click={() => (drinksIndex = (drinksIndex + 1) % drinks.length)}
+			>
+				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
+					<path
+						d="M9 6l6 6-6 6"
+						stroke="#333"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					/>
+				</svg>
+			</button>
+		</div>
+	{/if}
+</section>
+<!-- Discovery -->
 <section
-	class="hero-3 w-full min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] flex items-center justify-start bg-cover bg-center text-white"
+	class="hero-3 div-layout flex items-center justify-start bg-cover bg-center text-white"
 	style="background-image: url('{heroImage3}')"
 >
 	<div
-		class="mr-12 ml-12 sm:mr-16 sm:ml-16 md:mr-20 md:ml-20 lg:mr-24 lg:ml-24 xl:mr-32 xl:ml-32 p-6 sm:p-8 md:p-12 lg:p-16 xl:p-20 w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl"
+		class=" p-6 sm:p-8 md:p-12 lg:p-16 xl:p-20 w-full max-w-full sm:max-w-xl md:max-w-2xl lg:max-w-4xl"
 	>
 		<div class="flex flex-col justify-start items-start">
 			<h1
@@ -164,117 +269,109 @@
 				Croffle
 			</h1>
 			<p
-				class="text-xs sm:text-sm md:text-base lg:text-lg pt-4 sm:pt-6 font-light text-white max-w-full sm:max-w-md md:max-w-lg lg:max-w-2xl"
+				class="text-sm sm:text-sm md:text-base lg:text-lg pt-4 sm:pt-6 font-light text-white max-w-full sm:max-w-md md:max-w-lg lg:max-w-2xl"
 			>
 				Crispy, buttery, and topped with goodness.<br />
 				Explore our wide variety of croffles made fresh daily.
 			</p>
 			<button
 				on:click={() => goto('/menu?category=Croffle')}
-				class="uppercase mt-6 sm:mt-6 font-semibold text-xs sm:text-sm md:text-base cursor-pointer w-full sm:w-auto min-w-[160px] sm:min-w-[180px] md:min-w-[200px] p-3 sm:p-3.5 md:p-4 rounded-full border-2 border-white hover:bg-mabini-dark-brown hover:border-transparent transition-all duration-300"
+				class="uppercase mt-6 sm:mt-6 button-1"
 			>
 				Explore Menu
 			</button>
 		</div>
 	</div>
 </section>
-
-<section class="relative bg-black min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] lg:min-h-[100vh]">
-	<h1
-		class="pt-8 sm:pt-10 md:pt-12 lg:pt-16 pb-8 sm:pb-10 md:pb-12 lg:pb-0 text-center uppercase font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl relative z-10 !text-mabini-white"
-	>
-		Receipt of <span class="!text-mabini-yellow"> Gratitude </span>
+<!-- Receipt of Gratitude -->
+<section class=" bg-black div-layout">
+	<h1 class="header-text pb-8 sm:pb-10 md:pb-12 lg:pb-0 relative z-10 text-mabini-white">
+		Receipt of <span class="!text-mabini-yellow !font-black font-sans-boldie"> Gratitude </span>
 	</h1>
-	<div class="paper relative"></div>
-
-	<div class="absolute inset-0 flex items-center justify-center pt-16 sm:pt-20 md:pt-24 lg:pt-0">
+	<div class="flex items-center justify-center">
 		<div
 			class="flex items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-12 justify-center px-2 sm:px-4 md:px-6 lg:px-8 relative z-10 w-full max-w-7xl"
 		>
-			<button
-				on:click={() => {
-					reviewIndex = Math.max(0, reviewIndex - 1);
-					showDotRow();
-				}}
-				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
-				aria-label="Scroll left"
-				disabled={reviewIndex === 0}
-			>
-				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
-					<path
-						d="M15 6l-6 6 6 6"
-						stroke="#333"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-				</svg>
-			</button>
-			<div
-				class="mt-40 flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 md:py-8 px-2 scrollbar-hide justify-center flex-1"
-			>
-				{#if reviews.length > 0}
-					{#key reviewIndex}
-						<div
-							class="bg-transparent rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 flex flex-col items-center justify-center transition-transform relative"
-						>
-							<img
-								src={reviews[reviewIndex].img}
-								alt={reviews[reviewIndex].name}
-								class="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] md:w-[240px] md:h-[240px] lg:w-[280px] lg:h-[280px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
-								style="max-width:100%; max-height:400px;"
-							/>
-
-							<div
-								class="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-2.5 mt-2 sm:mt-3 md:mt-4 h-4 sm:h-5 md:h-6"
-							>
-								{#if showDots}
-									{#each reviews as _, i}
-										<div
-											class="rounded-full border transition-all duration-300"
-											style="width: {i === reviewIndex
-												? '20px'
-												: '6px'}; height: 6px; background: {i === reviewIndex
-												? 'var(--color-mabini-dark-brown)'
-												: '#fff'}; border-color: transparent; margin: 0 1px;"
-										></div>
-									{/each}
-								{/if}
-							</div>
-						</div>
-					{/key}
-				{/if}
+			<div class="paper relative"></div>
+			<!-- Button Left -->
+			<div>
+				<button
+					on:click={() => {
+						reviewIndex = Math.max(0, reviewIndex - 1);
+					}}
+					class="button-left-arrow bg-opacity-70 hover:bg-opacity-100 flex-shrink-0"
+					aria-label="Scroll left"
+					disabled={reviewIndex === 0}
+				>
+					<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
+						<path
+							d="M15 6l-6 6 6 6"
+							stroke="#333"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
 			</div>
+			<!-- Images -->
+			<div>
+				<div
+					class="mt-10 flex overflow-x-auto gap-4 sm:gap-6 py-4 sm:py-6 md:py-8 px-2 scrollbar-hide justify-center flex-1"
+				>
+					{#if reviews.length > 0}
+						{#key reviewIndex}
+							<div
+								class="bg-transparent rounded-2xl p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 flex flex-col items-center justify-center transition-transform relative"
+							>
+								<img
+									src={reviews[reviewIndex].img}
+									alt={reviews[reviewIndex].name}
+									class="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] md:w-[240px] md:h-[240px] lg:w-[280px] lg:h-[280px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
+									style="max-width:100%; max-height:400px;"
+								/>
 
-			<button
-				on:click={() => {
-					reviewIndex = Math.min(reviews.length - 1, reviewIndex + 1);
-					showDotRow();
-				}}
-				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
-				aria-label="Scroll right"
-				disabled={reviewIndex === reviews.length - 1}
-			>
-				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
-					<path
-						d="M9 6l6 6-6 6"
-						stroke="#333"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-				</svg>
-			</button>
+								<div
+									class="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-2.5 mt-2 sm:mt-3 md:mt-4 h-4 sm:h-5 md:h-6"
+								>
+									{#if showDots}
+										{#each reviews as _, i}
+											<div class="indicator {i === reviewIndex ? 'indicator-active' : ''}"></div>
+										{/each}
+									{/if}
+								</div>
+							</div>
+						{/key}
+					{/if}
+				</div>
+			</div>
+			<!-- Button Right -->
+			<div>
+				<button
+					on:click={() => {
+						reviewIndex = Math.min(reviews.length - 1, reviewIndex + 1);
+					}}
+					class="button-right-arrow bg-opacity-70 hover:bg-opacity-100"
+					aria-label="Scroll right"
+					disabled={reviewIndex === reviews.length - 1}
+				>
+					<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
+						<path
+							d="M9 6l6 6-6 6"
+							stroke="#333"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
+			</div>
 		</div>
 	</div>
 </section>
-
-<section
-	class="featured-products bg-white min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] w-full py-8 sm:py-10 md:py-12 lg:py-16 px-4"
->
-	<h1
-		class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-black text-center uppercase mb-6 sm:mb-8 md:mb-10 lg:mb-12"
-	>
+<!-- Featured Products -->
+<section class=" bg-white div-layout">
+	<h1 class="header-text">
 		Featured <span class="text-mabini-yellow">Products</span>
 	</h1>
 
@@ -292,33 +389,48 @@
 		</p>
 	{:else}
 		<div
-			class="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 max-w-7xl mx-auto"
+			class="relative flex items-center justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 max-w-7xl mx-auto"
 		>
-			<button
-				on:click={scrollLeft2}
-				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
-				disabled={isProductScrollAtStart}
-				aria-label="Scroll left"
+			<!-- Button Left -->
+			<div
+				class="absolute left-0 top-0 h-full w-1/4 bg-gradient-to-r from-white via-white/80 to-transparent z-10 transition-opacity duration-300 pointer-events-none"
+				class:bg-none={isProductScrollAtStart}
+				class:z-0={isProductScrollAtStart}
 			>
-				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
-					<path
-						d="M15 6l-6 6 6 6"
-						stroke="#333"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-				</svg>
-			</button>
-
+				<button
+					on:click={scrollLeft2}
+					class="button-left-arrow disabled:!opacity-0 pointer-events-auto"
+					disabled={isProductScrollAtStart}
+					aria-label="Scroll left"
+				>
+					<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
+						<path
+							d="M15 6l-6 6 6 6"
+							stroke="#333"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
+			</div>
+			<!-- Items -->
 			<div
 				bind:this={scrollRef}
 				on:scroll={handleProductScroll}
-				class="flex overflow-x-auto gap-3 sm:gap-4 md:gap-5 lg:gap-6 py-4 sm:py-5 md:py-6 lg:py-8 px-2 scrollbar-hide flex-1"
+				class="flex overflow-x-auto gap-3 py-4 px-2 scrollbar-hide flex-1 p-[40px] sm:p-[60px] md:p-[80px] lg:p-[90px]"
 			>
 				{#each products.slice(0, 10) as product}
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div
 						class="min-w-[160px] sm:min-w-[180px] md:min-w-[200px] lg:min-w-[220px] xl:min-w-[240px] bg-white rounded-2xl shadow-xl p-4 sm:p-5 md:p-5 lg:p-6 flex flex-col items-center justify-between hover:scale-105 transition flex-shrink-0"
+						on:click={() => {
+							openModal(product);
+						}}
+						role="button"
+						tabindex="0"
+						on:keydown={(e) => e.key === 'Enter' && openModal(product)}
 					>
 						<img
 							src={product.img}
@@ -342,22 +454,33 @@
 				{/each}
 			</div>
 
-			<button
-				on:click={scrollRight2}
-				class="p-2 sm:p-3 md:p-3.5 lg:p-4 rounded-full bg-gray-200 hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0"
-				disabled={isProductScrollAtEnd}
-				aria-label="Scroll right"
+			<ItemModal
+				{selectedItem}
+				{modalOpen}
+				on:close={closeModal}
+				on:addToCart={() => selectedItem && handleAddToCart(selectedItem)}
+			/>
+			<!-- Button Right -->
+			<div
+				class="absolute right-0 top-0 h-full w-1/4 bg-gradient-to-l from-white to-transparent pointer-events-none"
 			>
-				<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
-					<path
-						d="M9 6l6 6-6 6"
-						stroke="#333"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					/>
-				</svg>
-			</button>
+				<button
+					on:click={scrollRight2}
+					class=" button-right-arrow pointer-events-auto"
+					disabled={isProductScrollAtEnd}
+					aria-label="Scroll right"
+				>
+					<svg width="20" height="20" class="sm:w-6 sm:h-6" fill="none">
+						<path
+							d="M9 6l6 6-6 6"
+							stroke="#333"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
+			</div>
 		</div>
 	{/if}
 </section>
@@ -369,48 +492,5 @@
 	.scrollbar-hide {
 		-ms-overflow-style: none;
 		scrollbar-width: none;
-	}
-
-	.paper {
-		background-color: black;
-		height: 70vh;
-		width: 100%;
-		background-image: url('/images/Paper-1.svg');
-		background-repeat: no-repeat;
-		background-position: center;
-		background-size: 50%;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: flex-start;
-		padding: 0;
-		position: relative;
-	}
-
-	@media (min-width: 640px) {
-		.paper {
-			height: 80vh;
-			background-size: 45%;
-		}
-	}
-
-	@media (min-width: 768px) {
-		.paper {
-			height: 90vh;
-			background-size: 40%;
-		}
-	}
-
-	@media (min-width: 1024px) {
-		.paper {
-			height: 100vh;
-			background-size: 35%;
-		}
-	}
-
-	@media (min-width: 1280px) {
-		.paper {
-			background-size: 30%;
-		}
 	}
 </style>

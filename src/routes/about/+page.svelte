@@ -55,7 +55,7 @@
 		class="flex flex-col md:flex-row px-6 sm:px-10 md:px-16 lg:px-24 py-10 gap-0"
 		style="min-height: 400px;"
 	>
-		<div class="flex-1 min-h-[400px] ">
+		<div class="flex-1 min-h-[400px]">
 			<img
 				src="/about/component-1.svg"
 				alt="About Mabini Cover"
@@ -106,7 +106,7 @@
 		/>
 		<!-- Prev -->
 		<button
-			class="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full p-2 sm:p-3 shadow hover:bg-opacity-100"
+			class="button-left-arrow bg-opacity-70 hover:bg-opacity-100"
 			on:click={prev}
 			aria-label="Previous"
 		>
@@ -122,11 +122,7 @@
 		</button>
 
 		<!-- Next -->
-		<button
-			class="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full p-2 sm:p-3 shadow hover:bg-opacity-100"
-			on:click={next}
-			aria-label="Next"
-		>
+		<button class="button-right-arrow" on:click={next} aria-label="Next">
 			<svg width="24" height="24" fill="none">
 				<path
 					d="M9 6l6 6-6 6"
@@ -142,13 +138,7 @@
 	<!-- Indicators -->
 	<div class="flex gap-2 mt-4">
 		{#each images as _, i}
-			<div
-				class="rounded-full border transition-all duration-300"
-				style="width: {i === currentImage ? '36px' : '12px'}; height: 12px; background: {i ===
-				currentImage
-					? 'var(--color-mabini-dark-brown)'
-					: '#fff'}; border-color: transparent; margin: 0 2px;"
-			></div>
+			<div class="indicator {i === currentImage ? 'indicator-active' : ''}"></div>
 		{/each}
 	</div>
 </div>

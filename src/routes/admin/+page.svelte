@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { ordersStore, orders, menuStore, menuItems, customizeStore, customizations } from '$lib/stores';
+	import {
+		ordersStore,
+		orders,
+		menuStore,
+		menuItems,
+		customizeStore,
+		customizations
+	} from '$lib/stores';
 	import { authStore } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -48,7 +55,6 @@
 			if (product.category_id) {
 				updateData.category_id = Number(product.category_id);
 			}
-
 
 			await menuStore.update(product.id, updateData);
 
@@ -179,6 +185,8 @@
 		productsPage = 1;
 	});
 
+	// Inside admin.svelte <script> block
+
 	async function handleStatusChange(orderId: number, status: string) {
 		try {
 			switch (status.toLowerCase()) {
@@ -195,6 +203,8 @@
 					await ordersStore.updateToCancelled(orderId);
 					break;
 			}
+			await ordersStore.fetchAll();
+			await showSuccess(`Order #${orderId} status updated to ${status.toUpperCase()}`, 'Success');
 		} catch (err) {
 			console.error('Error updating order status:', err);
 			showError('Failed to update order status');
@@ -249,7 +259,7 @@
 				if (file) {
 					// Check if this hero image already exists
 					const existingHero = $customizations.find((c: any) => c.image_custom_name === name);
-					
+
 					if (existingHero) {
 						// Update existing hero image
 						await customizeStore.updateImage(existingHero.id, file);
@@ -345,6 +355,18 @@
 		selectedOrder = order;
 		showOrderModal = true;
 	}
+	$effect(() => {
+		// 1. Check if the modal is open and an order is selected
+		if (showOrderModal && selectedOrder) {
+			// 2. Find the *latest* version of this order in the global $orders store
+			const latestOrder = ordersList.find((o: Order) => o.id === selectedOrder?.id);
+
+			// 3. If a latest version is found and it's different from what we have, update the state
+			if (latestOrder && JSON.stringify(latestOrder) !== JSON.stringify(selectedOrder)) {
+				selectedOrder = latestOrder;
+			}
+		}
+	});
 
 	function closeOrderModal() {
 		showOrderModal = false;
@@ -362,16 +384,20 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Admin - Mabini Cafe</title>
+	<meta name="description" content="Admin Page for Mabini Cafe" />
+</svelte:head>
 <div class="flex flex-col lg:flex-row min-h-screen items-stretch">
-	<!-- Mobile Overlay -->
 	{#if mobileMenuOpen}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
-			class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+			class="fixed inset-0 bg-opacity-50 z-1 lg:hidden"
 			onclick={toggleMobileMenu}
 		></div>
 	{/if}
 
-	<!-- Sidebar - Desktop always visible, Mobile slide-in from left -->
 	<div
 		class="fixed lg:static top-0 left-0 w-full sm:w-[80%] lg:w-[30%] h-screen lg:h-auto lg:min-h-screen bg-black text-white flex flex-col justify-between text-center z-50 transform transition-transform duration-300 ease-in-out {mobileMenuOpen
 			? 'translate-x-0'
@@ -441,7 +467,8 @@
 					onclick={() => selectTab('products')}
 				>
 					<img src="/admin/products.svg" alt="Products Icon" class="w-10 h-10" />
-					<span class="flex flex-col items-center justify-center text-center text-lg">Add a Product</span
+					<span class="flex flex-col items-center justify-center text-center text-lg"
+						>Add a Product</span
 					>
 				</button>
 			</div>
@@ -474,7 +501,10 @@
 		</div>
 	</div>
 	<!-- white bg -->
-	<div class="w-full lg:w-[60%] min-h-screen h-full bg-white">
+	<div
+		class="w-full lg:w-[60%] min-h-screen h-full bg-white transition-all duration-300
+    {showOrderModal || showProductModal ? 'blur-sm pointer-events-none' : ''}"
+	>
 		{#if selectedTab === 'customize'}
 			<!-- Customize Content -->
 			<div
@@ -482,7 +512,10 @@
 			>
 				<div class="w-full min-h-[400px] justify-center items-center rounded-2xl shadow-lg mt-10">
 					<!-- Black Header with Hamburger -->
-					<div class="w-full bg-black rounded-t-2xl flex justify-between items-center relative z-30">
+					<div
+						class="w-full bg-black rounded-t-2xl flex justify-between items-center
+    {mobileMenuOpen ? 'hidden' : 'flex'} lg:flex"
+					>
 						<!-- Mobile Hamburger Button -->
 						<button
 							type="button"
@@ -508,7 +541,13 @@
 							</svg>
 						</button>
 						<!-- Title - Hidden when sidebar is open on mobile -->
-						<h1 class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen ? 'lg:block hidden' : ''}">Customize Website</h1>
+						<h1
+							class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen
+								? 'lg:block hidden'
+								: ''}"
+						>
+							Customize Website
+						</h1>
 					</div>
 					<!-- White Content with border -->
 					<div class="w-full rounded-b-2xl">
@@ -584,8 +623,6 @@
 								</button>
 							</form>
 						</div>
-
-						
 					</div>
 				</div>
 			</div>
@@ -596,7 +633,11 @@
 				<!-- Orders Content -->
 				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
 					<!-- Black Header with Hamburger -->
-					<div class="w-full h-[10%] bg-black rounded-t-2xl flex justify-between items-center relative z-30">
+					<div
+						class="w-full h-[10%] bg-black rounded-t-2xl flex justify-between items-center {mobileMenuOpen
+							? 'hidden'
+							: 'flex'} lg:flex"
+					>
 						<!-- Mobile Hamburger Button -->
 						<button
 							type="button"
@@ -622,7 +663,13 @@
 							</svg>
 						</button>
 						<!-- Title - Hidden when sidebar is open on mobile -->
-						<h1 class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen ? 'lg:block hidden' : ''}">Orders Section</h1>
+						<h1
+							class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen
+								? 'lg:block hidden'
+								: ''}"
+						>
+							Orders Section
+						</h1>
 					</div>
 					<!-- White Content with border -->
 					<div class="w-full h-[90%] rounded-b-2xl overflow-x-auto">
@@ -758,7 +805,11 @@
 				<!-- Products Content -->
 				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
 					<!-- Black Header with Hamburger -->
-					<div class="w-full min-h-[10%] bg-black rounded-t-2xl flex justify-between items-center relative z-30">
+					<div
+						class="w-full min-h-[10%] bg-black rounded-t-2xl flex justify-between items-center {mobileMenuOpen
+							? 'hidden'
+							: 'flex'} lg:flex"
+					>
 						<!-- Mobile Hamburger Button -->
 						<button
 							type="button"
@@ -784,10 +835,16 @@
 							</svg>
 						</button>
 						<!-- Title - Hidden when sidebar is open on mobile -->
-						<h1 class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen ? 'lg:block hidden' : ''}">Products Section</h1>
+						<h1
+							class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen
+								? 'lg:block hidden'
+								: ''}"
+						>
+							Products Section
+						</h1>
 					</div>
 					<!-- White Content with border -->
-					<div class="w-full rounded-b-2xl flex items-center justify-center p-3 sm:p-5">
+					<div class="w-full rounded-b-2xl flex items-center justify-center p-5 sm:p-20">
 						<div class="w-full max-w-3xl">
 							<h2 class="text-base sm:text-lg font-bold">
 								Fill out the details to create a new product entry for your menu.
@@ -798,7 +855,10 @@
 								page so make sure that all the details are correct and accurate.
 							</p>
 							<!-- Form -->
-							<form class="flex flex-col gap-3 sm:gap-4 mt-4 pb-10 sm:pb-20" onsubmit={handleProductSubmit}>
+							<form
+								class="flex flex-col gap-3 sm:gap-4 mt-4 pb-10 sm:pb-20"
+								onsubmit={handleProductSubmit}
+							>
 								<label class="flex flex-col">
 									<span class="font-bold text-sm sm:text-base">Product Name *</span>
 									<input
@@ -890,7 +950,11 @@
 				<!-- Product Manager Content -->
 				<div class="w-full h-full justify-center items-center rounded-2xl shadow-lg mt-10">
 					<!-- Black Header with Hamburger -->
-					<div class="w-full min-h-[10%] bg-black rounded-t-2xl flex justify-between items-center relative z-30">
+					<div
+						class="w-full min-h-[10%] bg-black rounded-t-2xl flex justify-between items-center {mobileMenuOpen
+							? 'hidden'
+							: 'flex'} lg:flex"
+					>
 						<!-- Mobile Hamburger Button -->
 						<button
 							type="button"
@@ -916,7 +980,13 @@
 							</svg>
 						</button>
 						<!-- Title - Hidden when sidebar is open on mobile -->
-						<h1 class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen ? 'lg:block hidden' : ''}">Product Manager</h1>
+						<h1
+							class="text-white text-2xl p-5 text-start flex-1 {mobileMenuOpen
+								? 'lg:block hidden'
+								: ''}"
+						>
+							Product Manager
+						</h1>
 					</div>
 					<!-- White Content with border -->
 					<div class="w-full rounded-b-2xl p-5">
@@ -1019,7 +1089,8 @@
 									{:else}
 										<button
 											onclick={() => (productsPage = pageNum as number)}
-											class="px-2 sm:px-3 py-1 rounded-lg border text-xs sm:text-sm {productsPage === pageNum
+											class="px-2 sm:px-3 py-1 rounded-lg border text-xs sm:text-sm {productsPage ===
+											pageNum
 												? 'bg-mabini-yellow text-white'
 												: 'bg-white text-gray-700 hover:bg-gray-50'}"
 										>
@@ -1031,7 +1102,8 @@
 								<button
 									onclick={() => (productsPage = Math.min(totalProductsPages, productsPage + 1))}
 									disabled={productsPage === totalProductsPages}
-									class="px-2 sm:px-3 py-1 rounded-lg border text-xs sm:text-sm {productsPage === totalProductsPages
+									class="px-2 sm:px-3 py-1 rounded-lg border text-xs sm:text-sm {productsPage ===
+									totalProductsPages
 										? 'bg-gray-100 text-gray-400 cursor-not-allowed'
 										: 'bg-white text-gray-700 hover:bg-gray-50'}"
 								>

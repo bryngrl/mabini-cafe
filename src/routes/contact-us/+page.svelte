@@ -82,7 +82,7 @@
 
 <div class="max-w-xl mx-auto p-8 bg-white rounded-xl">
 	<div class="text-left mb-8 font-light">
-		<h1 class="h1-heading font-extrabold uppercase mb-2">
+		<h1 class="font-extrabold uppercase mb-2 text-6xl">
 			Contact <span class="text-[#ffd700]">Us</span>
 		</h1>
 		<p>

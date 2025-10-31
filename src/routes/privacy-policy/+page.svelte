@@ -5,7 +5,7 @@
 
 <div class="max-w-3xl mx-auto p-8 mt-30 bg-white rounded-xl">
 	<div class="mb-8 text-left">
-		<h1 class="h1-heading font-black mb-4 text-6xl lg:text-7xl xl:text-8xl">
+		<h1 class="font-black mb-4 text-6xl lg:text-7xl xl:text-8xl">
 			PRIVACY <span class="text-mabini-yellow">POLICY</span>
 		</h1>
 		<p class="text-lg mb-2 font-bold">Effective Date : August 12, 2025</p>
