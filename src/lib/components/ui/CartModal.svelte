@@ -24,7 +24,10 @@
 
 	// Reactive statement to check for unavailable items
 	$: hasUnavailableItems = $cartItems.some(
-		(item) => item.menu_item_isAvailable === 0 || item.menu_item_isAvailable === '0' || item.menu_item_isAvailable === false
+		(item) =>
+			item.menu_item_isAvailable === 0 ||
+			item.menu_item_isAvailable === '0' ||
+			item.menu_item_isAvailable === false
 	);
 
 	$: {
@@ -127,7 +130,10 @@
 				{:else if $cartItems.length > 0}
 					<div class="cart-items">
 						{#each $cartItems as item}
-							{@const isAvailable = item.menu_item_isAvailable === 1 || item.menu_item_isAvailable === '1' || item.menu_item_isAvailable === true}
+							{@const isAvailable =
+								item.menu_item_isAvailable === 1 ||
+								item.menu_item_isAvailable === '1' ||
+								item.menu_item_isAvailable === true}
 							<div class="cart-item" class:unavailable-item={!isAvailable}>
 								<img
 									src={item.menu_item_image
@@ -138,7 +144,9 @@
 									class:grayscale-img={!isAvailable}
 								/>
 								<div class="item-details">
-									<h3 class="item-name" class:line-through-text={!isAvailable}>{item.menu_item_name}</h3>
+									<h3 class="item-name" class:line-through-text={!isAvailable}>
+										{item.menu_item_name}
+									</h3>
 									{#if !isAvailable}
 										<span class="unavailable-badge">Currently Unavailable</span>
 									{/if}
@@ -164,7 +172,9 @@
 								</div>
 								<div class="item-subtotal">
 									<p class="subtotal-label">Subtotal:</p>
-									<p class="subtotal-value" class:line-through-text={!isAvailable}>₱{parseFloat(item.subtotal).toFixed(2)}</p>
+									<p class="subtotal-value" class:line-through-text={!isAvailable}>
+										₱{parseFloat(item.subtotal).toFixed(2)}
+									</p>
 								</div>
 								<button
 									class="remove-btn"
@@ -192,8 +202,8 @@
 								⚠️ Please remove unavailable items to proceed with checkout
 							</p>
 						{/if}
-						<button 
-							class="checkout-btn" 
+						<button
+							class="checkout-btn"
 							on:click={checkout}
 							disabled={hasUnavailableItems}
 							class:disabled-btn={hasUnavailableItems}
@@ -222,6 +232,8 @@
 
 <style>
 	.box {
+		/* Mobile (default) height: 105px */
+		width: 105px;
 		border: 1px solid black;
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 	}
@@ -239,43 +251,6 @@
 		color: white;
 		margin: auto;
 		text-align: center;
-	}
-	.modal-overlay {
-		position: fixed;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: auto;
-		justify-content: flex-end;
-		display: flex;
-		align-items: center;
-		z-index: 1000;
-	}
-
-	.modal-content {
-		background: white;
-		border-radius: 1.5rem 0 0 1.5rem;
-		max-width: 800px;
-		width: 100%;
-		max-height: 90vh;
-		display: flex;
-		flex-direction: column;
-		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-	}
-
-	.modal-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 1.5rem 2rem;
-		position: relative;
-	}
-
-	.modal-title {
-		font-size: 1.75rem;
-		font-weight: 700;
-		color: var(--color-mabini-dark-brown);
-		margin: 0;
 	}
 
 	.close-btn {
@@ -303,6 +278,7 @@
 		flex: 1;
 		overflow-y: auto;
 		padding: 1.5rem 2rem;
+		/* min-height: 90vh; */
 	}
 
 	.cart-items {

@@ -1,7 +1,3 @@
-<!-- !TO: DO
- ! [] Responsive
- ! [] Hamburger Menu
---->
 <script>
 	import SearchModal from '../ui/SearchModal.svelte';
 	import { goto } from '$app/navigation';
@@ -16,23 +12,67 @@
 		{ name: 'About', href: '/about' }
 	];
 
-	let open = false;
+	let open = false; // Controls desktop/mobile SUPPORT dropdown
 	let accountOpen = false;
 	let cartModalOpen = false;
 	let searchModalOpen = false;
 	let mobileMenuOpen = false;
 
+	// --- START: Hover Delay Logic ---
+	let hoverTimeout;
+	const CLOSE_DELAY = 200; // 200 milliseconds (adjust as needed)
+
+	function handleMouseEnter() {
+		// When entering, immediately cancel any pending close timer
+		clearTimeout(hoverTimeout);
+		open = true; // Open the dropdown instantly
+	}
+
+	function handleMouseLeave() {
+		// When leaving, START the close timer instead of closing instantly
+		hoverTimeout = setTimeout(() => {
+			open = false; // Close the dropdown after the delay
+		}, CLOSE_DELAY);
+	}
+	// --- END: Hover Delay Logic ---
+
 	function closeSearch() {
 		searchModalOpen = false;
 	}
+	let accountHoverTimeout;
+	function handleAccountMouseEnter() {
+		clearTimeout(accountHoverTimeout);
+		accountOpen = true; // Open the account dropdown instantly
+	}
 
+	function handleAccountMouseLeave() {
+		// Start the close timer for the account menu
+		accountHoverTimeout = setTimeout(() => {
+			accountOpen = false;
+		}, CLOSE_DELAY);
+	}
 	function logout() {
 		authStore.logout();
 		localStorage.removeItem('token');
 		showSuccess('Logged out successfully');
+		clearTimeout(accountHoverTimeout);
+		accountOpen = false;
 		setTimeout(() => {
 			goto('/login');
 		}, 2000);
+	}
+	function selectAndNavigateAccount(path, isAdmin) {
+		clearTimeout(accountHoverTimeout); // Crucial: Clear the close timer
+		accountOpen = false;
+		// The mobileMenuOpen cleanup is handled below in the markup for the mobile menu.
+
+		if (path === '/logout') {
+			logout();
+		} else if (path === '/admin') {
+			goto('/admin');
+		} else if (path === '/settings') {
+			goto('/account/settings');
+		}
 	}
 
 	function openCart() {
@@ -49,12 +89,23 @@
 	function closeCart() {
 		cartModalOpen = false;
 	}
+
+	// Updated to clear the hover timeout
+	function selectAndNavigate(path) {
+		// Clear any pending desktop close timer when an item is clicked
+		clearTimeout(hoverTimeout);
+
+		open = false;
+		mobileMenuOpen = false;
+		goto(path);
+	}
 </script>
 
 <nav
 	class="flex items-center justify-between p-4 bg-black text-white font-medium uppercase drop-shadow-2xl w-full relative z-[30]"
 >
 	<!-- Left links (desktop) -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="hidden md:flex flex-1 justify-start ml-[50px]">
 		<ul class="flex gap-6 items-center">
 			{#each links as link}
@@ -63,11 +114,8 @@
 					<span class="underline-anim"></span>
 				</li>
 			{/each}
-			<div class="relative">
-				<button
-					on:click={() => (open = !open)}
-					class="relative group text-[16px] flex items-center gap-2 cursor-pointer"
-				>
+			<div class="relative" on:mouseenter={handleMouseEnter} on:mouseleave={handleMouseLeave}>
+				<button class="relative group text-[16px] flex items-center gap-2 cursor-pointer">
 					SUPPORT
 					<span class="transition-transform duration-300 {open ? 'rotate-180' : ''}">
 						<i class="fa-solid fa-chevron-down"></i>
@@ -80,11 +128,7 @@
 						<li>
 							<button
 								type="button"
-								on:click={() => {
-									open = false;
-									mobileMenuOpen = false;
-									goto('/orders-and-payment');
-								}}
+								on:click={() => selectAndNavigate('/orders-and-payment')}
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
 								>Orders & Payment</button
 							>
@@ -92,11 +136,7 @@
 						<li>
 							<button
 								type="button"
-								on:click={() => {
-									open = false;
-									mobileMenuOpen = false;
-									goto('/shipping');
-								}}
+								on:click={() => selectAndNavigate('/shipping')}
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
 								>Shipping</button
 							>
@@ -158,10 +198,14 @@
 		{#if $authStore.loading}
 			<div class="relative group text-[16px] opacity-50">Loading...</div>
 		{:else if $authStore.isAuthenticated}
-			<div class="relative">
+			<div
+				class="relative"
+				on:mouseenter={handleAccountMouseEnter}
+				on:mouseleave={handleAccountMouseLeave}
+			>
 				<button
-					on:click={() => (accountOpen = !accountOpen)}
 					class="relative group text-[16px] flex items-center gap-2 cursor-pointer"
+					type="button"
 				>
 					ACCOUNT
 					<span class="transition-transform duration-300 {accountOpen ? 'rotate-180' : ''}">
@@ -177,11 +221,11 @@
 								type="button"
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
 								on:click={() => {
-									accountOpen = false;
+									// Close logic is now inside a reusable function to clear the timer
 									if ($authStore.isAdmin) {
-										goto('/admin');
+										selectAndNavigateAccount('/admin', true);
 									} else {
-										goto('/account/settings');
+										selectAndNavigateAccount('/settings', false);
 									}
 								}}
 							>
@@ -192,7 +236,7 @@
 							<button
 								type="button"
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
-								on:click={logout}
+								on:click={() => selectAndNavigateAccount('/logout')}
 							>
 								Logout
 							</button>

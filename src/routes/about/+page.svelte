@@ -46,40 +46,36 @@
 </svelte:head>
 
 <!-- HERO + ABOUT -->
-<div class="flex flex-col m-0 p-0">
-	<div class="w-full flex justify-center">
-		<img src="/about/hero-1.svg" alt="Cover Page" class="w-full h-auto shadow-lg" />
+<div class="main-hero" style="background-image: url(/about/hero-1.svg);">
+</div>
+<div
+	class="flex flex-col lg:pl-[200px] lg:pr-[200px] md:flex-row px-6 sm:px-10 md:px-16 lg:px-24 py-10 gap-0"
+	style="min-height: 400px;"
+>
+	<div class="flex-1 min-h-[400px]">
+		<img
+			src="/about/component-1.svg"
+			alt="About Mabini Cover"
+			class="w-full h-full object-cover rounded-t-3xl md:rounded-l-3xl md:rounded-r-none"
+		/>
 	</div>
-	<!-- About Section -->
-	<div
-		class="flex flex-col md:flex-row px-6 sm:px-10 md:px-16 lg:px-24 py-10 gap-0"
-		style="min-height: 400px;"
-	>
-		<div class="flex-1 min-h-[400px]">
-			<img
-				src="/about/component-1.svg"
-				alt="About Mabini Cover"
-				class="w-full h-full object-cover rounded-t-3xl md:rounded-l-3xl md:rounded-r-none"
-			/>
-		</div>
 
-		<div
-			class="flex-1 bg-white shadow-2xl rounded-b-3xl md:rounded-r-3xl md:rounded-l-none p-6 sm:p-10 md:p-12 lg:p-16 max-w-md md:max-w-lg lg:max-w-xl flex items-center min-h-[400px]"
-		>
-			<div>
-				<h1 class="uppercase text-3xl md:text-4xl font-black font-sans">About</h1>
-				<h1
-					class="uppercase text-5xl md:text-7xl lg:text-8xl font-extrabold font-herman text-mabini-yellow"
-				>
-					Mabini Cafe
-				</h1>
-				<p class="text-left text-base sm:text-lg leading-relaxed mt-4">
-					Way back May 24, 2023, Mabini Cafe opened its first branch at Maypajo, Caloocan City.
-					Serving good quality concoctions of espresso-based drinks and mouth-watering food, Mabini
-					Cafe aims to provide excellent coffee and gracious service creating memorable experiences
-					for people.
-				</p>
-			</div>
+	<div
+		class="flex-1 bg-white shadow-2xl rounded-b-3xl md:rounded-r-3xl md:rounded-l-none p-6 sm:p-10 md:p-12 lg:p-16 max-w-md md:max-w-lg lg:max-w-xl flex items-center min-h-[400px]"
+	>
+		<div>
+			<h1 class="uppercase text-3xl md:text-4xl font-black font-sans">About</h1>
+			<h1
+				class="uppercase text-5xl md:text-7xl lg:text-8xl font-extrabold font-herman text-mabini-yellow"
+			>
+				Mabini Cafe
+			</h1>
+			<p class="text-left text-base sm:text-lg leading-relaxed mt-4">
+				Way back May 24, 2023, Mabini Cafe opened its first branch at Maypajo, Caloocan City.
+				Serving good quality concoctions of espresso-based drinks and mouth-watering food, Mabini
+				Cafe aims to provide excellent coffee and gracious service creating memorable experiences
+				for people.
+			</p>
 		</div>
 	</div>
 </div>

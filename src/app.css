@@ -54,52 +54,67 @@ body {
 	@apply font-sans bg-mabini-white text-mabini-black;
 }
 /* Texts */
-	.header-text {
-		@apply font-sans-boldie uppercase text-center
+.header-text {
+	@apply font-sans-boldie uppercase text-center
 		text-5xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-9xl;
-	}
+}
+.header-2-text {
+	@apply font-sans-boldie uppercase
+	text-sm md:text-base lg:text-lg pt-5 pb-3;
+}
+.content-paragraph {
+	@apply font-sans 
+	text-sm md:text-base lg:text-lg;
+}
+.drinks-header{
+	@apply font-sans-boldie uppercase text-center
+	text-3xl sm:text-2xl md:text-3xl lg:text-6xl xl:text-7xl 2xl:text-9xl
+}
 /* Layout */
-	/* Home Layout */
-	.div-layout {
-		@apply min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] w-full py-8 sm:py-10 md:py-12 lg:py-16 px-4;
-	}
-	/* Admin Dashboard */
-	.div-white-content{
-		@apply pt-0 p-10
-	}
+/* Home Layout */
+.div-layout {
+	@apply min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] w-full py-8 sm:py-10 md:py-12 lg:py-16 px-4;
+}
+/* Admin Dashboard */
+.div-white-content {
+	@apply pt-0 p-10;
+}
+.div-static-content {
+	@apply flex flex-col items-center p-10 sm:p-12 md:p-14 min-h-screen bg-white;
+}
 /* Buttons */
-	.button-1 {
-		@apply bg-transparent hover:bg-mabini-dark-brown
+.button-1 {
+	@apply bg-transparent hover:bg-mabini-dark-brown
 		border-1 border-white hover:border-transparent  transition-all duration-200
 		font-semibold text-sm sm:text-sm md:text-base cursor-pointer sm:w-auto min-w-[160px] sm:min-w-[180px] md:min-w-[200px] p-3 sm:p-3.5 md:p-4 rounded-full;
-	}
-	.button-left-arrow{
-		@apply absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 sm:p-3 md:p-3.5 lg:p-4 shadow
-		cursor-pointer
-		hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 z-30
-		;
-	}
-	.button-right-arrow{
-		@apply absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 sm:p-3 md:p-3.5 lg:p-4 shadow
+}
+.button-left-arrow {
+	@apply absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 sm:p-3 md:p-3.5 lg:p-4 shadow
 		cursor-pointer
 		hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 z-30;
-
-	}
+}
+.button-right-arrow {
+	@apply absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 sm:p-3 md:p-3.5 lg:p-4 shadow
+		cursor-pointer
+		hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 z-30;
+}
 /* Pagination */
-	.indicator {
- 		 @apply rounded-full border transition-all duration-300 mx-[2px];
-		width: 8px;
-		height: 8px;
-		background: #fff;
-		border-color: transparent;
-		}
+.indicator {
+	@apply rounded-full border transition-all duration-300 mx-[2px];
+	width: 8px;
+	height: 8px;
+	background: #fff;
+	border-color: transparent;
+}
 
-	.indicator-active {
-		width: 24px;
-		background: var(--color-mabini-dark-brown);
-	}
-
-
+.indicator-active {
+	width: 24px;
+	background: var(--color-mabini-dark-brown);
+}
+/* Images */
+.main-hero {
+	@apply h-[60vh] w-full bg-cover bg-center bg-no-repeat flex justify-center items-center relative z-0;
+}
 
 /* Underline */
 .underline-anim {
@@ -109,6 +124,42 @@ body {
 	@apply w-full;
 }
 
+/* MODALS */
+ /* Overlay */
+.modal-overlay {
+	@apply fixed inset-0 
+    w-screen h-screen 
+    bg-black/50 
+    backdrop-blur-[5px] 
+    flex items-center justify-end 
+    z-[1000];
+}
+
+/* 2. Modal Content (The Main Sidebar Box) */
+.modal-content {
+	@apply bg-white 
+    rounded-3xl lg:rounded-l-3xl lg:rounded-r-none 
+	w-full h-full 
+    min-h-full max-h-full
+	lg:max-w-[550px] lg:min-w-[550px]
+    lg:min-h-[90vh] lg:max-h-[90vh]
+	flex flex-col 
+    shadow-[0_10px_40px_rgba(0,0,0,0.2)];
+
+}
+
+/* 3. Modal Header */
+.modal-header {
+	@apply flex justify-between items-center 
+    p-6 px-8 pb-0 relative;
+}
+
+/* 4. Modal Title */
+.modal-title {
+	@apply text-[1.75rem] font-black 
+    text-[var(--color-mabini-dark-brown)] 
+    m-0;
+}
 
 /* Sweet Alerts Design */
 .swal-mabini-popup {

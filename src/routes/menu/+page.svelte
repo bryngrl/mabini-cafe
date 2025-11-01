@@ -143,29 +143,26 @@
 	<title>Menu - Mabini Cafe</title>
 	<meta name="description" content="Browse our delicious menu of coffee, pastries, and more" />
 </svelte:head>
-<div class="page-header">
-	<h2 class="font-bold text-white text-center m-auto text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
-		Menu
-	</h2>
+<div class="main-hero page-header">
+	<h2 class="header-text !text-white">Menu</h2>
 </div>
 
 <div class="menu-page">
+	<!-- Category buttons -->
+	<div class="category hidden lg:flex lg:justify-center lg:items-center max-w-full">
+		{#each categories as category}
+			<button
+				class="bg-none text-mabini-black rounded-[50px] w-50 px-4 py-2 font-bold uppercase border cursor-pointer transition"
+				class:active={selectedCategory === category}
+				class:selected-category={selectedCategory === category}
+				on:click={() => selectCategory(category)}
+			>
+				{category.charAt(0).toUpperCase() + category.slice(1)}
+			</button>
+		{/each}
+	</div>
+	<!-- Mobile Dropdown Menu-->
 	<div class="container">
-		<!-- Category buttons -->
-		<div class="category hidden lg:flex">
-			{#each categories as category}
-				<button
-					class="bg-none text-mabini-black rounded-[50px] w-50 px-4 py-2 font-bold uppercase border cursor-pointer transition"
-					class:active={selectedCategory === category}
-					class:selected-category={selectedCategory === category}
-					on:click={() => selectCategory(category)}
-				>
-					{category.charAt(0).toUpperCase() + category.slice(1)}
-				</button>
-			{/each}
-		</div>
-
-		<!-- Mobile Dropdown Menu-->
 		{#if mobileMenuOpen}
 			<div class="mobile-menu">
 				<div class="mobile-menu-header">
@@ -332,16 +329,6 @@
 <style>
 	.page-header {
 		background-image: url(/images/hero-menu.png);
-		height: 40vh;
-		width: 100%;
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		position: relative;
-		z-index: 0;
 	}
 	.page-header h2 {
 		position: relative;

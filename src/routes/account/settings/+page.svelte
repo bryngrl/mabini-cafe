@@ -29,7 +29,7 @@
 			return [];
 		}
 	}
-	
+
 	$: if ($currentUser?.id) {
 		getUserOrders().then((result) => {
 			orders = result;
@@ -86,10 +86,10 @@
 		try {
 			await shippingStore.deleteAddress(addressId, $currentUser.id);
 			await showSuccess('Address deleted successfully!', 'Success');
-			
+
 			// Refresh addresses
 			await shippingStore.fetchByUserId($currentUser.id);
-			
+
 			// Reset form if we were editing this address
 			if (editingAddressId === addressId) {
 				cancelEdit();
@@ -133,7 +133,7 @@
 		accountOrdersActive = false;
 	}
 	let isEditAddress = false;
-	
+
 	function editAddress(address) {
 		isEditAddress = true;
 		addNewAddress = false;
@@ -150,7 +150,7 @@
 			phone: address.phone
 		};
 	}
-	
+
 	function showAddNewAddressForm() {
 		addNewAddress = true;
 		isEditAddress = false;
@@ -167,7 +167,7 @@
 			phone: ''
 		};
 	}
-	
+
 	function cancelEdit() {
 		formData = {
 			email: '',
@@ -260,10 +260,14 @@
 	}
 </script>
 
-<div class="flex flex-col lg:flex-row gap-0 min-h-screen pt-16 sm:pt-20 lg:pt-20 justify-center text-center px-4 sm:px-6 lg:px-0">
+<div
+	class="flex flex-col lg:flex-row gap-0 min-h-screen pt-16 sm:pt-20 lg:pt-20 justify-center text-center px-4 sm:px-6 lg:px-0"
+>
 	<!-- Sidebar -->
 	<div class="grow w-full order-1 lg:order-1">
-		<div class="ml-0 lg:ml-30 flex gap-0 flex-col justify-start items-center content-center text-left w-full">
+		<div
+			class="ml-0 lg:ml-30 flex gap-0 flex-col justify-start items-center content-center text-left w-full"
+		>
 			<!-- Navigation Items -->
 			<hr class="border-[1] border-gray-500 w-full lg:w-[50%]" />
 			<div class="w-full lg:w-[50%] flex flex-row self-center">
@@ -343,7 +347,9 @@
 	</div>
 
 	<!-- Content Section -->
-	<div class="grow w-full mt-6 lg:mt-0 lg:ml-0 order-2 lg:order-2 flex justify-center lg:justify-start items-start px-0 sm:px-0">
+	<div
+		class="grow w-full mt-6 lg:mt-0 lg:ml-0 order-2 lg:order-2 flex justify-center lg:justify-start items-start px-0 sm:px-0"
+	>
 		{#if accountOverviewActive}
 			<div
 				class="flex flex-col justify-start items-center text-left gap-4 min-h-[400px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6"
@@ -357,27 +363,43 @@
 				{#if hasExistingShipping && userAddresses.length > 0}
 					<div class="gap-3 text-left px-4 sm:px-6 lg:px-10 pt-0 w-full flex flex-col">
 						<p class="text-sm sm:text-base">Your Info</p>
-						<div class="flex flex-col sm:flex-row gap-4 sm:gap-10 mt-2">
-							<div class="flex flex-col gap-2 flex-1">
+
+						<!-- Row 1: Name & Email -->
+						<div class="flex flex-col sm:flex-row gap-4 sm:gap-10 mt-2 items-start">
+							<!-- Name Column (Added min-h) -->
+							<div class="flex flex-col gap-2 flex-1 min-w-[50px]">
 								<label for="name" class="text-xs sm:text-sm text-gray-400">Name</label>
 								<p id="name" class="text-gray-300 font-bold text-sm sm:text-base break-words">
-									{userAddresses[0].first_name.charAt(0).toUpperCase() + userAddresses[0].first_name.slice(1)}
-									{userAddresses[0].last_name.charAt(0).toUpperCase() + userAddresses[0].last_name.slice(1)}
+									{userAddresses[0].first_name.charAt(0).toUpperCase() +
+										userAddresses[0].first_name.slice(1)}
+									{userAddresses[0].last_name.charAt(0).toUpperCase() +
+										userAddresses[0].last_name.slice(1)}
 								</p>
 							</div>
-							<div class="flex flex-col gap-2 flex-1">
+							<!-- Email Column (Added min-h, Removed conflicting truncate) -->
+							<div class="flex flex-col gap-2 flex-1 min-w-[50px]">
 								<label for="email" class="text-xs sm:text-sm text-gray-400">Email</label>
-								<p id="email" class="text-gray-300 font-bold text-sm sm:text-base break-words">{userAddresses[0].email}</p>
+								<p id="email" class="text-gray-300 font-bold text-sm sm:text-base break-words">
+									{userAddresses[0].email}
+								</p>
 							</div>
 						</div>
-						<div class="flex flex-col sm:flex-row gap-4 sm:gap-10 mt-2">
-							<div class="flex flex-col gap-2 flex-1">
+
+						<!-- Row 2: Phone & Address -->
+						<div class="flex flex-col sm:flex-row gap-4 sm:gap-10 mt-2 items-start">
+							<!-- Phone Column (Added min-h, Removed conflicting truncate) -->
+							<div class="flex flex-col gap-2 flex-1 **min-w-[50px]**">
 								<label for="phone" class="text-xs sm:text-sm text-gray-400">Phone</label>
-								<p id="phone" class="text-gray-300 font-bold text-sm sm:text-base">{userAddresses[0].phone}</p>
+								<p id="phone" class="text-gray-300 font-bold text-sm sm:text-base">
+									{userAddresses[0].phone}
+								</p>
 							</div>
-							<div class="flex flex-col gap-2 flex-1">
+							<!-- Address Column (Added min-h, Removed conflicting truncate) -->
+							<div class="flex flex-col gap-2 flex-1 min-w-[50px]">
 								<label for="address" class="text-xs sm:text-sm text-gray-400">Address</label>
-								<p id="address" class="text-gray-300 font-bold text-sm sm:text-base break-words">{userAddresses[0].address}</p>
+								<p id="address" class="text-gray-300 font-bold text-sm sm:text-base break-words">
+									{userAddresses[0].address}
+								</p>
 							</div>
 						</div>
 					</div>
@@ -393,11 +415,15 @@
 						</button>
 					</div>
 				{:else}
-					<h1 class="px-4 sm:px-6 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full text-center">
+					<h1
+						class="px-4 sm:px-6 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full text-center"
+					>
 						You have no account details yet.
 					</h1>
-					<p class="text-gray-400 text-sm sm:text-base text-center px-4">Add your details in the Addresses section.</p>
-					
+					<p class="text-gray-400 text-sm sm:text-base text-center px-4">
+						Add your details in the Addresses section.
+					</p>
+
 					<div class="w-full px-4 sm:px-6 lg:px-10 pb-4 sm:pb-6 mt-4">
 						<hr class="border-[1] text-gray-700 w-full mb-4" />
 						<div class="flex justify-center">
@@ -414,10 +440,12 @@
 			</div>
 		{:else if accountOrdersActive}
 			<div
-				class="flex flex-col justify-start items-center text-left gap-4 min-h-[400px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl pb-6 sm:pb-10"
+				class="flex flex-col mb-10 justify-start items-center text-left gap-4 min-h-[400px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl pb-6 sm:pb-10"
 			>
 				{#if hasOrders}
-					<h1 class="p-4 sm:p-6 lg:p-10 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full">Your Orders</h1>
+					<h1 class="p-4 sm:p-6 lg:p-10 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full">
+						Your Orders
+					</h1>
 					<hr class="border-[1] text-white w-[90%] sm:w-[95%]" />
 					<!-- Orders List -->
 					<div class="w-full px-4 sm:px-6 space-y-4 sm:space-y-6">
@@ -425,7 +453,9 @@
 							<div class="bg-gray-900 rounded-lg p-4 sm:p-6">
 								<div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
 									<div class="flex-1">
-										<h2 class="text-lg sm:text-xl font-bold">Order #{String(order.id).padStart(4, '0')}</h2>
+										<h2 class="text-lg sm:text-xl font-bold">
+											Order #{String(order.id).padStart(4, '0')}
+										</h2>
 										<p class="text-gray-400 text-xs sm:text-sm mt-1">
 											Placed on: {order.order_time
 												? new Date(order.order_time.replace(' ', 'T')).toLocaleDateString('en-US', {
@@ -438,80 +468,105 @@
 													})
 												: 'N/A'}
 										</p>
-								</div>
-								<!-- Status Badge -->
-								<span class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold capitalize whitespace-nowrap
-									{order.status?.toLowerCase() === 'pending' || !order.status ? 'bg-yellow-200 text-yellow-800' :
-									order.status?.toLowerCase() === 'preparing' ? 'bg-blue-200 text-blue-800' :
-									order.status?.toLowerCase() === 'delivering' ? 'bg-purple-200 text-purple-800' :
-									order.status?.toLowerCase() === 'completed' ? 'bg-green-200 text-green-800' :
-									'bg-red-200 text-red-800'}">
-									{order.status || 'pending'}
-								</span>
-							</div>
-							
-							{#if order.items && order.items.length > 0}
-								<div class="space-y-2 mb-4">
-									{#each order.items as item}
-										<div class="flex justify-between items-center gap-2">
-											<div class="flex-1 min-w-0">
-												<p class="font-medium text-sm sm:text-base truncate">{item.name} x {item.quantity}</p>
-												<p class="text-gray-400 text-xs sm:text-sm">₱{item.price} each</p>
-											</div>
-											<p class="font-bold text-sm sm:text-base whitespace-nowrap">₱{item.price * item.quantity}</p>
-										</div>
-									{/each}
-								</div>
-							{:else}
-								<p class="text-gray-400 text-xs sm:text-sm mb-4">Order details not available</p>
-							{/if}
-
-							<!-- Order Details -->
-							<div class="border-t border-gray-700 pt-4 space-y-2">
-								{#if order.shipping_name}
-									<div class="flex justify-between text-xs sm:text-sm gap-2">
-										<span class="text-gray-400">Shipping Method:</span>
-										<span class="text-right">{order.shipping_name}</span>
 									</div>
-								{/if}
-								{#if order.shipping_fee}
-									<div class="flex justify-between text-xs sm:text-sm gap-2">
-										<span class="text-gray-400">Shipping Fee:</span>
-										<span>₱{order.shipping_fee}</span>
-									</div>
-								{/if}
-								<div class="flex justify-between text-xs sm:text-sm gap-2">
-									<span class="text-gray-400">Payment Method:</span>
-									<span class="capitalize">{order.payment_method || 'N/A'}</span>
-								</div>
-								<div class="flex justify-between text-xs sm:text-sm gap-2">
-									<span class="text-gray-400">Payment Status:</span>
-									<span class="px-2 py-1 rounded-full text-xs font-bold
-										{order.payment_status === 'Paid' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}">
-										{order.payment_status || 'Pending'}
+									<!-- Status Badge -->
+									<span
+										class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold capitalize whitespace-nowrap max-w-[70px] lg:max-w-full
+									{order.status?.toLowerCase() === 'pending' || !order.status
+											? 'bg-yellow-200 text-yellow-800'
+											: order.status?.toLowerCase() === 'preparing'
+												? 'bg-blue-200 text-blue-800'
+												: order.status?.toLowerCase() === 'delivering'
+													? 'bg-purple-200 text-purple-800'
+													: order.status?.toLowerCase() === 'completed'
+														? 'bg-green-200 text-green-800'
+														: 'bg-red-200 text-red-800'}"
+									>
+										{order.status || 'pending'}
 									</span>
 								</div>
-							</div>
 
-							<!-- Order Total -->
-							<div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-700 gap-2">
-								<p class="font-bold text-base sm:text-lg">Total Amount:</p>
-								<p class="font-extrabold text-lg sm:text-xl text-green-400">₱{order.total_amount}</p>
-							</div>
+								{#if order.items && order.items.length > 0}
+									<div class="space-y-2 mb-4">
+										{#each order.items as item}
+											<div class="flex justify-between items-center gap-2">
+												<div class="flex-1 min-w-0">
+													<p class="font-medium text-sm sm:text-base truncate">
+														{item.name} x {item.quantity}
+													</p>
+													<p class="text-gray-400 text-xs sm:text-sm">₱{item.price} each</p>
+												</div>
+												<p class="font-bold text-sm sm:text-base whitespace-nowrap">
+													₱{item.price * item.quantity}
+												</p>
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<p class="text-gray-400 text-xs sm:text-sm mb-4">Order details not available</p>
+								{/if}
 
-							{#if order.message}
-								<div class="mt-4 pt-4 border-t border-gray-700">
-									<p class="text-gray-400 text-xs sm:text-sm">Message:</p>
-									<p class="text-xs sm:text-sm italic break-words">{order.message}</p>
+								<!-- Order Details -->
+								<div class="border-t border-gray-700 pt-4 space-y-2">
+									{#if order.shipping_name}
+										<div class="flex justify-between text-xs sm:text-sm gap-2">
+											<span class="text-gray-400">Shipping Method:</span>
+											<span class="text-right">{order.shipping_name}</span>
+										</div>
+									{/if}
+									{#if order.shipping_fee}
+										<div class="flex justify-between text-xs sm:text-sm gap-2">
+											<span class="text-gray-400">Shipping Fee:</span>
+											<span>₱{order.shipping_fee}</span>
+										</div>
+									{/if}
+									<div class="flex justify-between text-xs sm:text-sm gap-2">
+										<span class="text-gray-400">Payment Method:</span>
+										<span class="capitalize">{order.payment_method || 'N/A'}</span>
+									</div>
+									<div class="flex justify-between text-xs sm:text-sm gap-2">
+										<span class="text-gray-400">Payment Status:</span>
+										<span
+											class="px-2 py-1 rounded-full text-xs font-bold
+										{order.payment_status === 'Paid' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}"
+										>
+											{order.payment_status || 'Pending'}
+										</span>
+									</div>
 								</div>
-							{/if}
-						</div>
+
+								<!-- Order Total -->
+								<div
+									class="flex justify-between items-center mt-4 pt-4 border-t border-gray-700 gap-2"
+								>
+									<p class="font-bold text-base sm:text-lg">Total Amount:</p>
+									<p class="font-extrabold text-lg sm:text-xl text-green-400">
+										₱{order.total_amount}
+									</p>
+								</div>
+
+								{#if order.message}
+									<div class="mt-4 pt-4 border-t border-gray-700">
+										<p class="text-gray-400 text-xs sm:text-sm">Message:</p>
+										<p class="text-xs sm:text-sm italic break-words">{order.message}</p>
+									</div>
+								{/if}
+							</div>
 						{/each}
 					</div>
 				{:else}
-					<h1 class="px-4 sm:px-6 lg:p-10 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full text-center">You have no orders yet.</h1>
-					<p class="text-gray-400 text-sm sm:text-base text-center px-4">Start shopping now and come back to view your orders here.</p>
-					<a href="/menu" class="bg-mabini-yellow text-black px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors">
+					<h1
+						class="px-4 sm:px-6 lg:p-10 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full text-center"
+					>
+						You have no orders yet.
+					</h1>
+					<p class="text-gray-400 text-sm sm:text-base text-center px-4">
+						Start shopping now and come back to view your orders here.
+					</p>
+					<a
+						href="/menu"
+						class="bg-mabini-yellow text-black px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors"
+					>
 						Browse Menu
 					</a>
 				{/if}
@@ -521,17 +576,24 @@
 				class="flex flex-col justify-start items-center text-left gap-4 min-h-[200px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl"
 			>
 				{#if hasExistingShipping}
-					<h1 class="p-4 sm:p-6 lg:p-10 pb-0 font-bold text-lg sm:text-xl lg:text-3xl w-full break-words">
+					<h1
+						class="p-4 sm:p-6 lg:p-10 pb-0 font-bold text-lg sm:text-xl lg:text-3xl w-full break-words"
+					>
 						Your addresses, {userAddresses[0]?.first_name.charAt(0).toUpperCase() +
 							userAddresses[0]?.first_name.slice(1)}
-						{userAddresses[0]?.last_name.charAt(0).toUpperCase() + userAddresses[0]?.last_name.slice(1)}
+						{userAddresses[0]?.last_name.charAt(0).toUpperCase() +
+							userAddresses[0]?.last_name.slice(1)}
 					</h1>
 					<hr class="border-[1] text-white w-[90%] sm:w-[95%]" />
 
 					{#each userAddresses as address, index}
 						<div class="gap-3 text-left px-4 sm:px-6 lg:px-10 pt-0 w-full flex flex-col">
-							<h2 class="font-medium text-sm sm:text-base w-full">{index === 0 ? 'Default Address' : `Address ${index + 1}`}</h2>
-							<div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+							<h2 class="font-medium text-sm sm:text-base w-full">
+								{index === 0 ? 'Default Address' : `Address ${index + 1}`}
+							</h2>
+							<div
+								class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+							>
 								<p class="text-gray-400 text-sm sm:text-base flex-1 break-words">
 									{address.first_name.charAt(0).toUpperCase() + address.first_name.slice(1)}
 									{address.last_name.charAt(0).toUpperCase() + address.last_name.slice(1)}
@@ -545,9 +607,12 @@
 								</button>
 							</div>
 
-							<div class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+							<div
+								class="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+							>
 								<p class="flex-1 text-gray-400 text-sm sm:text-base break-words">
-									{address.address}{#if address.apartment_suite_etc}, {address.apartment_suite_etc}{/if}, {address.city}, {address.region}
+									{address.address}{#if address.apartment_suite_etc}, {address.apartment_suite_etc}{/if},
+									{address.city}, {address.region}
 								</p>
 								<button
 									class="cursor-pointer text-xs sm:text-sm font-bold px-4 py-2 border border-white rounded-full
@@ -565,7 +630,9 @@
 						<hr class="border-[1] text-white w-[90%] sm:w-[95%]" />
 						<div class="justify-start px-4 sm:px-6 lg:px-10 pt-0 pb-4 flex w-full">
 							{#if hasReachedAddressLimit}
-								<p class="text-gray-500 text-xs sm:text-sm">You have reached the maximum limit of 3 addresses</p>
+								<p class="text-gray-500 text-xs sm:text-sm">
+									You have reached the maximum limit of 3 addresses
+								</p>
 							{:else}
 								<button
 									on:click={showAddNewAddressForm}
@@ -578,7 +645,9 @@
 						</div>
 					{/if}
 					{#if (isEditAddress || addNewAddress) && hasExistingShipping}
-						<div class="px-4 sm:px-6 lg:px-10 pt-0 pb-6 justify-start items-start text-left w-full gap-4 flex flex-col">
+						<div
+							class="px-4 sm:px-6 lg:px-10 pt-0 pb-6 justify-start items-start text-left w-full gap-4 flex flex-col"
+						>
 							<h2 class="w-full text-left font-bold text-lg sm:text-xl lg:text-2xl">
 								{isEditAddress ? 'EDIT ADDRESS' : 'ADD NEW ADDRESS'}
 							</h2>
@@ -701,10 +770,10 @@
 							</form>
 						</div>
 					{/if}
-
-					
 				{:else}
-										<h1 class="p-4 sm:p-6 lg:p-10 pb-0 font-bold text-lg sm:text-xl lg:text-3xl text-left">You have no saved addresses.</h1>
+					<h1 class="p-4 sm:p-6 lg:p-10 pb-0 font-bold text-lg sm:text-xl lg:text-3xl text-left">
+						You have no saved addresses.
+					</h1>
 					<!-- svelte-ignore component_name_lowercase -->
 					<form
 						on:submit|preventDefault={handleAddNewAddress}

@@ -161,7 +161,6 @@
 	];
 	let drinksIndex = 0;
 </script>
-
 <svelte:head>
 	<title>Mabini Cafe</title>
 	<meta name="description" content="Welcome to Mabini Cafe" />
@@ -169,19 +168,19 @@
 
 <!-- Cover Image -->
 <section
-	class="hero h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] w-full flex justify-center items-center bg-cover bg-center text-white text-center"
-	style="background-image: url('{heroImage}')"
-></section>
+class="main-hero"	
+style="background-image: url('{heroImage}')"
+></section>	
 <!-- Choose your Refresher -->
 <section
 	class="hero-2 mt-10 sm:mt-16 md:mt-20 lg:mt-24 h-auto min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh] lg:min-h-[100vh] w-full flex justify-center items-start bg-cover bg-center text-center px-4 sm:px-6 md:px-8 lg:px-4 relative overflow-hidden"
 >
 	<div class="hero-content px-4 sm:px-8 md:px-16 lg:px-20 z-10">
-		<h1 class="header-text leading-tight">
+		<h1 class="drinks-header leading-tight">
 			Choose Your
 			<span class="text-mabini-yellow">Refresher</span>
 		</h1>
-		<h1 class="header-text block text-mabini-dark-brown leading-none mt-0">
+		<h1 class="drinks-header block text-mabini-dark-brown leading-none mt-0">
 			{drinks[drinksIndex].name}
 		</h1>
 	</div>
@@ -327,8 +326,8 @@
 								<img
 									src={reviews[reviewIndex].img}
 									alt={reviews[reviewIndex].name}
-									class="w-[160px] h-[160px] sm:w-[200px] sm:h-[200px] md:w-[240px] md:h-[240px] lg:w-[280px] lg:h-[280px] xl:w-[320px] xl:h-[320px] object-contain mb-2 mt-2 drop-shadow-md"
-									style="max-width:100%; max-height:400px;"
+									class="w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] md:w-[360px] md:h-[360px] lg:w-[400px] lg:h-[400px] xl:w-[440px] xl:h-[440px] object-contain mb-2 mt-2 drop-shadow-md"
+									style="max-width:100%; max-height:600px;"
 								/>
 
 								<div
@@ -418,7 +417,7 @@
 			<div
 				bind:this={scrollRef}
 				on:scroll={handleProductScroll}
-				class="flex overflow-x-auto gap-3 py-4 px-2 scrollbar-hide flex-1 p-[40px] sm:p-[60px] md:p-[80px] lg:p-[90px]"
+				class="cursor-pointer flex overflow-x-auto gap-3 py-4 px-2 scrollbar-hide flex-1 p-[40px] sm:p-[60px] md:p-[80px] lg:p-[90px]"
 			>
 				{#each products.slice(0, 10) as product}
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -484,13 +483,3 @@
 		</div>
 	{/if}
 </section>
-
-<style>
-	.scrollbar-hide::-webkit-scrollbar {
-		display: none;
-	}
-	.scrollbar-hide {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	}
-</style>

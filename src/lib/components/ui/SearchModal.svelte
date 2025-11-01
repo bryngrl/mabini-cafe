@@ -216,44 +216,7 @@
 {/if}
 
 <style>
-	.modal-overlay {
-		position: fixed;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: auto;
-		justify-content: flex-end;
-		display: flex;
-		align-items: center;
-		z-index: 1000;
-	}
-
-	.modal-content {
-		background: white;
-		border-radius: 1.5rem 0 0 1.5rem;
-		max-width: 800px;
-		width: 100%;
-		max-height: 90vh;
-		display: flex;
-		flex-direction: column;
-		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-	}
-
-	.modal-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 1.5rem 2rem;
-		padding-bottom: 0;
-		position: relative;
-	}
-
-	.modal-title {
-		font-size: 1.75rem;
-		font-weight: 900;
-		color: var(--color-mabini-dark-brown);
-		margin: 0;
-	}
+	
 
 	.close-btn {
 		background: none;
@@ -308,6 +271,7 @@
 		flex: 1;
 		overflow-y: auto;
 		padding: 1.5rem 2rem;
+		
 	}
 
 	.search-prompt {

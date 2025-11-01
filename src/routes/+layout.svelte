@@ -19,7 +19,8 @@
 		'/checkout/payment',
 		'/checkout/review',
 		'/verify-signup',
-		'/forgot-password'
+		'/forgot-password',
+		'/admin'
 	];
 </script>
 
