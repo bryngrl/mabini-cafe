@@ -82,8 +82,8 @@
 
 <div class="max-w-xl mx-auto  p-10 sm:p-12 md:p-14 bg-white rounded-xl">
 	<div class="text-left mb-8 font-light">
-		<h1 class="header-text mb-2">
-			Contact <span class="text-[#ffd700]">Us</span>
+		<h1 class="header-text !text-left mb-2">
+			Contact <span class="text-mabini-yellow">Us</span>
 		</h1>
 		<p class="content-paragraph">
 			Feel free to reach out to us at any time. We're here to help with orders, product questions,

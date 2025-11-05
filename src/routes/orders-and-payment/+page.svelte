@@ -20,8 +20,22 @@
 		</div>
 
 		<h2 class="header-2-text">Can I cancel my order?</h2>
-		<!-- <p class="content-paragraph">
-			Once an order has been placed in the system, we are unable to make any cancellations.
-		</p> -->
+		<p class="content-paragraph">
+			Order cancellations are not available once an order has been confirmed. For any concerns or
+			<br class="mobile-hide-br" />
+
+			assistance, please contact us at contact.mabinicafe@gmail.com
+		</p>
 	</div>
 </div>
+
+<style>
+	.mobile-hide-br {
+		display: inline;
+	}
+	@media (max-width: 600px) {
+		.mobile-hide-br {
+			display: none;
+		}
+	}
+</style>

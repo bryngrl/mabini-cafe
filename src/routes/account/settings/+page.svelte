@@ -4,48 +4,82 @@
 	//
 
 	import { goto } from '$app/navigation';
-	import { authStore, users } from '$lib/stores';
+	import { ordersStore } from '$lib/stores/orders';
+	import { orderItemsStore } from '$lib/stores/orderItems';
+	import { menuStore } from '$lib/stores/menu';
 	import { showSuccess, showError, showConfirm } from '$lib/utils/sweetalert';
 	import { onMount } from 'svelte';
 	import { shippingStore, shippingInfo } from '$lib/stores';
 	import { form } from '$app/server';
 	import { usersStore, currentUser, isAuthenticated } from '$lib/stores';
-	import { ordersStore } from '$lib/stores';
 
 	$: $currentUser;
 
 	// Fetch Orders by customer ID
 	let orders = [];
+	let orderItemsMap = new Map();
+	let menuItemsMap = new Map();
+	let isLoading = true;
 
 	async function getUserOrders() {
 		try {
-			if (!$currentUser?.id) {
-				return [];
-			}
+			if (!$currentUser?.id) return [];
+			isLoading = true;
+
+			// Fetch menu items first
+			const menuItems = await menuStore.fetchAll();
+			menuItemsMap = new Map(menuItems.map(item => [item.id, item]));
+
 			const userOrders = await ordersStore.fetchByCustomerId($currentUser.id);
+			
+			if (Array.isArray(userOrders) && userOrders.length > 0) {
+				// Fetch items for each order
+				const newItemsMap = new Map();
+				for (const order of userOrders) {
+					if (order && order.id) {
+						const items = await orderItemsStore.fetchByOrderId(order.id);
+						if (Array.isArray(items)) {
+							// Filter items for this specific order and add menu item details
+							const orderItems = items
+								.filter(item => item.order_id === order.id)
+								.map(item => ({
+									...item,
+									menuItem: menuItemsMap.get(item.menu_item_id)
+								}));
+							if (orderItems.length > 0) {
+								newItemsMap.set(order.id, orderItems);
+							}
+						}
+					}
+				}
+				orderItemsMap = newItemsMap; // Update the map all at once
+			}
+			
+			isLoading = false;
 			return userOrders || [];
 		} catch (error) {
 			console.error('Error fetching orders:', error);
+			isLoading = false;
 			return [];
 		}
 	}
 
 	$: if ($currentUser?.id) {
 		getUserOrders().then((result) => {
-			orders = result;
+			if (Array.isArray(result)) {
+				orders = result;
+			}
 		});
 	}
-	$: hasOrders = Array.isArray(orders) && orders.length > 0;
+	
+	$: hasOrders = !isLoading && Array.isArray(orders) && orders.length > 0;
 
 	// Pagination for orders
 	let ordersPage = 1;
 	const itemsPerPage = 5;
 
 	// Paginated orders
-	$: paginatedOrders = orders.slice(
-		(ordersPage - 1) * itemsPerPage,
-		ordersPage * itemsPerPage
-	);
+	$: paginatedOrders = orders.slice((ordersPage - 1) * itemsPerPage, ordersPage * itemsPerPage);
 
 	$: totalOrdersPages = Math.ceil(orders.length / itemsPerPage);
 
@@ -471,7 +505,11 @@
 			<div
 				class="flex flex-col mb-10 justify-start items-center text-left gap-4 min-h-[400px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6"
 			>
-				{#if hasOrders}
+				{#if isLoading}
+					<div class="w-full text-center py-8">
+						<p class="text-gray-400">Loading your orders...</p>
+					</div>
+				{:else if hasOrders}
 					<h1 class="font-bold text-xl sm:text-2xl lg:text-3xl w-full px-2 sm:px-4 pt-2 sm:pt-4">
 						Your Orders
 					</h1>
@@ -514,19 +552,18 @@
 										{order.status || 'pending'}
 									</span>
 								</div>
-
-								{#if order.items && order.items.length > 0}
+								{#if orderItemsMap.has(order.id)}
 									<div class="space-y-2 mb-4">
-										{#each order.items as item}
+										{#each orderItemsMap.get(order.id) as item}
 											<div class="flex justify-between items-center gap-2">
 												<div class="flex-1 min-w-0">
 													<p class="font-medium text-sm sm:text-base truncate">
-														{item.name} x {item.quantity}
+														{item.menuItem?.name || 'Unknown Item'} x {item.quantity}
 													</p>
 													<p class="text-gray-400 text-xs sm:text-sm">₱{item.price} each</p>
 												</div>
 												<p class="font-bold text-sm sm:text-base whitespace-nowrap">
-													₱{item.price * item.quantity}
+													₱{(item.price * item.quantity).toFixed(2)}
 												</p>
 											</div>
 										{/each}
@@ -534,7 +571,6 @@
 								{:else}
 									<p class="text-gray-400 text-xs sm:text-sm mb-4">Order details not available</p>
 								{/if}
-
 								<!-- Order Details -->
 								<div class="border-t border-gray-700 pt-4 space-y-2">
 									{#if order.shipping_name}
@@ -628,20 +664,20 @@
 						</div>
 					{/if}
 				{:else}
-					<h1
-						class="px-4 sm:px-6 lg:p-10 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full text-center"
-					>
-						You have no orders yet.
-					</h1>
-					<p class="text-gray-400 text-sm sm:text-base text-center px-4">
-						Start shopping now and come back to view your orders here.
-					</p>
-					<a
-						href="/menu"
-						class="bg-mabini-yellow text-black px-4 sm:px-6 py-2 sm:py-3 rounded-full font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors"
-					>
-						Browse Menu
-					</a>
+					<div class="flex flex-col items-center justify-center h-full py-8">
+						<h1 class="font-bold text-xl sm:text-2xl lg:text-3xl text-center mb-4">
+							You have no orders yet.
+						</h1>
+						<p class="text-gray-400 text-sm sm:text-base text-center px-4 mb-6">
+							Start shopping now and come back to view your orders here.
+						</p>
+						<a
+							href="/menu"
+							class="inline-block bg-mabini-yellow text-black px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base hover:bg-yellow-500 transition-colors"
+						>
+							Browse Menu
+						</a>
+					</div>
 				{/if}
 			</div>
 		{:else if accountAddressesActive}
