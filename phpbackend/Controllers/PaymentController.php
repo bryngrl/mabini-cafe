@@ -84,7 +84,6 @@ class PaymentController
                 return;
             }
 
-            // 💾 Store payment record
             $this->model->user_id = $user_id;
             $this->model->order_id = $order_id;
             $this->model->amount = $result['total_amount'];

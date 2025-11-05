@@ -48,26 +48,25 @@ public function getById($id){
  
 public function getByOrderId($orderId)
 {
+    $stmt = $this->conn->prepare("SELECT 
+        a.id,
+        a.order_id,
+        b.name as order_name,
+        b.description as description,
+        c.name as category_name,
+        a.quantity,
+        a.price,
+        a.subtotal 
+        FROM " . $this->table . " a 
+        JOIN menu_items b on a.menu_item_id = b.id 
+        JOIN menu_categories c on b.category_id = c.id 
+        WHERE a.order_id = :orderId" // <--- Added a closing quote here
+    ); // <--- Closed the parenthesis for prepare
 
-     $stmt = $this->conn->prepare("SELECT 
-    a.id,
-    a.order_id,
-    b.name as order_name,
-    b.description as description,
-    c.name as category_name,
-    a.quantity,
-    a.price,
-    a.subtotal 
-    FROM ".$this->table." a JOIN menu_items b on a.menu_item_id = b.id 
-    JOIN menu_categories c on b.category_id = c.id 
-    WHERE a.order_id = :orderId
-  ");
-
-   $stmt->bindParam(':orderId',$orderId);
-   $stmt->execute();
-  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->bindParam(':orderId', $orderId);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
- 
 public function create(){
    
    $stmt = $this->conn->prepare("INSERT INTO ".$this->table." (order_id,menu_item_id,quantity,price,subtotal)

@@ -1,6 +1,6 @@
 <?php
 require_once(__DIR__ . '/../Auth/Auth.php');
-require_once(__DIR__ . '/../auth/jwtMiddleware.php');
+require_once(__DIR__ . '/../Auth/jwtMiddleware.php');
 require_once(__DIR__ . '/../Models/OrderItems.php');
 
 

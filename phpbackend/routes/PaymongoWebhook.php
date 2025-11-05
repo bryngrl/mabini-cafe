@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // ✅ Database connection
-require_once "../config/Database.php";
+ require_once (__DIR__.'/../config/database.php');
 require_once __DIR__ . '/../Models/Payment.php';
 require_once __DIR__ . '/../Models/Order.php';
 $database = new Database();

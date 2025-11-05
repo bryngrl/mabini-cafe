@@ -1,5 +1,5 @@
 <?php
-require_once (__DIR__.'/../C/OrderController.php');
+require_once (__DIR__.'/../Controllers/OrderController.php');
 $controller = new OrderController($db);
 
 switch ($method) {

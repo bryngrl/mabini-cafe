@@ -1,12 +1,12 @@
 <?php 
 require_once(__DIR__ . '/../Auth/Auth.php');
-require_once(__DIR__ . '/../auth/jwtMiddleware.php');
+require_once(__DIR__ . '/../Auth/jwtMiddleware.php');
 require_once(__DIR__ . '/../Models/Order.php');
 require_once(__DIR__ . '/../Models/Shippingfee.php');
 class OrderController {
     private $model;
     private $conn;
-
+     private $shippingmodel;
     public function __construct($db) {
         $this->conn = $db;
         $this->model = new Order($db);

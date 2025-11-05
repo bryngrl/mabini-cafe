@@ -1,2 +1,2 @@
 <?php
-include_once _DIR_ . "/../../phpbackend/routes/index.php";
+include_once 'index.html';

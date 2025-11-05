@@ -1,7 +1,7 @@
 <?php
-require_once(__DIR__ . '/../models/Admin.php');
+require_once(__DIR__ . '/../Models/Admin.php');
 require_once(__DIR__ . '/../Auth/Auth.php');
-require_once __DIR__ . '/../auth/jwtMiddleware.php';
+require_once __DIR__ . '/../Auth/jwtMiddleware.php';
 
 class AdminController{
 
@@ -34,13 +34,13 @@ private $auth;
 
  // GET all Admins
     public function index() {
-        // $decoded = validateJWT();
-        //  if(!isAdminAuthorized($decoded))
-        //   {
-        //     http_response_code(403);
-        //     echo json_encode(["error" => "Forbidden access"]);
-        //    return;
-        //   }
+        $decoded = validateJWT();
+         if(!isAdminAuthorized($decoded))
+          {
+            http_response_code(403);
+            echo json_encode(["error" => "Forbidden access"]);
+           return;
+          }
 
 
           echo json_encode($this->model->getAll() ?? []);
@@ -75,14 +75,14 @@ private $auth;
     //get single admin
     public function show($id)
     {
-    //     $decoded = validateJWT();
+        $decoded = validateJWT();
 
-    //    if(!isAdminAuthorized($decoded))
-    //       {
-    //         http_response_code(403);
-    //         echo json_encode(["error" => "Forbidden access"]);
-    //        return;
-    //       }
+       if(!isAdminAuthorized($decoded))
+          {
+            http_response_code(403);
+            echo json_encode(["error" => "Forbidden access"]);
+           return;
+          }
     $admin = $this->model->getById($id);
 
     if($admin){

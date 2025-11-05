@@ -4,7 +4,7 @@ $controller = new OrderItemsController($db);
 
 switch($method){
 case 'GET':
-    $order_id =$_GET['orderId']??null;
+    $order_id =$_GET['order_id']??null;
 
     if($order_id){
         $controller->showByOrderId($order_id);

@@ -1,7 +1,11 @@
-RewriteEngine On
-RewriteBase /mabini-cafe/phpbackend/routes/
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /phpbackend/routes/
 
-# I-redirect lahat ng request papunta sa userRoute.php
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ route.php [QSA,L]
+    # Huwag isama ang mga existing files at directories
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # I-redirect ang lahat ng requests sa route.php at ipasa ang path ($1)
+    RewriteRule ^(.*)$ route.php/$1 [L] 
+</IfModule>

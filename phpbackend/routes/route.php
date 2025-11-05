@@ -20,7 +20,7 @@
     header("Content-Type: application/json");
 
     require_once (__DIR__.'/../config/database.php');
-
+  require_once __DIR__ . '/../vendor/autoload.php';
     // Handle preflight OPTIONS request
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         http_response_code(204); // Changed from 200 to 204 (No Content)
@@ -32,8 +32,8 @@
     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     $uri = explode("/", trim($uri, "/")); 
     $id = is_numeric(end($uri)) ? array_pop($uri) : null;
-    $resource = $uri[1] ?? null;
-    $subresource = $uri[2] ?? null;
+    $resource = $uri[2] ?? null;
+    $subresource = $uri[3] ?? null;
 
     $method = $_SERVER['REQUEST_METHOD'];
 
@@ -54,10 +54,10 @@
             require_once "OrderRoute.php";
             break;
         case 'orderitems':
-            require_once "OrderitemsRoute.php";
+            require_once "OrderItemsRoute.php";
             break;
         case 'contacts':
-            require_once "contactsRoute.php";
+            require_once "ContactsRoute.php";
             break;
         case 'shipinfo':
             require_once "ShipInfoRoute.php";
