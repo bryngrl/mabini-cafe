@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { orderItemsStore } from '$lib/stores/orderItems';
 	import { menuStore } from '$lib/stores/menu';
+	import { shippingStore } from '$lib/stores';
+	import { usersStore } from '$lib/stores';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -28,6 +30,8 @@
 	let orderItems: any[] = $state([]);
 	let menuItemsMap = new Map();
 	let isLoadingItems = $state(true);
+	let shippingAddress: any = $state(null);
+	let isLoadingAddress = $state(true);
 
 	async function fetchOrderItems() {
 		try {
@@ -58,8 +62,35 @@
 		}
 	}
 
+	async function fetchShippingAddress() {
+		try {
+			isLoadingAddress = true;
+			
+			if (order.customer_name) {
+				// Fetch all users to find the one matching the customer name
+				const users = await usersStore.fetchAll();
+				const matchingUser = users.find(user => user.username === order.customer_name);
+				
+				if (matchingUser && matchingUser.id) {
+					// Fetch shipping addresses for this user
+					const addresses = await shippingStore.fetchByUserId(matchingUser.id);
+					if (Array.isArray(addresses) && addresses.length > 0) {
+						// Get the first address
+						shippingAddress = addresses[0];
+					}
+				}
+			}
+			
+			isLoadingAddress = false;
+		} catch (error) {
+			console.error('Error fetching shipping address:', error);
+			isLoadingAddress = false;
+		}
+	}
+
 	onMount(() => {
 		fetchOrderItems();
+		fetchShippingAddress();
 	});
 </script>
 
@@ -117,9 +148,19 @@
 			</div>
 			<div class="flex justify-between items-start">
 				<span class="font-bold text-lg uppercase">Address</span>
-				<span class="text-lg text-right max-w-[60%]"
-					>{order.shipping_address || 'No address provided'}</span
-				>
+				{#if isLoadingAddress}
+					<span class="text-lg text-right max-w-[60%] text-gray-500 italic">Loading...</span>
+				{:else if shippingAddress}
+					<span class="text-lg text-right max-w-[60%]">
+						{shippingAddress.address}
+						{#if shippingAddress.apartment_suite_etc}, {shippingAddress.apartment_suite_etc}{/if}
+						{#if shippingAddress.city}, {shippingAddress.city}{/if}
+						{#if shippingAddress.postal_code}, {shippingAddress.postal_code}{/if}
+						{#if shippingAddress.region}, {shippingAddress.region}{/if}
+					</span>
+				{:else}
+					<span class="text-lg text-right max-w-[60%]">No address provided</span>
+				{/if}
 			</div>
 			<div class="flex justify-between items-start">
 				<span class="font-bold text-lg uppercase">Shipping Method</span>
