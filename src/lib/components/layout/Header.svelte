@@ -4,7 +4,7 @@
 	import { authStore } from '$lib/stores/auth';
 	import { cartCount } from '$lib/stores/cart';
 	import CartModal from '../ui/CartModal.svelte';
-	import { showSuccess } from '$lib/utils/sweetalert';
+	import { showConfirm, showSuccess } from '$lib/utils/sweetalert';
 
 	let links = [
 		{ name: 'Home', href: '/' },
@@ -51,16 +51,18 @@
 			accountOpen = false;
 		}, CLOSE_DELAY);
 	}
-	function logout() {
+	async function logout() {
+		await showConfirm('Do you want you to logout?', 'Logout');
 		authStore.logout();
 		localStorage.removeItem('token');
-		showSuccess('Logged out successfully');
 		clearTimeout(accountHoverTimeout);
 		accountOpen = false;
+		showSuccess('Logged out successfully');
 		setTimeout(() => {
 			goto('/login');
 		}, 2000);
 	}
+
 	function selectAndNavigateAccount(path, isAdmin) {
 		clearTimeout(accountHoverTimeout); // Crucial: Clear the close timer
 		accountOpen = false;

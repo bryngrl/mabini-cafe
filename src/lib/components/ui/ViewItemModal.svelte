@@ -1,4 +1,8 @@
 <script lang="ts">
+	import { orderItemsStore } from '$lib/stores/orderItems';
+	import { menuStore } from '$lib/stores/menu';
+	import { onMount } from 'svelte';
+
 	interface Props {
 		order: {
 			id: number;
@@ -20,6 +24,43 @@
 	}
 
 	let { order, onClose }: Props = $props();
+
+	let orderItems: any[] = $state([]);
+	let menuItemsMap = new Map();
+	let isLoadingItems = $state(true);
+
+	async function fetchOrderItems() {
+		try {
+			isLoadingItems = true;
+
+			// Fetch menu items first
+			const menuItems = await menuStore.fetchAll();
+			menuItemsMap = new Map(menuItems.map(item => [item.id, item]));
+
+			// Fetch items for this specific order
+			const items = await orderItemsStore.fetchByOrderId(order.id);
+			if (Array.isArray(items)) {
+				// Filter items for this specific order and add menu item details
+				orderItems = items
+					.filter(item => item.order_id === order.id)
+					.map(item => ({
+						...item,
+						menuItem: menuItemsMap.get(item.menu_item_id),
+						name: menuItemsMap.get(item.menu_item_id)?.name || 'Unknown Item',
+						quantity: item.quantity
+					}));
+			}
+
+			isLoadingItems = false;
+		} catch (error) {
+			console.error('Error fetching order items:', error);
+			isLoadingItems = false;
+		}
+	}
+
+	onMount(() => {
+		fetchOrderItems();
+	});
 </script>
 
 <div
@@ -60,8 +101,10 @@
 			<div class="border-t pt-4">
 				<span class="font-bold text-lg uppercase block mb-3">Order/s</span>
 				<div class="bg-gray-50 p-4 rounded-lg space-y-2">
-					{#if order.items && order.items.length > 0}
-						{#each order.items as item}
+					{#if isLoadingItems}
+						<p class="text-sm text-gray-500 italic">Loading items...</p>
+					{:else if orderItems && orderItems.length > 0}
+						{#each orderItems as item}
 							<div class="flex justify-between text-sm">
 								<span class="font-medium">{item.name}</span>
 								<span class="text-gray-600">Qty: {item.quantity}</span>

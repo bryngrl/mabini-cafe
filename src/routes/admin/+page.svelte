@@ -10,7 +10,7 @@
 	import { authStore } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { showError, showSuccess } from '$lib/utils/sweetalert';
+	import { showConfirm, showError, showSuccess } from '$lib/utils/sweetalert';
 	import ViewItemModal from '$lib/components/ui/ViewItemModal.svelte';
 	import AdminItemModal from '$lib/components/ui/AdminItemModal.svelte';
 
@@ -340,6 +340,7 @@
 
 	async function handleLogout() {
 		try {
+			await showConfirm('Do you want you to logout?', 'Logout');
 			authStore.logout();
 			await showSuccess('Logged out successfully', 'Goodbye!');
 			setTimeout(() => {
@@ -392,10 +393,7 @@
 	{#if mobileMenuOpen}
 		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div
-			class="fixed inset-0 bg-opacity-50 z-1 lg:hidden"
-			onclick={toggleMobileMenu}
-		></div>
+		<div class="fixed inset-0 bg-opacity-50 z-1 lg:hidden" onclick={toggleMobileMenu}></div>
 	{/if}
 
 	<div
@@ -502,7 +500,7 @@
 	</div>
 	<!-- white bg -->
 	<div
-		class="w-full lg:w-[60%] min-h-screen h-full bg-white transition-all durati	on-300
+		class="w-full lg:w-[60%] min-h-screen h-full bg-white transition-all durati on-300
     {showOrderModal || showProductModal ? 'blur-sm pointer-events-none' : ''}"
 	>
 		{#if selectedTab === 'customize'}
@@ -552,83 +550,80 @@
 					<!-- White Content with border -->
 					<div class="w-full rounded-b-2xl p-5">
 						<div class="flex justify-between items-start mb-4">
-							<p class="text-gray-600 flex-1">
-								Customize your website's hero images and theme.
-							</p>
-							
+							<p class="text-gray-600 flex-1">Customize your website's hero images and theme.</p>
 						</div>
 						<!-- svelte-ignore component_name_lowercase -->
 						<form onsubmit={handleHeroImagesSubmit}>
-								<div class="pb-5">
-									<label class="flex flex-col">
-										<span class="font-bold">Hero 1</span>
-										<input
-											type="file"
-											accept="image/*"
-											class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-											onchange={(e) => handleHeroImageChange(e, 1)}
-										/>
-										{#if hero1Preview}
-											<div class="mt-2">
-												<img
-													src={hero1Preview}
-													alt="Hero 1 Preview"
-													class="w-full max-h-52 object-cover rounded-lg"
-												/>
-											</div>
-										{/if}
-									</label>
-								</div>
-								<div class="pb-5">
-									<label class="flex flex-col">
-										<span class="font-bold">Hero 2</span>
-										<input
-											type="file"
-											accept="image/*"
-											class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-											onchange={(e) => handleHeroImageChange(e, 2)}
-										/>
-										{#if hero2Preview}
-											<div class="mt-2">
-												<img
-													src={hero2Preview}
-													alt="Hero 2 Preview"
-													class="w-full max-h-52 object-cover rounded-lg"
-												/>
-											</div>
-										{/if}
-									</label>
-								</div>
-								<div class="pb-5">
-									<label class="flex flex-col">
-										<span class="font-bold">Hero 3</span>
-										<input
-											type="file"
-											accept="image/*"
-											class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-											onchange={(e) => handleHeroImageChange(e, 3)}
-										/>
-										{#if hero3Preview}
-											<div class="mt-2">
-												<img
-													src={hero3Preview}
-													alt="Hero 3 Preview"
-													class="w-full max-h-52 object-cover rounded-lg"
-												/>
-											</div>
-										{/if}
-									</label>
-								</div>
-								<button
-									type="submit"
-									class="bg-mabini-yellow text-white px-4 py-2 rounded-lg mt-4 cursor-pointer w-full hover:bg-yellow-600"
-								>
-									Update Hero Images
-								</button>
-							</form>
-						</div>
+							<div class="pb-5">
+								<label class="flex flex-col">
+									<span class="font-bold">Hero 1</span>
+									<input
+										type="file"
+										accept="image/*"
+										class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+										onchange={(e) => handleHeroImageChange(e, 1)}
+									/>
+									{#if hero1Preview}
+										<div class="mt-2">
+											<img
+												src={hero1Preview}
+												alt="Hero 1 Preview"
+												class="w-full max-h-52 object-cover rounded-lg"
+											/>
+										</div>
+									{/if}
+								</label>
+							</div>
+							<div class="pb-5">
+								<label class="flex flex-col">
+									<span class="font-bold">Hero 2</span>
+									<input
+										type="file"
+										accept="image/*"
+										class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+										onchange={(e) => handleHeroImageChange(e, 2)}
+									/>
+									{#if hero2Preview}
+										<div class="mt-2">
+											<img
+												src={hero2Preview}
+												alt="Hero 2 Preview"
+												class="w-full max-h-52 object-cover rounded-lg"
+											/>
+										</div>
+									{/if}
+								</label>
+							</div>
+							<div class="pb-5">
+								<label class="flex flex-col">
+									<span class="font-bold">Hero 3</span>
+									<input
+										type="file"
+										accept="image/*"
+										class="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+										onchange={(e) => handleHeroImageChange(e, 3)}
+									/>
+									{#if hero3Preview}
+										<div class="mt-2">
+											<img
+												src={hero3Preview}
+												alt="Hero 3 Preview"
+												class="w-full max-h-52 object-cover rounded-lg"
+											/>
+										</div>
+									{/if}
+								</label>
+							</div>
+							<button
+								type="submit"
+								class="bg-mabini-yellow text-white px-4 py-2 rounded-lg mt-4 cursor-pointer w-full hover:bg-yellow-600"
+							>
+								Update Hero Images
+							</button>
+						</form>
 					</div>
 				</div>
+			</div>
 			<!-- </div> -->
 		{:else if selectedTab === 'orders'}
 			<div
@@ -679,9 +674,12 @@
 					<div class="w-full h-[90%] rounded-b-2xl overflow-x-auto">
 						<div class="px-5 pt-5 pb-4 flex justify-between items-start">
 							<p class="text-gray-600 flex-1">
-								View and manage all customer orders. Update order status and view detailed information.
+								View and manage all customer orders. Update order status and view detailed
+								information.
 							</p>
-							<p class="text-gray-500 text-sm whitespace-nowrap ml-4">Date: {formattedDate.format(currentDate)}</p>
+							<p class="text-gray-500 text-sm whitespace-nowrap ml-4">
+								Date: {formattedDate.format(currentDate)}
+							</p>
 						</div>
 
 						<!-- Table Header -->
@@ -854,100 +852,99 @@
 					</div>
 					<!-- White Content with border -->
 					<div class="w-full rounded-b-2xl p-5">
-						
 						<h2 class="text-base sm:text-lg font-bold">
 							Fill out the details to create a new product entry for your menu.
 						</h2>
 						<p class="text-red-600 text-sm sm:text-base">* indicates required fields</p>
 						<p class="text-gray-600 mt-2 text-xs sm:text-sm">
-							<strong>Note:</strong> Adding a product here will automatically shows up in your Menu
-							page so make sure that all the details are correct and accurate.
+							<strong>Note:</strong> Adding a product here will automatically shows up in your Menu page
+							so make sure that all the details are correct and accurate.
 						</p>
 						<!-- Form -->
 						<form
 							class="flex flex-col gap-3 sm:gap-4 mt-4 pb-10 sm:pb-20"
 							onsubmit={handleProductSubmit}
 						>
-								<label class="flex flex-col">
-									<span class="font-bold text-sm sm:text-base">Product Name *</span>
-									<input
-										type="text"
-										class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
-										placeholder="e.g., Caramel Macchiato"
-										bind:value={productName}
+							<label class="flex flex-col">
+								<span class="font-bold text-sm sm:text-base">Product Name *</span>
+								<input
+									type="text"
+									class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
+									placeholder="e.g., Caramel Macchiato"
+									bind:value={productName}
+									required
+								/>
+							</label>
+							<label class="flex flex-col">
+								<span class="font-bold text-sm sm:text-base">Price (₱) *</span>
+								<input
+									type="number"
+									step="0.01"
+									min="0"
+									class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
+									placeholder="e.g., 150.00"
+									bind:value={productPrice}
+									required
+								/>
+							</label>
+							<label class="flex flex-col">
+								<span class="font-bold text-sm sm:text-base">Main Category *</span>
+								<div class="flex gap-2 mt-1">
+									<select
+										class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base"
+										bind:value={productCategory}
 										required
-									/>
-								</label>
-								<label class="flex flex-col">
-									<span class="font-bold text-sm sm:text-base">Price (₱) *</span>
-									<input
-										type="number"
-										step="0.01"
-										min="0"
-										class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
-										placeholder="e.g., 150.00"
-										bind:value={productPrice}
-										required
-									/>
-								</label>
-								<label class="flex flex-col">
-									<span class="font-bold text-sm sm:text-base">Main Category *</span>
-									<div class="flex gap-2 mt-1">
-										<select
-											class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base"
-											bind:value={productCategory}
-											required
-										>
-											<option value="">Select main category</option>
-											{#each categories as category}
-												<option value={category.id}>{category.name}</option>
-											{/each}
-										</select>
+									>
+										<option value="">Select main category</option>
+										{#each categories as category}
+											<option value={category.id}>{category.name}</option>
+										{/each}
+									</select>
+								</div>
+							</label>
+							<label class="flex flex-col">
+								<span class="font-bold text-sm sm:text-base">Subcategory </span>
+								<div class="flex gap-2 mt-1">
+									<select
+										class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base"
+										bind:value={productDescription}
+									>
+										<option value="">None (optional)</option>
+										{#each subcategories as sub}
+											<option value={sub}>{sub}</option>
+										{/each}
+									</select>
+								</div>
+								<p class="text-xs sm:text-sm text-gray-500 mt-1">
+									Optional: Adds a filter option in the sidebar (e.g., Savory Waffle, Hot, Iced)
+								</p>
+							</label>
+							<label class="flex flex-col">
+								<span class="font-bold text-sm sm:text-base">Product Photo *</span>
+								<input
+									type="file"
+									accept="image/*"
+									class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
+									onchange={handleImageChange}
+									required
+								/>
+								{#if imagePreview}
+									<div class="mt-2">
+										<img
+											src={imagePreview}
+											alt="Preview"
+											class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg"
+										/>
 									</div>
-								</label>
-								<label class="flex flex-col">
-									<span class="font-bold text-sm sm:text-base">Subcategory </span>
-									<div class="flex gap-2 mt-1">
-										<select
-											class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 w-full text-sm sm:text-base"
-											bind:value={productDescription}
-										>
-											<option value="">None (optional)</option>
-											{#each subcategories as sub}
-												<option value={sub}>{sub}</option>
-											{/each}
-										</select>
-									</div>
-									<p class="text-xs sm:text-sm text-gray-500 mt-1">
-										Optional: Adds a filter option in the sidebar (e.g., Savory Waffle, Hot, Iced)
-									</p>
-								</label>
-								<label class="flex flex-col">
-									<span class="font-bold text-sm sm:text-base">Product Photo *</span>
-									<input
-										type="file"
-										accept="image/*"
-										class="border border-gray-300 rounded-lg px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base"
-										onchange={handleImageChange}
-										required
-									/>
-									{#if imagePreview}
-										<div class="mt-2">
-											<img
-												src={imagePreview}
-												alt="Preview"
-												class="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg"
-											/>
-										</div>
-									{/if}
-								</label>
-								<button
-									type="submit"
-									class="bg-mabini-yellow text-white px-4 py-2 sm:py-3 rounded-lg mt-4 cursor-pointer w-full hover:bg-yellow-600 text-sm sm:text-base font-semibold"
-								>
-									Add Product
-								</button>
-							</form>
+								{/if}
+							</label>
+							<button
+								type="submit"
+								class="bg-mabini-yellow text-white px-4 py-2 sm:py-3 rounded-lg mt-4 cursor-pointer w-full hover:bg-yellow-600 text-sm sm:text-base font-semibold"
+							>
+								Add Product
+							</button>
+						</form>
 					</div>
 				</div>
 			</div>
