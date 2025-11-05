@@ -126,11 +126,11 @@
 					class="flex-shrink-0 flex justify-center items-center h-full ml-0 sm:ml-8 object-contain"
 				>
 					<img
-						src={selectedItem?.image_path
-							? selectedItem.image_path
-							: selectedItem?.img
-								? selectedItem.img
-								: ''}
+						src={selectedItem?.img
+							? selectedItem.img
+							: selectedItem?.image_path
+								? `https://mabini-cafe.bscs3a.com/phpbackend/${selectedItem.image_path.replace(/^\/?/, '')}`
+								: '/images/placeholder.png'}
 						alt={selectedItem?.name}
 						class="w-32 h-32 sm:w-40 sm:h-40 object-cover rounded mb-0"
 					/>

@@ -502,13 +502,13 @@
 	</div>
 	<!-- white bg -->
 	<div
-		class="w-full lg:w-[60%] min-h-screen h-full bg-white transition-all duration-300
+		class="w-full lg:w-[60%] min-h-screen h-full bg-white transition-all durati	on-300
     {showOrderModal || showProductModal ? 'blur-sm pointer-events-none' : ''}"
 	>
 		{#if selectedTab === 'customize'}
 			<!-- Customize Content -->
 			<div
-				class="px-4 sm:px-8 lg:ml-20 flex gap-0 flex-col justify-center items-center p-10 w-full min-h-[400px]"
+				class="px-4 sm:px-8 lg:ml-20 flex gap-0 flex-col justify-center items-center p-4 sm:p-10 w-full h-full"
 			>
 				<div class="w-full min-h-[400px] justify-center items-center rounded-2xl shadow-lg mt-10">
 					<!-- Black Header with Hamburger -->
@@ -550,11 +550,15 @@
 						</h1>
 					</div>
 					<!-- White Content with border -->
-					<div class="w-full rounded-b-2xl">
-						<p class="p-3 text-end text-gray-500">Date: {formattedDate.format(currentDate)}</p>
-						<div class="p-10 pt-0">
-							<!-- svelte-ignore component_name_lowercase -->
-							<form onsubmit={handleHeroImagesSubmit}>
+					<div class="w-full rounded-b-2xl p-5">
+						<div class="flex justify-between items-start mb-4">
+							<p class="text-gray-600 flex-1">
+								Customize your website's hero images and theme.
+							</p>
+							
+						</div>
+						<!-- svelte-ignore component_name_lowercase -->
+						<form onsubmit={handleHeroImagesSubmit}>
 								<div class="pb-5">
 									<label class="flex flex-col">
 										<span class="font-bold">Hero 1</span>
@@ -625,7 +629,7 @@
 						</div>
 					</div>
 				</div>
-			</div>
+			<!-- </div> -->
 		{:else if selectedTab === 'orders'}
 			<div
 				class="px-4 sm:px-8 lg:ml-20 flex gap-0 flex-col justify-center items-center p-4 sm:p-10 w-full h-full"
@@ -673,7 +677,12 @@
 					</div>
 					<!-- White Content with border -->
 					<div class="w-full h-[90%] rounded-b-2xl overflow-x-auto">
-						<p class="p-3 text-end text-gray-500">Date: {formattedDate.format(currentDate)}</p>
+						<div class="px-5 pt-5 pb-4 flex justify-between items-start">
+							<p class="text-gray-600 flex-1">
+								View and manage all customer orders. Update order status and view detailed information.
+							</p>
+							<p class="text-gray-500 text-sm whitespace-nowrap ml-4">Date: {formattedDate.format(currentDate)}</p>
+						</div>
 
 						<!-- Table Header -->
 
@@ -844,21 +853,21 @@
 						</h1>
 					</div>
 					<!-- White Content with border -->
-					<div class="w-full rounded-b-2xl flex items-center justify-center p-5 sm:p-20">
-						<div class="w-full max-w-3xl">
-							<h2 class="text-base sm:text-lg font-bold">
-								Fill out the details to create a new product entry for your menu.
-							</h2>
-							<p class="text-red-600 text-sm sm:text-base">* indicates required fields</p>
-							<p class="text-gray-600 mt-2 text-xs sm:text-sm">
-								<strong>Note:</strong> Adding a product here will automatically shows up in your Menu
-								page so make sure that all the details are correct and accurate.
-							</p>
-							<!-- Form -->
-							<form
-								class="flex flex-col gap-3 sm:gap-4 mt-4 pb-10 sm:pb-20"
-								onsubmit={handleProductSubmit}
-							>
+					<div class="w-full rounded-b-2xl p-5">
+						
+						<h2 class="text-base sm:text-lg font-bold">
+							Fill out the details to create a new product entry for your menu.
+						</h2>
+						<p class="text-red-600 text-sm sm:text-base">* indicates required fields</p>
+						<p class="text-gray-600 mt-2 text-xs sm:text-sm">
+							<strong>Note:</strong> Adding a product here will automatically shows up in your Menu
+							page so make sure that all the details are correct and accurate.
+						</p>
+						<!-- Form -->
+						<form
+							class="flex flex-col gap-3 sm:gap-4 mt-4 pb-10 sm:pb-20"
+							onsubmit={handleProductSubmit}
+						>
 								<label class="flex flex-col">
 									<span class="font-bold text-sm sm:text-base">Product Name *</span>
 									<input
@@ -939,7 +948,6 @@
 									Add Product
 								</button>
 							</form>
-						</div>
 					</div>
 				</div>
 			</div>

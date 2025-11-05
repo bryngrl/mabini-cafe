@@ -56,7 +56,7 @@ body {
 /* Texts */
 .header-text {
 	@apply font-sans-boldie uppercase text-center
-		text-5xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-9xl;
+		text-5xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-6xl 2xl:text-6xl;
 }
 .header-2-text {
 	@apply font-sans-boldie uppercase
@@ -68,7 +68,7 @@ body {
 }
 .drinks-header{
 	@apply font-sans-boldie uppercase text-center
-	text-3xl sm:text-2xl md:text-3xl lg:text-6xl xl:text-7xl 2xl:text-9xl
+	text-3xl sm:text-2xl md:text-3xl lg:text-6xl xl:text-6xl 2xl:text-6xl
 }
 /* Layout */
 /* Home Layout */

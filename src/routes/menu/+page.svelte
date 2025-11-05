@@ -78,6 +78,9 @@
 			...item,
 			image_path: item.image_path.startsWith('http')
 				? item.image_path
+				: `https://mabini-cafe.bscs3a.com/phpbackend/${item.image_path.replace(/^\/?/, '')}`,
+			img: item.image_path.startsWith('http')
+				? item.image_path
 				: `https://mabini-cafe.bscs3a.com/phpbackend/${item.image_path.replace(/^\/?/, '')}`
 		};
 		selectedItem = normalizedItem;
@@ -307,19 +310,17 @@
 							{/each}
 						</div>
 					{/if}
-					{#if selectedItem}
-						<ItemModal
-							selectedItem={{
-								...selectedItem,
-								image_path: selectedItem.image_path || selectedItem.img
-							}}
-							{modalOpen}
-							on:close={closeModal}
-							on:addToCart={() => selectedItem && handleAddToCart(selectedItem)}
-						/>
-					{/if}
-
-					<CartModal isOpen={cartModalOpen} onClose={closeCartModal} />
+				{#if selectedItem}
+					<ItemModal
+						selectedItem={{
+							...selectedItem,
+							img: selectedItem.img || selectedItem.image_path
+						}}
+						{modalOpen}
+						on:close={closeModal}
+						on:addToCart={() => selectedItem && handleAddToCart(selectedItem)}
+					/>
+				{/if}					<CartModal isOpen={cartModalOpen} onClose={closeCartModal} />
 				</div>
 			</div>
 		</div>

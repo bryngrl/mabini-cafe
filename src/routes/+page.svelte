@@ -153,13 +153,33 @@
 	}
 
 	let drinks = [
-		{ src: '/home/drinks-1.svg', name: 'Cucumber Lemonade' },
-		{ src: '/home/drinks-2.svg', name: 'Blueberry Lemonade Fizz' },
-		{ src: '/home/drinks-3.svg', name: 'Strawberry Passion Fruit Ade' },
-		{ src: '/home/drinks-4.svg', name: 'Dragon Breath Ade' },
-		{ src: '/home/drinks-5.svg', name: 'Peach Strawberry Lemon Tea' }
+		{ id: 15, src: '/home/drinks-1.svg', name: 'Cucumber Lemonade' },
+		{ id: 14, src: '/home/drinks-2.svg', name: 'Blueberry Lemonade Fizz' },
+		{ id: 18, src: '/home/drinks-3.svg', name: 'Strawberry Passion Fruit Ade' },
+		{ id: 16, src: '/home/drinks-4.svg', name: 'Dragon Breath Ade' },
+		{ id: 17, src: '/home/drinks-5.svg', name: 'Peach Strawberry Lemon Tea' }
 	];
 	let drinksIndex = 0;
+
+	async function openDrinkModal(drink) {
+		// Fetch the full drink details from menuStore
+		const allItems = await menuStore.fetchAll();
+		const drinkItem = allItems.find((item: any) => item.id === drink.id);
+		
+		if (drinkItem) {
+			// Construct the full image URL properly
+			const imageUrl = drinkItem.image_path
+				? `https://mabini-cafe.bscs3a.com/phpbackend/${drinkItem.image_path.replace(/^\/?/, '')}`
+				: '';
+			
+			selectedItem = {
+				...drinkItem,
+				image_path: drinkItem.image_path || '',
+				img: imageUrl
+			};
+			modalOpen = true;
+		}
+	}
 </script>
 <svelte:head>
 	<title>Mabini Cafe</title>
@@ -219,7 +239,11 @@ style="background-image: url('{heroImage}')"
 				<img
 					src={drinks[drinksIndex].src}
 					alt={drinks[drinksIndex].name}
-					class=" absolute top-1/4 left-1/2 transform -translate-x-1/2 pointer-events-none select-none z-10 w-37 sm:w-37 md:w-45 lg:w-60"
+					class="absolute top-1/4 left-1/2 transform -translate-x-1/2 pointer-events-auto select-none z-10 w-37 sm:w-37 md:w-45 lg:w-60 cursor-pointer hover:scale-105 transition-transform"
+					on:click={() => openDrinkModal(drinks[drinksIndex])}
+					on:keydown={(e) => e.key === 'Enter' && openDrinkModal(drinks[drinksIndex])}
+					role="button"
+					tabindex="0"
 				/>
 			{/key}
 			<div class="absolute top-[60%] left-1/2 transform -translate-x-1/2 flex gap-2 z-20">

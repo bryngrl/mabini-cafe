@@ -37,6 +37,35 @@
 	}
 	$: hasOrders = Array.isArray(orders) && orders.length > 0;
 
+	// Pagination for orders
+	let ordersPage = 1;
+	const itemsPerPage = 5;
+
+	// Paginated orders
+	$: paginatedOrders = orders.slice(
+		(ordersPage - 1) * itemsPerPage,
+		ordersPage * itemsPerPage
+	);
+
+	$: totalOrdersPages = Math.ceil(orders.length / itemsPerPage);
+
+	// Helper function to generate page numbers
+	function getPageNumbers(currentPage, totalPages) {
+		if (totalPages <= 7) {
+			return Array.from({ length: totalPages }, (_, i) => i + 1);
+		}
+
+		if (currentPage <= 3) {
+			return [1, 2, 3, 4, '...', totalPages];
+		}
+
+		if (currentPage >= totalPages - 2) {
+			return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+		}
+
+		return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+	}
+
 	// Getting the Account Overview details
 	// Specifically for username
 	let username = '';
@@ -440,16 +469,16 @@
 			</div>
 		{:else if accountOrdersActive}
 			<div
-				class="flex flex-col mb-10 justify-start items-center text-left gap-4 min-h-[400px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl pb-6 sm:pb-10"
+				class="flex flex-col mb-10 justify-start items-center text-left gap-4 min-h-[400px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6"
 			>
 				{#if hasOrders}
-					<h1 class="p-4 sm:p-6 lg:p-10 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full">
+					<h1 class="font-bold text-xl sm:text-2xl lg:text-3xl w-full px-2 sm:px-4 pt-2 sm:pt-4">
 						Your Orders
 					</h1>
 					<hr class="border-[1] text-white w-[90%] sm:w-[95%]" />
 					<!-- Orders List -->
 					<div class="w-full px-4 sm:px-6 space-y-4 sm:space-y-6">
-						{#each orders as order}
+						{#each paginatedOrders as order}
 							<div class="bg-gray-900 rounded-lg p-4 sm:p-6">
 								<div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
 									<div class="flex-1">
@@ -554,6 +583,50 @@
 							</div>
 						{/each}
 					</div>
+
+					<!-- Pagination Controls -->
+					{#if totalOrdersPages > 1}
+						<div class="flex items-center justify-center gap-1 sm:gap-2 p-3 sm:p-5 mt-4">
+							<button
+								on:click={() => (ordersPage = Math.max(1, ordersPage - 1))}
+								disabled={ordersPage === 1}
+								class="px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-lg border {ordersPage === 1
+									? 'bg-gray-800 text-gray-500 cursor-not-allowed border-gray-700'
+									: 'bg-gray-900 text-white hover:bg-gray-800 border-gray-600'}"
+							>
+								Previous
+							</button>
+
+							<div class="flex items-center gap-1 overflow-x-auto max-w-[200px] sm:max-w-none">
+								{#each getPageNumbers(ordersPage, totalOrdersPages) as pageNum}
+									{#if pageNum === '...'}
+										<span class="px-1 sm:px-2 text-gray-400 text-xs sm:text-sm">...</span>
+									{:else}
+										<button
+											on:click={() => (ordersPage = pageNum)}
+											class="px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-lg border flex-shrink-0 {ordersPage ===
+											pageNum
+												? 'bg-mabini-yellow text-black border-mabini-yellow'
+												: 'bg-gray-900 text-white hover:bg-gray-800 border-gray-600'}"
+										>
+											{pageNum}
+										</button>
+									{/if}
+								{/each}
+							</div>
+
+							<button
+								on:click={() => (ordersPage = Math.min(totalOrdersPages, ordersPage + 1))}
+								disabled={ordersPage === totalOrdersPages}
+								class="px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-lg border {ordersPage ===
+								totalOrdersPages
+									? 'bg-gray-800 text-gray-500 cursor-not-allowed border-gray-700'
+									: 'bg-gray-900 text-white hover:bg-gray-800 border-gray-600'}"
+							>
+								Next
+							</button>
+						</div>
+					{/if}
 				{:else}
 					<h1
 						class="px-4 sm:px-6 lg:p-10 pb-0 font-bold text-xl sm:text-2xl lg:text-3xl w-full text-center"
@@ -573,11 +646,11 @@
 			</div>
 		{:else if accountAddressesActive}
 			<div
-				class="flex flex-col justify-start items-center text-left gap-4 min-h-[200px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl"
+				class="flex flex-col justify-start items-center text-left gap-4 min-h-[200px] w-full max-w-full lg:max-w-[75%] bg-black text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6"
 			>
 				{#if hasExistingShipping}
 					<h1
-						class="p-4 sm:p-6 lg:p-10 pb-0 font-bold text-lg sm:text-xl lg:text-3xl w-full break-words"
+						class="font-bold text-lg sm:text-xl lg:text-3xl w-full px-2 sm:px-4 pt-2 sm:pt-4 break-words"
 					>
 						Your addresses, {userAddresses[0]?.first_name.charAt(0).toUpperCase() +
 							userAddresses[0]?.first_name.slice(1)}

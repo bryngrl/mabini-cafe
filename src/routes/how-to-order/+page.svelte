@@ -5,7 +5,7 @@
 
 <div class="div-static-content">
 	<div class="text-left">
-		<h1 class="header-text">
+		<h1 class="header-text !text-left">
 			HOW TO ORDER <span class="!text-mabini-yellow">ONLINE</span>?
 		</h1>
 		<p class="content-paragraph pt-5 pb-5">

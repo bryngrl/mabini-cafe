@@ -3,15 +3,15 @@
 	<meta name="description" content="Manage your orders and payments at Mabini Cafe" />
 </svelte:head>
 
-<div class="max-w-3xl mx-auto p-8 mt-30 bg-white rounded-xl">
-	<div class="mb-8 text-left">
-		<h1 class="font-black mb-4 text-6xl lg:text-7xl xl:text-8xl">
+<div class="div-static-content">
+	<div class="text-left max-w-4xl mx-auto">
+		<h1 class="header-text !text-left">
 			PRIVACY <span class="text-mabini-yellow">POLICY</span>
 		</h1>
-		<p class="text-lg mb-2 font-bold">Effective Date : August 12, 2025</p>
+		<p class="content-paragraph text-lg mb-2 font-bold">Effective Date : August 12, 2025</p>
 
 		<div class="mt-10">
-			<p class="mb-5">
+			<p class="content-paragraph mb-5">
 				This policy applies to information we collect when you use our websites, apps, shop in our
 				online stores, subscribe to our emails or text messages or otherwise interact with us as
 				described below (collectively, the “Site”). We may change this Privacy Policy from time to
@@ -24,8 +24,8 @@
 			</p>
 		</div>
 		<div>
-			<p class="text-lg font-bold mt-10">ACCEPTANCE OF THIS TERMS</p>
-			<p class="mt-2 text-base">
+			<p class="text-lg font-bold mt-10 content-paragraph">ACCEPTANCE OF THIS TERMS</p>
+			<p class="content-paragraph mt-2 text-base">
 				By using this Site on any computer, mobile phone, tablet, or other device, making a purchase
 				from the Site, or otherwise interacting with the Site, you signify your acceptance of this
 				policy and any changes to this policy. If you do not agree to this policy, please do not use
@@ -34,8 +34,8 @@
 			</p>
 		</div>
 		<div>
-			<p class="text-lg font-bold mt-10">COLLECTION OF INFORMATION</p>
-			<p class="mt-2 text-base">
+			<p class="content-paragraph text-lg font-bold mt-10">COLLECTION OF INFORMATION</p>
+			<p class="content-paragraph mt-2 text-base">
 				We collect information from you directly, automatically when you visit the Sites, and
 				sometimes from third parties. Some of this information may be considered <strong
 					>“Personal Information” or “Personal Data”,</strong
@@ -80,8 +80,8 @@
 			</p>
 		</div>
 		<div>
-			<p class="text-lg font-bold mt-10">SHARING INFORMATION</p>
-			<p class="mt-2 text-base">
+			<p class="content-paragraph text-lg font-bold mt-10">SHARING INFORMATION</p>
+			<p class="content-paragraph mt-2 text-base">
 				We may share information about you as follows: (i) with consultants, third-party service
 				providers or other vendors who need access to such information to carry out work on our
 				behalf, such as website hosting, data analysis, payment processing, order fulfillment and
