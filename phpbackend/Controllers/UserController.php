@@ -36,13 +36,13 @@ class UserController {
 
     // GET all users
     public function index() {
-        $decoded = validateJWT();
+        // $decoded = validateJWT();
 
-         if(!isAdminAuthorized($decoded))
-          {http_response_code(403);
-            echo json_encode(["error" => "Forbidden access"]);
-           return;
-          }
+        //  if(!isAdminAuthorized($decoded))
+        //   {http_response_code(403);
+        //     echo json_encode(["error" => "Forbidden access"]);
+        //    return;
+        //   }
 
             
         echo json_encode($this->model->getAll());
@@ -74,7 +74,7 @@ class UserController {
     
     // GET single user
     public function show($id) {
-        $decoded = validateJWT();
+        // $decoded = validateJWT();
         
         $user = $this->model->getById($id);
         if($user){
@@ -213,7 +213,7 @@ public function store() {
 
     // PUT update user
     public function update($id) {
-          $decoded = validateJWT();
+        //   $decoded = validateJWT();
         $data = json_decode(file_get_contents("php://input"), true);
         if(!empty($data['username']) && !empty($data['email'])){
             $this->model->id = $id;
