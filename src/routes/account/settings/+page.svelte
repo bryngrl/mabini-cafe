@@ -11,7 +11,7 @@
 	import { onMount } from 'svelte';
 	import { shippingStore, shippingInfo } from '$lib/stores';
 	import { form } from '$app/server';
-	import { usersStore, currentUser, isAuthenticated } from '$lib/stores';
+	import { usersStore, currentUser, isAuthenticated, authStore } from '$lib/stores';
 
 	$: $currentUser;
 
