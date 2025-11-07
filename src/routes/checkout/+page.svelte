@@ -147,7 +147,7 @@
 		};
 
 		try {
-			await shippingStore.update($authStore.user?.id, shippingData);
+			await shippingStore.updateAddress($authStore.user?.id, shippingData);
 			await showSuccess('Shipping information updated successfully', 'Success');
 			existingInfo = { ...formData };
 			isEditMode = false;
