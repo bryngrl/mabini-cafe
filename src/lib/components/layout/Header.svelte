@@ -1,14 +1,10 @@
-<!-- !TO: DO
- ! [] Responsive
- ! [] Hamburger Menu
---->
 <script>
 	import SearchModal from '../ui/SearchModal.svelte';
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores/auth';
 	import { cartCount } from '$lib/stores/cart';
 	import CartModal from '../ui/CartModal.svelte';
-	import { showSuccess } from '$lib/utils/sweetalert';
+	import { showConfirm, showSuccess } from '$lib/utils/sweetalert';
 
 	let links = [
 		{ name: 'Home', href: '/' },
@@ -16,23 +12,69 @@
 		{ name: 'About', href: '/about' }
 	];
 
-	let open = false;
+	let open = false; // Controls desktop/mobile SUPPORT dropdown
 	let accountOpen = false;
 	let cartModalOpen = false;
 	let searchModalOpen = false;
 	let mobileMenuOpen = false;
 
+	// --- START: Hover Delay Logic ---
+	let hoverTimeout;
+	const CLOSE_DELAY = 200; // 200 milliseconds (adjust as needed)
+
+	function handleMouseEnter() {
+		// When entering, immediately cancel any pending close timer
+		clearTimeout(hoverTimeout);
+		open = true; // Open the dropdown instantly
+	}
+
+	function handleMouseLeave() {
+		// When leaving, START the close timer instead of closing instantly
+		hoverTimeout = setTimeout(() => {
+			open = false; // Close the dropdown after the delay
+		}, CLOSE_DELAY);
+	}
+	// --- END: Hover Delay Logic ---
+
 	function closeSearch() {
 		searchModalOpen = false;
 	}
+	let accountHoverTimeout;
+	function handleAccountMouseEnter() {
+		clearTimeout(accountHoverTimeout);
+		accountOpen = true; // Open the account dropdown instantly
+	}
 
-	function logout() {
+	function handleAccountMouseLeave() {
+		// Start the close timer for the account menu
+		accountHoverTimeout = setTimeout(() => {
+			accountOpen = false;
+		}, CLOSE_DELAY);
+	}
+	async function logout() {
+		await showConfirm('Do you want you to logout?', 'Logout');
 		authStore.logout();
 		localStorage.removeItem('token');
+		clearTimeout(accountHoverTimeout);
+		accountOpen = false;
 		showSuccess('Logged out successfully');
 		setTimeout(() => {
 			goto('/login');
 		}, 2000);
+	}
+
+	function selectAndNavigateAccount(path, isAdmin) {
+		clearTimeout(accountHoverTimeout); // Crucial: Clear the close timer
+		accountOpen = false;
+		// The mobileMenuOpen cleanup is handled below in the markup for the mobile menu.
+
+		if (path === '/logout') {
+			logout();
+		} else if (path === '/admin') {
+			goto('/admin');
+		} else if (path === '/settings') {
+			goto('/account/settings');
+		}
 	}
 
 	function openCart() {
@@ -49,12 +91,23 @@
 	function closeCart() {
 		cartModalOpen = false;
 	}
+
+	// Updated to clear the hover timeout
+	function selectAndNavigate(path) {
+		// Clear any pending desktop close timer when an item is clicked
+		clearTimeout(hoverTimeout);
+
+		open = false;
+		mobileMenuOpen = false;
+		goto(path);
+	}
 </script>
 
 <nav
-	class="flex items-center justify-between p-4 bg-black text-white font-medium uppercase drop-shadow-2xl w-full relative z-[100]"
+	class="flex items-center justify-between p-4 bg-black text-white font-medium uppercase drop-shadow-2xl w-full relative z-[30]"
 >
 	<!-- Left links (desktop) -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="hidden md:flex flex-1 justify-start ml-[50px]">
 		<ul class="flex gap-6 items-center">
 			{#each links as link}
@@ -63,11 +116,8 @@
 					<span class="underline-anim"></span>
 				</li>
 			{/each}
-			<div class="relative">
-				<button
-					on:click={() => (open = !open)}
-					class="relative group text-[16px] flex items-center gap-2 cursor-pointer"
-				>
+			<div class="relative" on:mouseenter={handleMouseEnter} on:mouseleave={handleMouseLeave}>
+				<button class="relative group text-[16px] flex items-center gap-2 cursor-pointer">
 					SUPPORT
 					<span class="transition-transform duration-300 {open ? 'rotate-180' : ''}">
 						<i class="fa-solid fa-chevron-down"></i>
@@ -80,11 +130,7 @@
 						<li>
 							<button
 								type="button"
-								on:click={() => {
-									open = false;
-									mobileMenuOpen = false;
-									goto('/orders-and-payment');
-								}}
+								on:click={() => selectAndNavigate('/orders-and-payment')}
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
 								>Orders & Payment</button
 							>
@@ -92,11 +138,7 @@
 						<li>
 							<button
 								type="button"
-								on:click={() => {
-									open = false;
-									mobileMenuOpen = false;
-									goto('/shipping');
-								}}
+								on:click={() => selectAndNavigate('/shipping')}
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
 								>Shipping</button
 							>
@@ -158,10 +200,14 @@
 		{#if $authStore.loading}
 			<div class="relative group text-[16px] opacity-50">Loading...</div>
 		{:else if $authStore.isAuthenticated}
-			<div class="relative">
+			<div
+				class="relative"
+				on:mouseenter={handleAccountMouseEnter}
+				on:mouseleave={handleAccountMouseLeave}
+			>
 				<button
-					on:click={() => (accountOpen = !accountOpen)}
 					class="relative group text-[16px] flex items-center gap-2 cursor-pointer"
+					type="button"
 				>
 					ACCOUNT
 					<span class="transition-transform duration-300 {accountOpen ? 'rotate-180' : ''}">
@@ -177,11 +223,11 @@
 								type="button"
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
 								on:click={() => {
-									accountOpen = false;
+									// Close logic is now inside a reusable function to clear the timer
 									if ($authStore.isAdmin) {
-										goto('/admin');
+										selectAndNavigateAccount('/admin', true);
 									} else {
-										goto('/account/settings');
+										selectAndNavigateAccount('/settings', false);
 									}
 								}}
 							>
@@ -192,7 +238,7 @@
 							<button
 								type="button"
 								class="w-full text-left px-4 py-2 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
-								on:click={logout}
+								on:click={() => selectAndNavigateAccount('/logout')}
 							>
 								Logout
 							</button>
@@ -375,175 +421,3 @@
 
 <CartModal isOpen={cartModalOpen} onClose={closeCart} />
 <SearchModal isOpen={searchModalOpen} onClose={closeSearch} />
-
-<!-- 
-
-
-<div class="fixed inset-0 bg-black flex flex-col">
-			<div class="flex justify-center items-center p-4 pb-1 w-full">
-				<a href="/">
-					<img src="/images/LOGO-4.png" alt="Logo" class="w-[120px]" />
-				</a>
-
-				<div class="flex-1">
-					<button
-						aria-label="Close menu"
-						class="focus:outline-none"
-						on:click={() => (mobileMenuOpen = false)}
-					>
-						<svg
-							class="w-8 h-8 text-white"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							xmlns="http://www.w3.org/2000/svg"
-						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M6 18L18 6M6 6l12 12"
-							/>
-						</svg>
-					</button>
-				</div>
-			</div>
-			<ul class="flex flex-col gap-0 pt-0 items-center w-full">
-				{#each links as link}
-					<li class="w-full">
-						<a
-							class="text-[20px] font-bold w-full block px-6 py-3 bg-black text-white"
-							href={link.href}
-							on:click={() => (mobileMenuOpen = false)}>{link.name}</a
-						>
-					</li>
-				{/each}
-				<li class="w-full">
-					<button
-						on:click={() => (open = !open)}
-						class="text-[20px] font-bold w-full px-6 py-3 bg-black text-white flex items-center justify-between"
-					>
-						SUPPORT
-						<span class="transition-transform duration-300 {open ? 'rotate-180' : ''}"> ˅ </span>
-					</button>
-					{#if open}
-						<ul class=" bg-black text-white rounded shadow text-[18px] w-full">
-							<li>
-								<button
-									type="button"
-									on:click={() => {
-										open = false;
-										mobileMenuOpen = false;
-										goto('/orders-and-payment');
-									}}
-									class="w-full text-left px-6 py-3 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
-									>Orders & Payment</button
-								>
-							</li>
-							<li>
-								<button
-									type="button"
-									on:click={() => {
-										open = false;
-										mobileMenuOpen = false;
-										goto('/shipping');
-									}}
-									class="w-full text-left px-6 py-3 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
-									>Shipping</button
-								>
-							</li>
-						</ul>
-					{/if}
-				</li>
-				<li class="w-full">
-					{#if $authStore.loading}
-						<div class="text-[20px] opacity-50 w-full px-6 py-3 bg-black text-white rounded">
-							Loading...
-						</div>
-					{:else if $authStore.isAuthenticated}
-						<button
-							class="text-[20px] font-bold w-full px-6 py-3 bg-black text-white rounded flex items-center justify-between"
-							on:click={() => {
-								accountOpen = !accountOpen;
-							}}
-						>
-							ACCOUNT
-							<span class="transition-transform duration-300 {accountOpen ? 'rotate-180' : ''}">
-								˅
-							</span>
-						</button>
-						{#if accountOpen}
-							<ul class="mt-2 bg-black text-white rounded shadow text-[18px] w-full">
-								<li>
-									<button
-										type="button"
-										class="w-full text-left px-6 py-3 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
-										on:click={() => {
-											accountOpen = false;
-											mobileMenuOpen = false;
-											goto('/settings');
-										}}
-									>
-										Settings
-									</button>
-								</li>
-								<li>
-									<button
-										type="button"
-										class="w-full text-left px-6 py-3 cursor-pointer hover:bg-mabini-yellow hover:text-mabini-dark-brown"
-										on:click={() => {
-											accountOpen = false;
-											mobileMenuOpen = false;
-											logout();
-										}}
-									>
-										Logout
-									</button>
-								</li>
-							</ul>
-						{/if}
-					{:else}
-						<a
-							href="/login"
-							class="text-[20px] font-bold w-full block px-6 py-3 bg-black text-white"
-							on:click={() => (mobileMenuOpen = false)}>Login</a
-						>
-					{/if}
-				</li>
-				<li class="bg-black p-4 w-full flex gap-4 justify-center">
-					<button
-						class="relative group"
-						on:click={() => {
-							openSearch();
-							mobileMenuOpen = false;
-						}}
-						type="button"
-					>
-						<img src="/icons/search.png" alt="Search" class="h-7 w-8" />
-					</button>
-					<button
-						class="relative group"
-						on:click={() => {
-							openCart();
-							mobileMenuOpen = false;
-						}}
-						type="button"
-					>
-						<img src="/icons/cart.png" alt="Cart" class="h-7 w-8" />
-						{#if $cartCount > 0}
-							<span
-								class="absolute -top-2 -right-2 bg-mabini-yellow text-mabini-dark-brown text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
-								>{$cartCount}</span
-							>
-						{/if}
-					</button>
-				</li>
-			</ul>
-		</div>
-
-
-
-
-
-
--->

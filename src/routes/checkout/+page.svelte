@@ -147,7 +147,7 @@
 		};
 
 		try {
-			await shippingStore.update($authStore.user?.id, shippingData);
+			await shippingStore.updateAddress($authStore.user?.id, shippingData);
 			await showSuccess('Shipping information updated successfully', 'Success');
 			existingInfo = { ...formData };
 			isEditMode = false;
@@ -590,7 +590,7 @@
 					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-10 mb-4 pb-4 border-b sm:border-b-0">
 						<img
 							src={item.menu_item_image
-								? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
+								? `https://mabini-cafe.bscs3a.com/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
 								: '/images/placeholder.png'}
 							alt={item.menu_item_name}
 							class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-gray-300"

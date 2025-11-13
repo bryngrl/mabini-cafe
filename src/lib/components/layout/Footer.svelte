@@ -69,7 +69,9 @@
 		<div
 			class="col-span-1 md:col-span-3 flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-4 md:ml-[100px] text-center md:text-left"
 		>
-			<p class="mb-2 md:mb-0">Condition of use and How to order</p>
+			<a href="/how-to-order" class="mb-2 md:mb-0 hover:text-mabini-yellow">
+				Condition of use and How to order
+			</a>
 			<a href="/privacy-policy" class="relative group hover:text-mabini-yellow"> Privacy policy </a>
 		</div>
 

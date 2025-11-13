@@ -217,7 +217,7 @@
 		};
 
 		try {
-			await shippingStore.update($authStore.user?.id, shippingData);
+			await shippingStore.updateAddress($authStore.user?.id, shippingData);
 			await showSuccess('Shipping information updated successfully', 'Success');
 			existingInfo = { ...formData };
 			isEditMode = false;
@@ -618,21 +618,21 @@
 				<p class="text-gray-500">Loading cart...</p>
 			{:else if $cartItems.length > 0}
 				{#each $cartItems as item}
-					<div class="flex items-center gap-4 sm:p-6 lg:p-10 mb-4">
+					<div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-10 mb-4 pb-4 border-b sm:border-b-0">
 						<img
 							src={item.menu_item_image
-								? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
+								? `https://mabini-cafe.bscs3a.com/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
 								: '/images/placeholder.png'}
 							alt={item.menu_item_name}
-							class="w-24 h-24 object-cover rounded-lg border border-gray-300"
+							class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-gray-300"
 						/>
-						<div class="flex-1 flex justify-between items-center">
-							<div>
-								<h3 class="text-lg font-semibold">{item.menu_item_name}</h3>
-								<p class="text-gray-600">Quantity: {item.quantity}</p>
-								<p class="text-gray-600">₱{parseFloat(item.menu_item_price).toFixed(2)} each</p>
+						<div class="flex-1 flex flex-col sm:flex-row justify-between items-start sm:items-center w-full">
+							<div class="mb-2 sm:mb-0">
+								<h3 class="text-base sm:text-lg font-semibold">{item.menu_item_name}</h3>
+								<p class="text-sm sm:text-base text-gray-600">Quantity: {item.quantity}</p>
+								<p class="text-sm sm:text-base text-gray-600">₱{parseFloat(item.menu_item_price).toFixed(2)} each</p>
 							</div>
-							<p class="text-lg text-gray-500 font-semibold pl-[250px]">
+							<p class="text-base sm:text-lg text-gray-500 font-semibold">
 								₱{parseFloat(item.subtotal).toFixed(2)}
 							</p>
 						</div>
@@ -672,7 +672,7 @@
 				<hr class="my-4 border-gray-300" />
 				<div class="flex justify-between items-center mb-2">
 					<div class="flex flex-1 justify-between items-center">
-						<span class="text-[25px] font-semibold">Total</span>
+						<span class="text-xl sm:text-2xl font-semibold">Total</span>
 						<span class="text-lg font-bold">₱{$checkoutTotal.toFixed(2)}</span>
 					</div>
 				</div>
@@ -760,21 +760,6 @@
 			padding: 0.75rem !important;
 		}
 
-		/* Cart items on right side */
-		.flex.items-center.gap-4.sm\:p-6.lg\:p-10 {
-			padding: 1rem 0 !important;
-		}
-
-		.flex.items-center.gap-4.sm\:p-6.lg\:p-10 img {
-			width: 60px !important;
-			height: 60px !important;
-		}
-
-		/* Price alignment - remove large padding */
-		.text-lg.text-gray-500.font-semibold.pl-\[250px\] {
-			padding-left: 0 !important;
-		}
-
 		/* Headings */
 		h2.text-2xl {
 			font-size: 1.5rem !important;
@@ -812,25 +797,6 @@
 			padding: 0.25rem !important;
 		}
 
-		.text-\[25px\] {
-			font-size: 1.25rem !important;
-		}
-
-		/* Further reduce image sizes */
-		.flex.items-center.gap-4.sm\:p-6.lg\:p-10 img {
-			width: 50px !important;
-			height: 50px !important;
-		}
-
-		/* Cart item layout adjustments */
-		.flex.items-center.gap-4 {
-			gap: 0.5rem !important;
-		}
-
-		.flex-1.flex.justify-between.items-center {
-			flex-direction: column;
-			align-items: flex-start !important;
-		}
 	}
 </style>
 

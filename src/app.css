@@ -2,38 +2,41 @@
 @plugin '@tailwindcss/typography';
 @import '@fortawesome/fontawesome-free/css/all.css';
 
-/* Regular */
+/* font-sans */
 @font-face {
 	font-family: 'Creato';
 	src: url('/fonts/CreatoDisplay-Regular.otf') format('opentype');
 	font-weight: 400;
 	font-style: normal;
 }
-@font-face {
-	font-family: 'Perandory';
-	src: url('/fonts/Perandory-Semi-Condensed.otf') format('opentype');
-	font-weight: 400;
-	font-style: normal;
-}
-
-/* Bold */
+/* Font-sans boldie */
 @font-face {
 	font-family: 'Creato Bold';
 	src: url('/fonts/CreatoDisplay-Bold.otf') format('opentype');
 	font-weight: 900;
 	font-style: normal;
 }
-@font-face{
+/* font-cond */
+@font-face {
+	font-family: 'Perandory';
+	src: url('/fonts/Perandory-Semi-Condensed.otf') format('opentype');
+	font-weight: 400;
+	font-style: normal;
+}
+/* font-herman */
+@font-face {
 	font-family: 'Herman';
 	src: url('/fonts/Herman.ttf') format('opentype');
 	font-weight: 400;
 	font-style: normal;
 }
 @theme {
+	/* Fonts */
 	--font-sans: 'Creato', sans-serif;
 	--font-cond: 'Perandory', sans-serif;
 	--font-herman: 'Herman', sans-serif;
 	--font-sans-boldie: 'Creato Bold', sans-serif;
+
 	/* Brand Colors */
 	--color-mabini-black: #000000;
 	--color-mabini-dark-brown: #2a1c0f;
@@ -50,41 +53,115 @@ body {
 	height: 100%;
 	@apply font-sans bg-mabini-white text-mabini-black;
 }
+/* Texts */
+.header-text {
+	@apply font-sans-boldie uppercase text-center
+		text-5xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-6xl 2xl:text-6xl;
+}
+.header-2-text {
+	@apply font-sans-boldie uppercase
+	text-sm md:text-base lg:text-lg pt-5 pb-3;
+}
+.content-paragraph {
+	@apply font-sans 
+	text-sm md:text-base lg:text-lg;
+}
+.drinks-header{
+	@apply font-sans-boldie uppercase text-center
+	text-3xl sm:text-2xl md:text-3xl lg:text-6xl xl:text-6xl 2xl:text-6xl
+}
+/* Layout */
+/* Home Layout */
+.div-layout {
+	@apply min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] w-full py-8 sm:py-10 md:py-12 lg:py-16 px-4;
+}
+/* Admin Dashboard */
+.div-white-content {
+	@apply pt-0 p-10;
+}
+.div-static-content {
+	@apply flex flex-col items-center p-10 sm:p-12 md:p-14 min-h-screen bg-white;
+}
+/* Buttons */
+.button-1 {
+	@apply bg-transparent hover:bg-mabini-dark-brown
+		border-1 border-white hover:border-transparent  transition-all duration-200
+		font-semibold text-sm sm:text-sm md:text-base cursor-pointer sm:w-auto min-w-[160px] sm:min-w-[180px] md:min-w-[200px] p-3 sm:p-3.5 md:p-4 rounded-full;
+}
+.button-left-arrow {
+	@apply absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 sm:p-3 md:p-3.5 lg:p-4 shadow
+		cursor-pointer
+		hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 z-30;
+}
+.button-right-arrow {
+	@apply absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 sm:p-3 md:p-3.5 lg:p-4 shadow
+		cursor-pointer
+		hover:bg-mabini-yellow transition disabled:opacity-50 flex-shrink-0 z-30;
+}
+/* Pagination */
+.indicator {
+	@apply rounded-full border transition-all duration-300 mx-[2px];
+	width: 8px;
+	height: 8px;
+	background: #fff;
+	border-color: transparent;
+}
 
-.btn-primary {
-	@apply bg-none text-mabini-black rounded-[50px] w-50 px-4 py-2 font-bold uppercase border cursor-pointer transition;
+.indicator-active {
+	width: 24px;
+	background: var(--color-mabini-dark-brown);
 }
-.btn-primary-clicked {
-	@apply bg-transparent rounded-[50px] border-1 px-4 py-2 text-mabini-black font-bold uppercase transition;
+/* Images */
+.main-hero {
+	@apply h-[60vh] w-full bg-cover bg-center bg-no-repeat flex justify-center items-center relative z-0;
 }
-.btn-secondary {
-	@apply bg-mabini-dark-brown	text-mabini-white font-bold rounded-[50px] px-4 py-2 uppercase;
-}
-.btn-secondary-clicked {
-	@apply bg-transparent rounded-[50px] border-1 px-4 py-2 border-mabini-white text-mabini-white font-bold uppercase transition;
-}
-.h1-heading {
-	@apply font-bold text-[64px];
-}
-.h2-heading {
-	@apply font-bold text-[48px];
-}
-.paragraph {
-	@apply text-[20px];
-}
+
+/* Underline */
 .underline-anim {
 	@apply absolute left-0 -bottom-2 w-0 h-0.5 bg-mabini-light-brown transition-all duration-300;
 }
 .group:hover .underline-anim {
 	@apply w-full;
 }
-.contact-input {
-	@apply w-full h-[40px] border border-gray-500 px-3 rounded-[7px] text-gray-500;
-}
-.option {
-	@apply bg-mabini-black text-mabini-white hover:bg-neutral-500;
+
+/* MODALS */
+ /* Overlay */
+.modal-overlay {
+	@apply fixed inset-0 
+    w-screen h-screen 
+    bg-black/50 
+    backdrop-blur-[5px] 
+    flex items-center justify-end 
+    z-[1000];
 }
 
+/* 2. Modal Content (The Main Sidebar Box) */
+.modal-content {
+	@apply bg-white 
+    rounded-3xl lg:rounded-l-3xl lg:rounded-r-none 
+	w-full h-full 
+    min-h-full max-h-full
+	lg:max-w-[550px] lg:min-w-[550px]
+    lg:min-h-[90vh] lg:max-h-[90vh]
+	flex flex-col 
+    shadow-[0_10px_40px_rgba(0,0,0,0.2)];
+
+}
+
+/* 3. Modal Header */
+.modal-header {
+	@apply flex justify-between items-center 
+    p-6 px-8 pb-0 relative;
+}
+
+/* 4. Modal Title */
+.modal-title {
+	@apply text-[1.75rem] font-black 
+    text-[var(--color-mabini-dark-brown)] 
+    m-0;
+}
+
+/* Sweet Alerts Design */
 .swal-mabini-popup {
 	border-radius: 1.5rem !important;
 	padding: 2rem !important;

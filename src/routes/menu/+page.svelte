@@ -1,6 +1,4 @@
 <script lang="ts">
-	// Bugs in reposniveness
-
 	import Item from '$lib/components/ui/Item.svelte';
 	import ItemModal from '$lib/components/ui/ItemModal.svelte';
 	import CartModal from '$lib/components/ui/CartModal.svelte';
@@ -16,24 +14,25 @@
 
 	onMount(() => {
 		authStore.init();
-		
+
 		// Check for category parameter in URL
 		const categoryParam = $page.url.searchParams.get('category');
 		if (categoryParam) {
-			// Find matching category (case-insensitive)
+			// Try to find matching main category (case-insensitive)
 			const matchingCategory = uniqueCategories.find(
-				cat => cat.toLowerCase() === categoryParam.toLowerCase()
+				(cat) => cat.toLowerCase() === categoryParam.toLowerCase()
 			);
 			if (matchingCategory) {
 				selectedCategory = matchingCategory;
-				// If it's a subcategory, also set selectedSubcategory
-				const allSubcats = [...new Set(items.map((item) => item.description))].filter(Boolean);
-				const matchingSubcat = allSubcats.find(
-					sub => sub.toLowerCase() === categoryParam.toLowerCase()
-				);
-				if (matchingSubcat) {
-					selectedSubcategory = matchingSubcat;
-				}
+			}
+
+			// Always try to find matching subcategory (case-insensitive)
+			const allSubcats = [...new Set(items.map((item) => item.description))].filter(Boolean);
+			const matchingSubcat = allSubcats.find(
+				(sub) => sub.toLowerCase() === categoryParam.toLowerCase()
+			);
+			if (matchingSubcat) {
+				selectedSubcategory = matchingSubcat;
 			}
 		}
 	});
@@ -75,7 +74,16 @@
 	}
 
 	function handleViewDetails(item) {
-		selectedItem = item;
+		const normalizedItem = {
+			...item,
+			image_path: item.image_path.startsWith('http')
+				? item.image_path
+				: `https://mabini-cafe.bscs3a.com/phpbackend/${item.image_path.replace(/^\/?/, '')}`,
+			img: item.image_path.startsWith('http')
+				? item.image_path
+				: `https://mabini-cafe.bscs3a.com/phpbackend/${item.image_path.replace(/^\/?/, '')}`
+		};
+		selectedItem = normalizedItem;
 		modalOpen = true;
 	}
 
@@ -138,29 +146,26 @@
 	<title>Menu - Mabini Cafe</title>
 	<meta name="description" content="Browse our delicious menu of coffee, pastries, and more" />
 </svelte:head>
-<div class="page-header">
-	<h2 class="font-bold text-white text-center m-auto text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
-		Menu
-	</h2>
+<div class="main-hero page-header">
+	<h2 class="header-text !text-white">Menu</h2>
 </div>
 
 <div class="menu-page">
+	<!-- Category buttons -->
+	<div class="category hidden lg:flex lg:justify-center lg:items-center max-w-full">
+		{#each categories as category}
+			<button
+				class="bg-none text-mabini-black rounded-[50px] w-50 px-4 py-2 font-bold uppercase border cursor-pointer transition"
+				class:active={selectedCategory === category}
+				class:selected-category={selectedCategory === category}
+				on:click={() => selectCategory(category)}
+			>
+				{category.charAt(0).toUpperCase() + category.slice(1)}
+			</button>
+		{/each}
+	</div>
+	<!-- Mobile Dropdown Menu-->
 	<div class="container">
-		<!-- Category buttons -->
-		<div class="category hidden lg:flex">
-			{#each categories as category}
-				<button
-					class="btn-primary"
-					class:active={selectedCategory === category}
-					class:selected-category={selectedCategory === category}
-					on:click={() => selectCategory(category)}
-				>
-					{category.charAt(0).toUpperCase() + category.slice(1)}
-				</button>
-			{/each}
-		</div>
-
-		<!-- Mobile Dropdown Menu-->
 		{#if mobileMenuOpen}
 			<div class="mobile-menu">
 				<div class="mobile-menu-header">
@@ -305,18 +310,17 @@
 							{/each}
 						</div>
 					{/if}
-
+				{#if selectedItem}
 					<ItemModal
-						{selectedItem}
+						selectedItem={{
+							...selectedItem,
+							img: selectedItem.img || selectedItem.image_path
+						}}
 						{modalOpen}
 						on:close={closeModal}
 						on:addToCart={() => selectedItem && handleAddToCart(selectedItem)}
 					/>
-
-					<CartModal
-						isOpen={cartModalOpen}
-						onClose={closeCartModal}
-					/>
+				{/if}					<CartModal isOpen={cartModalOpen} onClose={closeCartModal} />
 				</div>
 			</div>
 		</div>
@@ -326,16 +330,6 @@
 <style>
 	.page-header {
 		background-image: url(/images/hero-menu.png);
-		height: 40vh;
-		width: 100%;
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		position: relative;
-		z-index: 0;
 	}
 	.page-header h2 {
 		position: relative;
@@ -395,9 +389,8 @@
 		justify-content: center;
 		margin: 2rem 0;
 	}
-	@media (min-width:1024){
-		.category{
-
+	@media (min-width: 1024) {
+		.category {
 		}
 	}
 	.selected-category {
@@ -462,7 +455,7 @@
 			grid-template-columns: repeat(4, 1fr);
 		}
 	}
-	
+
 	/* Mobile specific item adjustments */
 	@media (max-width: 640px) {
 		.items-grid > div {
@@ -606,7 +599,8 @@
 		.category-grid {
 			grid-template-columns: repeat(3, 1fr);
 		}
-	}@media (min-width: 1024px) {
+	}
+	@media (min-width: 1024px) {
 		.hamburger-btn-inline {
 			display: none !important;
 		}

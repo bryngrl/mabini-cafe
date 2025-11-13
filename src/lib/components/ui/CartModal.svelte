@@ -24,7 +24,10 @@
 
 	// Reactive statement to check for unavailable items
 	$: hasUnavailableItems = $cartItems.some(
-		(item) => item.menu_item_isAvailable === 0 || item.menu_item_isAvailable === '0' || item.menu_item_isAvailable === false
+		(item) =>
+			item.menu_item_isAvailable === 0 ||
+			item.menu_item_isAvailable === '0' ||
+			item.menu_item_isAvailable === false
 	);
 
 	$: {
@@ -125,56 +128,65 @@
 						<p>Loading cart...</p>
 					</div>
 				{:else if $cartItems.length > 0}
-					<div class="cart-items">
-						{#each $cartItems as item}
-							{@const isAvailable = item.menu_item_isAvailable === 1 || item.menu_item_isAvailable === '1' || item.menu_item_isAvailable === true}
-							<div class="cart-item" class:unavailable-item={!isAvailable}>
-								<img
-									src={item.menu_item_image
-										? `http://localhost/mabini-cafe/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
-										: '/images/placeholder.png'}
-									alt={item.menu_item_name}
-									class="item-image"
-									class:grayscale-img={!isAvailable}
-								/>
-								<div class="item-details">
-									<h3 class="item-name" class:line-through-text={!isAvailable}>{item.menu_item_name}</h3>
-									{#if !isAvailable}
-										<span class="unavailable-badge">Currently Unavailable</span>
-									{/if}
-								</div>
-								<div class="box item-quantity">
+					<div class="cart-items-wrapper">
+						<div class="cart-items">
+							{#each $cartItems as item}
+								{@const isAvailable =
+									item.menu_item_isAvailable === 1 ||
+									item.menu_item_isAvailable === '1' ||
+									item.menu_item_isAvailable === true}
+								<div class="cart-item" class:unavailable-item={!isAvailable}>
+									<img
+										src={item.menu_item_image
+											? `https://mabini-cafe.bscs3a.com/phpbackend/${item.menu_item_image.replace(/^\/?/, '')}`
+											: '/images/placeholder.png'}
+										alt={item.menu_item_name}
+										class="item-image"
+										class:grayscale-img={!isAvailable}
+									/>
+									<div class="item-details">
+										<h3 class="item-name" class:line-through-text={!isAvailable}>
+											{item.menu_item_name}
+										</h3>
+										{#if !isAvailable}
+											<span class="unavailable-badge">Currently Unavailable</span>
+										{/if}
+									</div>
+									<div class="box item-quantity">
+										<button
+											class="minus qty-btn"
+											on:click={() =>
+												updateQuantity(item.id, item.quantity - 1, item.menu_item_price)}
+											disabled={item.quantity <= 1 || !isAvailable}
+										>
+											−
+										</button>
+										<span class="qty-value">{item.quantity}</span>
+										<button
+											class="plus qty-btn"
+											on:click={() =>
+												updateQuantity(item.id, item.quantity + 1, item.menu_item_price)}
+											disabled={!isAvailable}
+										>
+											+
+										</button>
+									</div>
+									<div class="item-subtotal">
+										<p class="subtotal-label">Subtotal:</p>
+										<p class="subtotal-value" class:line-through-text={!isAvailable}>
+											₱{parseFloat(item.subtotal).toFixed(2)}
+										</p>
+									</div>
 									<button
-										class="minus qty-btn"
-										on:click={() =>
-											updateQuantity(item.id, item.quantity - 1, item.menu_item_price)}
-										disabled={item.quantity <= 1 || !isAvailable}
+										class="remove-btn"
+										on:click={() => removeFromCart(item.id, item.menu_item_name)}
+										title="Remove item"
 									>
-										−
-									</button>
-									<span class="qty-value">{item.quantity}</span>
-									<button
-										class="plus qty-btn"
-										on:click={() =>
-											updateQuantity(item.id, item.quantity + 1, item.menu_item_price)}
-										disabled={!isAvailable}
-									>
-										+
+										<img src="/items/icon.svg" alt="Remove" width="24" height="24" />
 									</button>
 								</div>
-								<div class="item-subtotal">
-									<p class="subtotal-label">Subtotal:</p>
-									<p class="subtotal-value" class:line-through-text={!isAvailable}>₱{parseFloat(item.subtotal).toFixed(2)}</p>
-								</div>
-								<button
-									class="remove-btn"
-									on:click={() => removeFromCart(item.id, item.menu_item_name)}
-									title="Remove item"
-								>
-									<img src="/items/icon.svg" alt="Remove" width="24" height="24" />
-								</button>
-							</div>
-						{/each}
+							{/each}
+						</div>
 					</div>
 					<div class="order-note-section">
 						<span class="order-note">Add Order Note:</span>
@@ -182,7 +194,6 @@
 							class="order-note"
 							bind:value={orderNote}
 							placeholder="Add a note to your order..."
-							style="overflow: hidden;"
 						></textarea>
 					</div>
 					<div class="cart-footer">
@@ -192,8 +203,8 @@
 								⚠️ Please remove unavailable items to proceed with checkout
 							</p>
 						{/if}
-						<button 
-							class="checkout-btn" 
+						<button
+							class="checkout-btn"
 							on:click={checkout}
 							disabled={hasUnavailableItems}
 							class:disabled-btn={hasUnavailableItems}
@@ -222,6 +233,8 @@
 
 <style>
 	.box {
+		/* Mobile (default) height: 105px */
+		width: 105px;
 		border: 1px solid black;
 		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 	}
@@ -239,43 +252,6 @@
 		color: white;
 		margin: auto;
 		text-align: center;
-	}
-	.modal-overlay {
-		position: fixed;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: auto;
-		justify-content: flex-end;
-		display: flex;
-		align-items: center;
-		z-index: 1000;
-	}
-
-	.modal-content {
-		background: white;
-		border-radius: 1.5rem 0 0 1.5rem;
-		max-width: 800px;
-		width: 100%;
-		max-height: 90vh;
-		display: flex;
-		flex-direction: column;
-		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-	}
-
-	.modal-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 1.5rem 2rem;
-		position: relative;
-	}
-
-	.modal-title {
-		font-size: 1.75rem;
-		font-weight: 700;
-		color: var(--color-mabini-dark-brown);
-		margin: 0;
 	}
 
 	.close-btn {
@@ -301,6 +277,15 @@
 
 	.modal-body {
 		flex: 1;
+		overflow: hidden;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		min-height: 400px;
+	}
+
+	.cart-items-wrapper {
+		flex: 1;
 		overflow-y: auto;
 		padding: 1.5rem 2rem;
 	}
@@ -313,13 +298,12 @@
 
 	.cart-item {
 		display: grid;
-		grid-template-columns: 80px 1fr auto auto auto;
+		grid-template-columns: 80px 1fr auto auto 40px;
 		gap: 1rem;
-		align-items: center;
+		align-items: start;
 		padding: 1rem;
 		border-bottom: 1px solid #e0e0e0;
-		/* border-radius: 1rem; */
-		/* transition: box-shadow 0.3s; */
+		position: relative;
 	}
 
 	.cart-item:hover {
@@ -337,6 +321,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
+		min-width: 0;
+		overflow: hidden;
 	}
 
 	.item-name {
@@ -344,6 +330,9 @@
 		font-weight: 700;
 		color: var(--color-mabini-black);
 		margin: 0;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		hyphens: auto;
 	}
 
 	.item-price {
@@ -422,6 +411,15 @@
 		padding: 0.5rem;
 		border-radius: 0.5rem;
 		transition: all 0.3s;
+		width: 40px;
+		height: 40px;
+		min-width: 40px;
+		min-height: 40px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		align-self: start;
 	}
 
 	.remove-btn:hover {
@@ -429,19 +427,23 @@
 		transform: scale(1.1);
 	}
 
+	.remove-btn img {
+		width: 24px;
+		height: 24px;
+		object-fit: contain;
+	}
+
 	.cart-footer {
 		border-top: 2px solid #f0f0f0;
 		padding: 1.5rem 2rem;
 		background-color: black;
-		height: 180px;
+		min-height: 180px;
 		border-radius: 0 0 0 1.5rem;
-		margin-top: 0;
-		margin-left: -2rem;
-		margin-right: -2rem;
-		margin-bottom: -1.5rem;
+		margin: 0;
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-end;
+		flex-shrink: 0;
 	}
 
 	.order-note-section {
@@ -450,22 +452,23 @@
 		align-items: center;
 		padding: 1rem 2rem;
 		padding-right: 0px;
-		height: 50px;
-		margin-top: 1.5rem;
-		margin-left: -2rem;
-		margin-right: -2rem;
+		min-height: 80px;
+		margin: 0;
 		background-color: #f9f9f9;
 		border-radius: 0;
 		box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+		flex-shrink: 0;
 	}
 	.order-note-section textarea {
 		flex: 1;
 		padding: 0.75rem;
 		border-radius: 0.5rem;
 		font-size: 1rem;
-		/* resize: none; */
-		height: 50px;
+		resize: vertical;
+		min-height: 50px;
+		max-height: 150px;
 		width: 100%;
+		border: 1px solid #ddd;
 	}
 
 	.order-note {
@@ -610,40 +613,78 @@
 		}
 
 		.cart-item {
-			grid-template-columns: 60px 1fr;
+			grid-template-columns: 60px 1fr 40px;
 			gap: 0.75rem;
 			position: relative;
+			padding: 0.75rem;
 		}
 
 		.item-image {
 			width: 60px;
 			height: 60px;
-			grid-row: 1 / 3;
+			grid-row: 1 / span 2;
+		}
+
+		.item-details {
+			grid-column: 2;
+			grid-row: 1;
 		}
 
 		.item-quantity {
 			grid-column: 2;
+			grid-row: 2;
+			justify-self: start;
+			margin-top: 0.5rem;
 		}
 
 		.item-subtotal {
 			grid-column: 2;
+			grid-row: 3;
 			text-align: left;
+			margin-top: 0.5rem;
 		}
 
 		.remove-btn {
-			position: absolute;
-			top: 0.5rem;
-			right: 0.5rem;
+			grid-column: 3;
+			grid-row: 1;
+			width: 32px;
+			height: 32px;
+			padding: 0.25rem;
 		}
 
-		.quantity-controls button {
-			width: 30px !important;
-			height: 30px !important;
-			font-size: 0.875rem !important;
+		.remove-btn img {
+			width: 20px;
+			height: 20px;
+		}
+
+		.box {
+			width: 90px;
+			height: auto;
+		}
+
+		.qty-btn {
+			width: 28px;
+			height: 28px;
+			font-size: 1rem;
 		}
 
 		.cart-footer {
 			padding: 1rem !important;
+			min-height: 150px;
+		}
+
+		.order-note-section {
+			padding: 0.75rem 1rem !important;
+			min-height: 70px;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.5rem;
+		}
+
+		.order-note-section textarea {
+			font-size: 0.875rem !important;
+			padding: 0.5rem !important;
+			min-height: 40px;
 		}
 
 		.checkout-btn {
@@ -651,10 +692,8 @@
 			font-size: 0.875rem !important;
 		}
 
-		/* Order note textarea */
-		.cart-content textarea {
-			font-size: 0.875rem !important;
-			padding: 0.75rem !important;
+		.taxes-shipping {
+			font-size: 0.65rem;
 		}
 	}
 
@@ -669,8 +708,25 @@
 		}
 
 		.cart-item {
-			grid-template-columns: 50px 1fr;
+			grid-template-columns: 50px 1fr 35px;
 			gap: 0.5rem;
+		}
+
+		.item-name {
+			font-size: 0.95rem;
+		}
+
+		.box {
+			width: 80px;
+		}
+
+		.qty-btn {
+			width: 26px;
+			height: 26px;
+		}
+
+		.qty-value {
+			font-size: 0.875rem;
 		}
 	}
 </style>
